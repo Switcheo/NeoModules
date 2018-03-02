@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
-//using Neo.RestClient.Models;
-//using Neo.RestClient.Services;
 using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services;
+using NeoModules.Rest.Services;
+using NeoModules.Rest.Models;
 
 namespace NeoModules.RPC.Demo
 {
@@ -29,7 +29,7 @@ namespace NeoModules.RPC.Demo
 
                 TestNep5Service(nep5ApiService).Wait();
 
-                //RestClientTest().Wait();
+                RestClientTest().Wait();
             }
             catch (Exception ex)
             {
@@ -72,15 +72,8 @@ namespace NeoModules.RPC.Demo
             string blockFee = await service.Blocks.GetBlockSysFee.SendRequestAsync(0);
         }
 
-        //private static async Task RestClientTest()
-        //{
-        //    var restService = new NeoRestService();
-        //    var balance = await restService.GetBalanceAsync("ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E");
-        //    var model = AddressBalance.FromJson(balance);
-        //}
-
-        // Nep5 api demonstration
-        private static async Task TestNep5Service(NeoNep5Service nep5Service)
+		// Nep5 api demonstration
+		private static async Task TestNep5Service(NeoNep5Service nep5Service)
         {
             var name = await nep5Service.GetName();
             var decimals = await nep5Service.GetDecimals();
@@ -90,5 +83,13 @@ namespace NeoModules.RPC.Demo
 
             Debug.WriteLine($"Token info: \nName: {name} \nSymbol: {symbol} \nDecimals: {decimals} \nTotalSupply: {totalsupply} \nBalance: {balance}");
         }
-    }
+
+
+		private static async Task RestClientTest()
+		{
+			var restService = new NeoRestService();
+			var balance = await restService.GetBalanceAsync("ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E");
+			var model = AddressBalance.FromJson(balance);
+		}
+	}
 }
