@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Neo.JsonRpc.Client;
+//using Neo.RestClient.Models;
+//using Neo.RestClient.Services;
 using Neo.RPC;
 using Neo.RPC.DTOs;
 using Neo.RPC.Services;
@@ -27,6 +29,8 @@ namespace Neo.Rpc.Demo
                 BlockApiTest(neoApiCompleteService).Wait();
 
                 TestNep5Service(nep5ApiService).Wait();
+
+                //RestClientTest().Wait();
             }
             catch (Exception ex)
             {
@@ -68,6 +72,13 @@ namespace Neo.Rpc.Demo
             string serializedBlock = await service.Blocks.GetBlockSerialized.SendRequestAsync(0); // (can pass a string with block hash as parameter too)
             string blockFee = await service.Blocks.GetBlockSysFee.SendRequestAsync(0);
         }
+
+        //private static async Task RestClientTest()
+        //{
+        //    var restService = new NeoRestService();
+        //    var balance = await restService.GetBalanceAsync("ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E");
+        //    var model = AddressBalance.FromJson(balance);
+        //}
 
         // Nep5 api demonstration
         private static async Task TestNep5Service(NeoNep5Service nep5Service)
