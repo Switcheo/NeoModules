@@ -9,8 +9,4 @@
     <PackageReference Include="Neo.RPC" Version="1.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Neo.NeonDB\Neo.RestClient.csproj" />
-  </ItemGroup>
-
 </Project>
