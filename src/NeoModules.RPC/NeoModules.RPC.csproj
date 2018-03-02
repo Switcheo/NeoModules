@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageTags>Neo JsonRpc RpcClient CityofZion Blockchain</PackageTags>
+    <Authors>Bruno Freitas</Authors>
+    <Company>Bruno Freitas</Company>
+    <Product>Neo.RPC</Product>
+    <Description>This project aims to be a full RPC client for the NEO network created in C# and inspired by Nethereum. You can use it support your mobile wallet, websites, neo blockchain data gathering, etc.</Description>
+    <PackageLicenseUrl>https://github.com/CityOfZion/Neo-RPC-SharpClient/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/CityOfZion/Neo-RPC-SharpClient/</PackageProjectUrl>
+    <PackageIconUrl>https://camo.githubusercontent.com/a555bc2ad2e3ebc8f3497e2df53c50ada648d10d/687474703a2f2f7265732e636c6f7564696e6172792e636f6d2f76696473792f696d6167652f75706c6f61642f76313530333136303832302f436f5a5f49636f6e5f4441524b424c55455f3230307831373870785f6f713067786d2e706e67</PackageIconUrl>
+    <RepositoryUrl>https://github.com/CityOfZion/Neo-RPC-SharpClient/</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>MIT</Copyright>
+    <PackageReleaseNotes>Removed EdjCase.JsonRpc.Client from dependencies</PackageReleaseNotes>
+    <Version>1.0.2</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NeoModules.JsonRpc.Client\NeoModules.JsonRpc.Client.csproj" />
+    <ProjectReference Include="..\NeoModules.JsonRpc.RpcClient\NeoModules.JsonRpc.RpcClient.csproj" />
+  </ItemGroup>
+
+</Project>

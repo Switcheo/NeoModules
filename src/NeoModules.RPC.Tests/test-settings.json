@@ -1,0 +1,34 @@
+{
+  "mainNetSettings": {
+    "rpcUrl": "http://seed3.cityofzion.io:8080",
+    "defaultAccount": "ASJiT56jYKZgTN9FtGvjRenbdBKTZ98QVw",
+    "debugLogLocation": "C:\\Users\\bruno\\Documents\\Source\\Repos\\NeoDraftRpc\\log.txt",
+    "blockhash": "a58942fc476facd7f9071cae17af511fee974566347da6df621b3708e3fc64f7",
+    "blockNumber": "0",
+    "contractHash": "08e8c4400f1af2c20c28e0018f29535eb85d15b6",
+    "contractTransaction": "6d4698382b94f44b59d64e4ad45fa03282e650618dfa4cd7ff49661bcb371167",
+    "minerTransaction": "ed0ebd8c10264ac2ed128146b21c382ffb565ec7a4e2d70c605d809f4e371950",
+    "claimTransaction": "b0b4e4fa7562c2977d802d783d889c76cc9c316edf0028b7803e6e13f96438a9",
+    "governingAssetHash": "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b",
+    "utilityAssetHash": "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7",
+    "tokenAssetHash": "7a52ff333efff6d57c6d08382f706184509a594f2c00ba659d626d3cde3ea2e0",
+    "nep5TokenHash": "08e8c4400f1af2c20c28e0018f29535eb85d15b6"
+  },
+
+  "testNetSettings": {
+    "rpcUrl": "http://seed5.neo.org:20332",
+    "defaultAccount": "ASJiT56jYKZgTN9FtGvjRenbdBKTZ98QVw",
+    "debugLogLocation": "C:\\Users\\bruno\\Documents\\Source\\Repos\\NeoDraftRpc\\log.txt",
+    "blockhash": "b9cbaccefd80b08576e06e76122294b71bad73098d49233164b610a323119e82",
+    "blockNumber": "23131",
+    "contractHash": "a2df2e12d76bcf4580ca3178d3790b697eece053",
+    "contractTransaction": "aeefafca2b27bbec34a698c4ef498993e923bba1d12eb5a9adad50900a7a3f03",
+    "minerTransaction": "ed0ebd8c10264ac2ed128146b21c382ffb565ec7a4e2d70c605d809f4e371950",
+    "claimTransaction": "b0ecd5924796f580b57ebda101f7059ee1551b5ba92cf73ef910e813149cab72",
+    "governingAssetHash": "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b",
+    "utilityAssetHash": "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7",
+    "tokenAssetHash": "7a52ff333efff6d57c6d08382f706184509a594f2c00ba659d626d3cde3ea2e0",
+    "nep5TokenHash": "a0a527e08dbcd51f602a6df20ece7af515d5087b"
+  }
+
+}
