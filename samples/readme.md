@@ -1,3 +1,3 @@
-#External Libraries
+#Samples
 
-## [https://www.nuget.org/packages/newtonsoft.json/](Newtonsoft.Json)
+This folder hosts sample projects that use NeoModules.
