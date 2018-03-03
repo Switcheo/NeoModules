@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NeoModules.Rest\NeoModules.Rest.csproj" />
     <ProjectReference Include="..\NeoModules.JsonRpc.RpcClient\NeoModules.JsonRpc.RpcClient.csproj" />
+    <ProjectReference Include="..\NeoModules.Rest\NeoModules.Rest.csproj" />
     <ProjectReference Include="..\NeoModules.RPC\NeoModules.RPC.csproj" />
   </ItemGroup>
 

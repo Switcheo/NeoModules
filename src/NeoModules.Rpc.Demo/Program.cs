@@ -9,7 +9,7 @@ using NeoModules.Rest.Models;
 
 namespace NeoModules.RPC.Demo
 {
-	public class Program
+    public class Program
     {
         private static readonly RpcClient _rpcClient = new RpcClient(new Uri("http://seed5.neo.org:10332"));
 
@@ -72,8 +72,8 @@ namespace NeoModules.RPC.Demo
             string blockFee = await service.Blocks.GetBlockSysFee.SendRequestAsync(0);
         }
 
-		// Nep5 api demonstration
-		private static async Task TestNep5Service(NeoNep5Service nep5Service)
+        // Nep5 api demonstration
+        private static async Task TestNep5Service(NeoNep5Service nep5Service)
         {
             var name = await nep5Service.GetName();
             var decimals = await nep5Service.GetDecimals();
@@ -85,17 +85,19 @@ namespace NeoModules.RPC.Demo
         }
 
 
-		private static async Task RestClientTest()
-		{
-		    var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
+        private static async Task RestClientTest()
+        {
+            var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
 
             var restService = new NeoscanRestService();
-			var balance = await restService.GetBalanceAsync(testAddress);
-		    var claimed = await restService.GetClaimed(testAddress);
-		    var claimable = await restService.GetClaimable(testAddress);
+            var balance = await restService.GetBalanceAsync(testAddress);
+            //var claimed = await restService.GetClaimedAsync(testAddress); // returns internal server error
+            var claimable = await restService.GetClaimableAsync(testAddress);
 
+            var address = await restService.GetAddressAsync(testAddress);
+            var address_model = AddressHistory.FromJson(address);
             var balance_model = AddressBalance.FromJson(balance);
-		    var claimable_model = Claimable.FromJson(claimable);
-		}
-	}
+            var claimable_model = Claimable.FromJson(claimable);
+        }
+    }
 }

@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace NeoModules.Rest.Models
 {
     public class Claimable
     {
         [JsonConstructor]
-        public Claimable(float unclaimed, ClaimableElement[] claimableElements, string address)
+        public Claimable(float unclaimed, IList<ClaimableElement> claimableElements, string address)
         {
             Unclaimed = unclaimed;
             ClaimableClaimable = claimableElements;
@@ -16,7 +17,7 @@ namespace NeoModules.Rest.Models
         public float Unclaimed { get; set; }
 
         [JsonProperty("claimable")]
-        public ClaimableElement[] ClaimableClaimable { get; set; }
+        public IList<ClaimableElement> ClaimableClaimable { get; set; }
 
         [JsonProperty("address")]
         public string Address { get; set; }

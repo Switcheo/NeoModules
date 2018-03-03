@@ -11,12 +11,13 @@ namespace NeoModules.Rest.Services
         private static readonly string getClaimedUrl = "get_claimed/";
         private static readonly string getClaimableUrl = "get_claimable/";
         private static readonly string getUnclaimedUrl = "get_unclaimed/";
+        private static readonly string getAddressUrl = "get_address/";
 
         private readonly HttpClient _restClient;
 
         public NeoscanRestService()
         {
-            _restClient = new HttpClient {BaseAddress = new Uri(neoScanUrl)};
+            _restClient = new HttpClient { BaseAddress = new Uri(neoScanUrl) };
         }
 
 
@@ -29,7 +30,7 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetClaimable(string address)
+        public async Task<string> GetClaimableAsync(string address)
         {
             var composedUrl = ComposeAddressUrl(getClaimableUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
@@ -37,7 +38,7 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetClaimed(string address)
+        public async Task<string> GetClaimedAsync(string address)
         {
             var composedUrl = ComposeAddressUrl(getClaimedUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
@@ -45,9 +46,17 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetUnclaimed(string address)
+        public async Task<string> GetUnclaimedAsync(string address)
         {
             var composedUrl = ComposeAddressUrl(getUnclaimedUrl, address);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public async Task<string> GetAddressAsync(string address)
+        {
+            var composedUrl = ComposeAddressUrl(getAddressUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return data;
