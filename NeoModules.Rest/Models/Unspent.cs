@@ -2,15 +2,23 @@
 
 namespace NeoModules.Rest.Models
 {
-	public class Unspent
-	{
-		[JsonProperty("value")]
-		public double Value { get; set; }
+    public class Unspent
+    {
+        [JsonConstructor]
+        public Unspent(float value, string txId, int n)
+        {
+            Value = value;
+            TxId = txId;
+            N = n;
+        }
 
-		[JsonProperty("txid")]
-		public string Txid { get; set; }
+        [JsonProperty("value")]
+        public float Value { get; set; }
 
-		[JsonProperty("n")]
-		public int N { get; set; }
-	}
+        [JsonProperty("txid")]
+        public string TxId { get; set; }
+
+        [JsonProperty("n")]
+        public int N { get; set; }
+    }
 }

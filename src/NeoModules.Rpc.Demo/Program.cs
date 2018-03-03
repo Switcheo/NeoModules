@@ -87,9 +87,15 @@ namespace NeoModules.RPC.Demo
 
 		private static async Task RestClientTest()
 		{
-			var restService = new NeoRestService();
-			var balance = await restService.GetBalanceAsync("ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E");
-			var model = AddressBalance.FromJson(balance);
+		    var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
+
+            var restService = new NeoscanRestService();
+			var balance = await restService.GetBalanceAsync(testAddress);
+		    var claimed = await restService.GetClaimed(testAddress);
+		    var claimable = await restService.GetClaimable(testAddress);
+
+            var balance_model = AddressBalance.FromJson(balance);
+		    var claimable_model = Claimable.FromJson(claimable);
 		}
 	}
 }

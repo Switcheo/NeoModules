@@ -1,16 +1,26 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace NeoModules.Rest.Models
 {
-	public class AddressBalance
-	{
-		[JsonProperty("balance")]
-		public IList<Balance> Balance { get; set; }
+    public class AddressBalance
+    {
+        [JsonConstructor]
+        public AddressBalance(IList<Balance> balance, string address)
+        {
+            Balance = balance;
+            Address = address;
+        }
 
-		[JsonProperty("address")]
-		public string Address { get; set; }
+        [JsonProperty("balance")]
+        public IList<Balance> Balance { get; set; }
 
-		public static AddressBalance FromJson(string json) => JsonConvert.DeserializeObject<AddressBalance>(json);
-	}
+        [JsonProperty("address")]
+        public string Address { get; set; }
+
+        public static AddressBalance FromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<AddressBalance>(json);
+        }
+    }
 }
