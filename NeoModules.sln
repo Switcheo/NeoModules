@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.JsonRpc.RpcClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.RPC.Tests", "src\NeoModules.RPC.Tests\NeoModules.RPC.Tests.csproj", "{C0312506-4BE4-495C-B699-4F11F341A976}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoModules.Rest", "NeoModules.Rest\NeoModules.Rest.csproj", "{2A3E21E8-1944-43DB-B033-02E950842BF9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoModules.Rest", "src\NeoModules.Rest\NeoModules.Rest.csproj", "{2A3E21E8-1944-43DB-B033-02E950842BF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
