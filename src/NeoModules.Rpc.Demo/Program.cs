@@ -89,7 +89,7 @@ namespace NeoModules.RPC.Demo
         {
             var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
 
-            var restService = new NeoscanRestService();
+            var restService = new NeoscanRestService(NeoscanNet.MainNet);
             var balance = await restService.GetBalanceAsync(testAddress);
             //var claimed = await restService.GetClaimedAsync(testAddress); // returns internal server error
             var claimable = await restService.GetClaimableAsync(testAddress);

@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NeoModules.JsonRpc.Client\NeoModules.JsonRpc.Client.csproj" />
-    <ProjectReference Include="..\NeoModules.JsonRpc.RpcClient\NeoModules.JsonRpc.RpcClient.csproj" />
   </ItemGroup>
 
 </Project>
