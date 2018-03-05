@@ -14,9 +14,12 @@
   <b>Still on testing phase, do not use it on the MainNet!</b>
 </p>
 <p align="center">
-<a href="https://www.nuget.org/packages/Neo.RPC/">
-    <img src="https://img.shields.io/badge/nuget-1.0.1-green.svg"></a>
+<a href="https://www.nuget.org/packages/NeoModules.RPC">
+    <img src="https://img.shields.io/badge/nuget-1.0.3-green.svg"></a>
 </p>
+
+## Update (05-03-2018)
+Because of the project name changes, there is a new nuget package. To use you need to install [this](https://www.nuget.org/packages/NeoModules.RPC) for the main implementation. If during the package installation it does not install the NeoModules.JsonRpc.Client, [add it to your project manually](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/).
 
 
 ## Update (25-02-2018)
