@@ -12,6 +12,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.RPC.Tests", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.Rest", "src\NeoModules.Rest\NeoModules.Rest.csproj", "{2A3E21E8-1944-43DB-B033-02E950842BF9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.NVM", "src\NeoModules.NVM\NeoModules.NVM.csproj", "{71DC694F-013B-4E35-91F6-654EF26F5F2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoModules.Core", "src\NeoModules.Core\NeoModules.Core.csproj", "{AB3F4360-495E-49CC-8153-5AC5FC0221F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +64,22 @@ Global
 		{2A3E21E8-1944-43DB-B033-02E950842BF9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2A3E21E8-1944-43DB-B033-02E950842BF9}.Release|x86.ActiveCfg = Release|Any CPU
 		{2A3E21E8-1944-43DB-B033-02E950842BF9}.Release|x86.Build.0 = Release|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Debug|x86.Build.0 = Debug|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Release|x86.ActiveCfg = Release|Any CPU
+		{71DC694F-013B-4E35-91F6-654EF26F5F2D}.Release|x86.Build.0 = Release|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Debug|x86.Build.0 = Debug|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Release|x86.ActiveCfg = Release|Any CPU
+		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
