@@ -29,6 +29,8 @@ namespace NeoModules.RPC.Demo
 
                 TestNep5Service(nep5ApiService).Wait();
 
+
+				// create rest api client
                 RestClientTest().Wait();
             }
             catch (Exception ex)

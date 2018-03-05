@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace NeoModules.Rest.Services
 	public class NeoscanRestService : INeoRestService
 	{
 		private static readonly string neoScanTestNetUrl = "https://neoscan-testnet.io/api/test_net/v1/";
-		private static readonly string neoScanMainNetUrl = "https://neoscan.io/api/test_net/v1/";
+		private static readonly string neoScanMainNetUrl = "https://neoscan.io/api/main_net/v1/";
 		private static readonly string getBalanceUrl = "get_balance/";
 		private static readonly string getClaimedUrl = "get_claimed/";
 		private static readonly string getClaimableUrl = "get_claimable/";
