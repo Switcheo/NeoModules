@@ -19,7 +19,8 @@
 </p>
 
 ## Update (05-03-2018)
-Because of the project name changes, there is a new nuget package. To use you need to install [this](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/) for the base rpc client, and [this](https://www.nuget.org/packages/NeoModules.RPC) for the main implementation.
+Because of the project name changes, there is a new nuget package. To use you need to install [this](https://www.nuget.org/packages/NeoModules.RPC) for the main implementation. If during the package installation it does not install the NeoModules.JsonRpc.Client, [add it to your project manually](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/).
+
 
 ## Update (25-02-2018)
 This project will be rename to **neo-modules** and it will host small different packages to help C# devs to start working on Neo. It follows a similar struture as [Nethereum](https://github.com/Nethereum/Nethereum) to ease the migration of Ethereum devs to Neo. This will include: 
