@@ -6,7 +6,7 @@ namespace NeoModules.Rest.Models
     public class AddressHistory
     {
         [JsonConstructor]
-        public AddressHistory(float unclaimed, List<TxId> txids, int txCount, long time, List<Claimed> claimed,
+        public AddressHistory(float unclaimed, IList<TxId> txids, int txCount, long time, IList<ClaimedElement> claimed,
             string address, List<Balance> balance)
         {
             Unclaimed = unclaimed;
@@ -22,7 +22,7 @@ namespace NeoModules.Rest.Models
         public float Unclaimed { get; set; }
 
         [JsonProperty("txids")]
-        public List<TxId> Txids { get; set; }
+        public IList<TxId> Txids { get; set; }
 
         [JsonProperty("tx_count")]
         public int TxCount { get; set; }
@@ -31,13 +31,13 @@ namespace NeoModules.Rest.Models
         public long Time { get; set; }
 
         [JsonProperty("claimed")]
-        public List<Claimed> Claimed { get; set; }
+        public IList<ClaimedElement> Claimed { get; set; }
 
         [JsonProperty("address")]
         public string Address { get; set; }
 
         [JsonProperty("balance")]
-        public List<Balance> Balance { get; set; }
+        public IList<Balance> Balance { get; set; }
 
         public static AddressHistory FromJson(string json)
         {
@@ -62,7 +62,7 @@ namespace NeoModules.Rest.Models
         public long BlockHeight { get; set; }
 
         [JsonProperty("balance")]
-        public List<TxidBalance> Balance { get; set; }
+        public IList<TxidBalance> Balance { get; set; }
     }
 
     public class TxidBalance
@@ -72,12 +72,6 @@ namespace NeoModules.Rest.Models
 
         [JsonProperty("amount")]
         public float Amount { get; set; }
-    }
-
-    public class Claimed
-    {
-        [JsonProperty("txids")]
-        public List<string> Txids { get; set; }
     }
 
     public enum Asset

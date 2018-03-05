@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 
 namespace NeoModules.Rest.Services
 {
-	public enum NeoscanNet
+	public enum NeoScanNet
 	{
 		MainNet,
 		TestNet
 	}
 
-	public class NeoscanRestService : INeoRestService
+	public class NeoScanRestService : INeoRestService
 	{
 		private static readonly string neoScanTestNetUrl = "https://neoscan-testnet.io/api/test_net/v1/";
 		private static readonly string neoScanMainNetUrl = "https://neoscan.io/api/main_net/v1/";
@@ -22,9 +22,9 @@ namespace NeoModules.Rest.Services
 
 		private readonly HttpClient _restClient;
 
-		public NeoscanRestService(NeoscanNet net)
+		public NeoScanRestService(NeoScanNet net)
 		{
-			if (net == NeoscanNet.MainNet)
+			if (net == NeoScanNet.MainNet)
 			{
 				_restClient = new HttpClient { BaseAddress = new Uri(neoScanMainNetUrl) };
 			}

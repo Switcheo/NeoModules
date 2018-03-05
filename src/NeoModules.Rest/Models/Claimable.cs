@@ -6,10 +6,10 @@ namespace NeoModules.Rest.Models
     public class Claimable
     {
         [JsonConstructor]
-        public Claimable(float unclaimed, IList<ClaimableElement> claimableElements, string address)
+        public Claimable(float unclaimed, IList<ClaimableElement> claimableList, string address)
         {
             Unclaimed = unclaimed;
-            ClaimableClaimable = claimableElements;
+			ClaimableList = claimableList;
             Address = address;
         }
 
@@ -17,7 +17,7 @@ namespace NeoModules.Rest.Models
         public float Unclaimed { get; set; }
 
         [JsonProperty("claimable")]
-        public IList<ClaimableElement> ClaimableClaimable { get; set; }
+        public IList<ClaimableElement> ClaimableList { get; set; }
 
         [JsonProperty("address")]
         public string Address { get; set; }
