@@ -121,6 +121,7 @@ namespace NeoModules.RPC.Demo
 			using (ScriptBuilder sb = new ScriptBuilder())
 			{
 				sb.EmitAppCall(UInt160.Parse(scripthash), "decimals");
+                
 				script = sb.ToArray();
 			}
 			Debug.WriteLine(script.ToHexString());
