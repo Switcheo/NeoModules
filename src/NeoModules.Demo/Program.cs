@@ -6,32 +6,36 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services;
 using NeoModules.Rest.Services;
 using NeoModules.Rest.Models;
+using NeoModules.NVM;
+using NeoModules.Core;
+using NeoModules.RPC.Services.Contract;
 
 namespace NeoModules.RPC.Demo
 {
 	public class Program
 	{
-		private static readonly RpcClient _rpcClient = new RpcClient(new Uri("http://seed5.neo.org:10332"));
+		private static readonly RpcClient _rpcClient = new RpcClient(new Uri("http://seed7.bridgeprotocol.io:10332"));
 
 		public static void Main(string[] args)
 		{
 			try
 			{
-				var neoApiCompleteService = SetupCompleteNeoService();
+				CreateScriptTest().Wait();
+				//var neoApiCompleteService = SetupCompleteNeoService();
 
-				var neoApiSimpleContractService = SetupSimpleService();
-				var neoApiSimpleAccountService = SetupAnotherSimpleService();
-				// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+				//var neoApiSimpleContractService = SetupSimpleService();
+				//var neoApiSimpleAccountService = SetupAnotherSimpleService();
+				//// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-				var nep5ApiService = SetupNep5Service();
+				//var nep5ApiService = SetupNep5Service();
 
-				BlockApiTest(neoApiCompleteService).Wait();
+				//BlockApiTest(neoApiCompleteService).Wait();
 
-				TestNep5Service(nep5ApiService).Wait();
+				//TestNep5Service(nep5ApiService).Wait();
 
 
-				// create rest api client
-				RestClientTest().Wait();
+				//// create rest api client
+				//RestClientTest().Wait();
 			}
 			catch (Exception ex)
 			{
@@ -86,7 +90,7 @@ namespace NeoModules.RPC.Demo
 			Debug.WriteLine($"Token info: \nName: {name} \nSymbol: {symbol} \nDecimals: {decimals} \nTotalSupply: {totalsupply} \nBalance: {balance}");
 		}
 
-
+		// Rest demo
 		private static async Task RestClientTest()
 		{
 			var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
@@ -107,7 +111,22 @@ namespace NeoModules.RPC.Demo
 			var claimable_model = Claimable.FromJson(getClaimable);
 			var unclaimed_model = Unclaimed.FromJson(getUnclaimed);
 			var address_model = AddressHistory.FromJson(getAddress);
+		}
 
+		// ScriptBuilder test
+		private static async Task CreateScriptTest()
+		{
+			string scripthash = "08e8c4400f1af2c20c28e0018f29535eb85d15b6";
+			byte[] script;
+			using (ScriptBuilder sb = new ScriptBuilder())
+			{
+				sb.EmitAppCall(UInt160.Parse(scripthash), "decimals");
+				script = sb.ToArray();
+			}
+			Debug.WriteLine(script.ToHexString());
+			NeoInvokeScript x = new NeoInvokeScript(_rpcClient);
+			var test = await x.SendRequestAsync(script.ToHexString());
+			Debug.WriteLine(test.Stack[0].Value);
 		}
 	}
 }

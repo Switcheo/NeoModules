@@ -6,11 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NeoModules.RPC" Version="1.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\NeoModules.Core\NeoModules.Core.csproj" />
+    <ProjectReference Include="..\NeoModules.NVM\NeoModules.NVM.csproj" />
     <ProjectReference Include="..\NeoModules.Rest\NeoModules.Rest.csproj" />
+    <ProjectReference Include="..\NeoModules.RPC\NeoModules.RPC.csproj" />
   </ItemGroup>
 
 </Project>
