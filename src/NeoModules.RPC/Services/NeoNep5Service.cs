@@ -9,6 +9,7 @@ using NeoModules.RPC.Services.Nep5;
 
 namespace NeoModules.RPC.Services
 {
+    //TODO: refractor this more, only leave the api calls on the service, other operations need to be moved 
     public class NeoNep5Service : RpcClientWrapper
     {
         public NeoNep5Service(IClient client, string tokenScriptHash) : base(client)
