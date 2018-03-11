@@ -1,13 +1,14 @@
-﻿using Neo.JsonRpc.Client;
-using Neo.RPC.Services;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Transactions;
+using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.Services.Transactions;
+using NeoModules.RPC.Tests.Testers;
 using Xunit;
 
-namespace Neo.RPC.Tests.Testers.Transactions
+namespace NeoModules.RPC.Tests.Testers
 {
-    public class NeoSendAssetsTester : RpcRequestTester<Transaction>
+    public class NeoSendAssetsTester : RpcRequestTester<Transaction> // todo: add a way to test method that need an open wallet
     {
         [Fact]
         public async void ShouldReturnWalletBalance()

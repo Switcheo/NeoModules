@@ -1,9 +1,9 @@
-﻿using Neo.JsonRpc.Client;
+﻿using NeoModules.JsonRpc.Client;
 using System;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Neo.RPC.Services
+namespace NeoModules.RPC.Services.Transactions
 {
     /// <summary>
     ///     sendtoaddress  

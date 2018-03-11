@@ -1,8 +1,8 @@
-﻿using Neo.JsonRpc.Client;
-using Neo.RPC.DTOs;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.DTOs;
 
-namespace Neo.RPC.Services
+namespace NeoModules.RPC.Services.Account
 {
     /// <summary>
     ///     listaddress 

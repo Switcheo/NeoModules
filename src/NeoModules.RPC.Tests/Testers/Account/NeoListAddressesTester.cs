@@ -1,11 +1,11 @@
 ﻿using System;
-using Neo.JsonRpc.Client;
-using Neo.RPC.DTOs;
 using System.Threading.Tasks;
 using Xunit;
-using Neo.RPC.Services;
+using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.DTOs;
+using NeoModules.RPC.Services.Account;
 
-namespace Neo.RPC.Tests.Testers.Account
+namespace NeoModules.RPC.Tests.Testers
 {
     public class NeoListAddressesTester : RpcRequestTester<WalletAddress[]>
     {

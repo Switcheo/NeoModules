@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Neo.RPC.DTOs
+namespace NeoModules.RPC.DTOs
 {
     public class WalletBalance
     {

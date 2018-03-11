@@ -1,9 +1,9 @@
-﻿using Neo.JsonRpc.Client;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using Neo.RPC.DTOs;
+using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.DTOs;
 
-namespace Neo.RPC.Services.Account
+namespace NeoModules.RPC.Services.Account
 {
     /// <summary>
     ///     getbalance 

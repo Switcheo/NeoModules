@@ -1,10 +1,10 @@
-﻿using Neo.JsonRpc.Client;
-using Neo.RPC.Services.Account;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.Services.Account;
 using Xunit;
 
-namespace Neo.RPC.Tests.Testers.Account
+namespace NeoModules.RPC.Tests.Testers
 {
     public class NeoGetNewAddressTester : RpcRequestTester<string>
     {

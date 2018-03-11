@@ -3,9 +3,9 @@ namespace NeoModules.RPC
 	public enum ApiMethods
 	{
 		getaccountstate,
-	    getapplicationlog,
-        getassetstate,
-		//getbalance,
+        getapplicationlog,
+		getassetstate,
+		getbalance,
 		getbestblockhash,
 		getblock,
 		getblockcount,
@@ -24,7 +24,8 @@ namespace NeoModules.RPC
 		sendrawtransaction,
 		sendtoaddress,
 		sendmany,
-		//getnewaddress,
+		getnewaddress,
+        listaddress,
 		//dumpprivkey,
 		validateaddress,
 		getpeers,

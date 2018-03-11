@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Neo.JsonRpc.Client;
+using NeoModules.JsonRpc.Client;
 
-namespace Neo.RPC.Services.Account
+namespace NeoModules.RPC.Services.Account
 {
     /// <summary>
     ///     getnewaddress
