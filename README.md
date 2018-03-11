@@ -20,7 +20,7 @@
 
 
 ## Update (11-03-2018)
-Added a new REST client package to fill some missing properties needed to create transactions. This client uses the (https://neoscan.io/) public API. You can see a simple usage on the Demo project.
+Added a new REST client package to fill some missing properties needed to create transactions. This client uses the https://neoscan.io/ public API. You can see a simple usage on the Demo project.
 
 
 ## Update (05-03-2018)
