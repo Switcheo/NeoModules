@@ -3,7 +3,8 @@ namespace NeoModules.RPC
 	public enum ApiMethods
 	{
 		getaccountstate,
-		getassetstate,
+	    getapplicationlog,
+        getassetstate,
 		//getbalance,
 		getbestblockhash,
 		getblock,

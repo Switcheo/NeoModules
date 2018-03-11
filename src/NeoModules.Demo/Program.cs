@@ -2,12 +2,13 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
-using NeoModules.RPC.DTOs;
-using NeoModules.RPC.Services;
 using NeoModules.Rest.Services;
 using NeoModules.Rest.Models;
+using NeoModules.RPC.DTOs;
+using NeoModules.RPC.Services;
+using NeoModules.RPC;
 
-namespace NeoModules.RPC.Demo
+namespace NeoModules.Demo
 {
 	public class Program
 	{
