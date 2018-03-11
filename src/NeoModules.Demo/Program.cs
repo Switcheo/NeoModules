@@ -12,7 +12,7 @@ namespace NeoModules.Demo
 {
 	public class Program
 	{
-		private static readonly RpcClient _rpcClient = new RpcClient(new Uri("http://seed5.neo.org:10332"));
+		private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed5.neo.org:10332"));
 
 		public static void Main(string[] args)
 		{
@@ -43,25 +43,25 @@ namespace NeoModules.Demo
 		// Returns a NeoApiService that has all the api calls (except the nep5)
 		private static NeoApiService SetupCompleteNeoService()
 		{
-			return new NeoApiService(_rpcClient);
+			return new NeoApiService(RpcClient);
 		}
 
 		// Returns an instance of ContractService with only the api calls that concern contracts
 		private static NeoApiContractService SetupSimpleService()
 		{
-			return new NeoApiContractService(_rpcClient);
+			return new NeoApiContractService(RpcClient);
 		}
 
 		// Another example of a simple Service - Account api calls
 		private static NeoApiAccountService SetupAnotherSimpleService()
 		{
-			return new NeoApiAccountService(_rpcClient);
+			return new NeoApiAccountService(RpcClient);
 		}
 
 		// Returns an instance of NeoNep5Service with the api calls that concern nep5 tokens.
 		private static NeoNep5Service SetupNep5Service()
 		{
-			return new NeoNep5Service(_rpcClient, "08e8c4400f1af2c20c28e0018f29535eb85d15b6"); //TNC token script hash
+			return new NeoNep5Service(RpcClient, "08e8c4400f1af2c20c28e0018f29535eb85d15b6"); //TNC token script hash
 		}
 
 		// Block api demonstration
@@ -96,18 +96,18 @@ namespace NeoModules.Demo
 
 			// api calls
 			var getBalance = await restService.GetBalanceAsync(testAddress);
-			var getClaimed = await restService.GetClaimedAsync(testAddress); // returns internal server error
+			//var getClaimed = await restService.GetClaimedAsync(testAddress); // returns internal server error
 			var getClaimable = await restService.GetClaimableAsync(testAddress);
 			var getUnclaimed = await restService.GetUnclaimedAsync(testAddress);
 			var getAddress = await restService.GetAddressAsync(testAddress);
 
 			//Deserialization
 
-			var balance_model = AddressBalance.FromJson(getBalance);
-			var claimed_model = Claimed.FromJson(getClaimed);
-			var claimable_model = Claimable.FromJson(getClaimable);
-			var unclaimed_model = Unclaimed.FromJson(getUnclaimed);
-			var address_model = AddressHistory.FromJson(getAddress);
+			var balanceModel = AddressBalance.FromJson(getBalance);
+			//var claimed_model = Claimed.FromJson(getClaimed);
+			var claimableModel = Claimable.FromJson(getClaimable);
+			var unclaimedModel = Unclaimed.FromJson(getUnclaimed);
+			var addressModel = AddressHistory.FromJson(getAddress);
 
 		}
 	}
