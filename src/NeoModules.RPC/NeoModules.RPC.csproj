@@ -13,9 +13,9 @@
     <RepositoryUrl>https://github.com/CityOfZion/Neo-RPC-SharpClient/</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT</Copyright>
-    <PackageReleaseNotes>Consolidation of base package</PackageReleaseNotes>
-    <Version>1.0.3</Version>
-    <FileVersion>1.0.3.0</FileVersion>
+    <PackageReleaseNotes>Missing methods implemented: getApplicationLog, getRawTransaction(serialized)</PackageReleaseNotes>
+    <Version>1.0.4</Version>
+    <FileVersion>1.0.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
