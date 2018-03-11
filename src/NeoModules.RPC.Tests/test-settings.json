@@ -12,7 +12,8 @@
     "governingAssetHash": "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b",
     "utilityAssetHash": "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7",
     "tokenAssetHash": "7a52ff333efff6d57c6d08382f706184509a594f2c00ba659d626d3cde3ea2e0",
-    "nep5TokenHash": "08e8c4400f1af2c20c28e0018f29535eb85d15b6"
+    "nep5TokenHash": "08e8c4400f1af2c20c28e0018f29535eb85d15b6",
+    "address": "AK4if54jXjSiJBs6jkfZjxAastauJtjjse"
   },
 
   "testNetSettings": {
@@ -28,7 +29,8 @@
     "governingAssetHash": "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b",
     "utilityAssetHash": "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7",
     "tokenAssetHash": "7a52ff333efff6d57c6d08382f706184509a594f2c00ba659d626d3cde3ea2e0",
-    "nep5TokenHash": "a0a527e08dbcd51f602a6df20ece7af515d5087b"
+    "nep5TokenHash": "a0a527e08dbcd51f602a6df20ece7af515d5087b",
+    "address": "AK4if54jXjSiJBs6jkfZjxAastauJtjjse"
   }
 
 }

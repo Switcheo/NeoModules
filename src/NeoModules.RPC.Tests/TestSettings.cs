@@ -76,6 +76,11 @@ namespace NeoModules.RPC.Tests
             return GetSectionSettingsValue(key, CurrentSettings);
         }
 
+        public string GetAddress()
+        {
+            return GetAppSettingsValue("address");
+        }
+
         private string GetSectionSettingsValue(string key, string sectionSettingsKey)
         {
             var configuration = Configuration.GetSection(sectionSettingsKey);

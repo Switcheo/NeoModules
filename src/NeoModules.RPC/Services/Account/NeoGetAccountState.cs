@@ -54,10 +54,10 @@ namespace NeoModules.RPC.Services.Account
             return base.SendRequestAsync(id, address);
         }
 
-        public RpcRequest BuildRequest(string signedTransactionData, object id = null)
+        public RpcRequest BuildRequest(string address, object id = null)
         {
-            if (signedTransactionData == null) throw new ArgumentNullException(nameof(signedTransactionData));
-            return base.BuildRequest(id, signedTransactionData);
+            if (address == null) throw new ArgumentNullException(nameof(address));
+            return base.BuildRequest(id, address);
         }
     }
 }
