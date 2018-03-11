@@ -34,7 +34,7 @@ namespace NeoModules.RPC.Services.Transactions
 	///	NOTE: if returns null it may be because of the way gettxout is implemented on the RPC node 
 	///	- Erik Zhang : "The RPC method gettxout returns unspent output only. If it is spent, the method returns null"
 	/// </Summary>
-	public class NeoGetTransactionOutput : RpcRequestResponseHandler<DTOs.TransactionOutput> //todo DTO
+	public class NeoGetTransactionOutput : RpcRequestResponseHandler<DTOs.TransactionOutput>
     {
         public NeoGetTransactionOutput(IClient client) : base(client, ApiMethods.gettxout.ToString())
         {

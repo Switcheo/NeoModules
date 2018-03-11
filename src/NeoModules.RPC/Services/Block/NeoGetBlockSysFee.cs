@@ -27,7 +27,7 @@ namespace NeoModules.RPC.Services.Block
     /// </Summary>
     public class NeoGetBlockSysFee : RpcRequestResponseHandler<string>
     {
-        public NeoGetBlockSysFee(IClient client) : base(client, ApiMethods.getblocksysfee.ToString()) //todo
+        public NeoGetBlockSysFee(IClient client) : base(client, ApiMethods.getblocksysfee.ToString())
         {
         }
 

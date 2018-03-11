@@ -28,7 +28,7 @@ namespace NeoModules.RPC.Services.Node
     ///         }
     ///     }
     /// </Summary>
-    public class NeoGetVersion : GenericRpcRequestResponseHandlerNoParam<DTOs.Version> //todo dto
+    public class NeoGetVersion : GenericRpcRequestResponseHandlerNoParam<DTOs.Version>
     {
         public NeoGetVersion(IClient client) : base(client, ApiMethods.getversion.ToString())
         {
