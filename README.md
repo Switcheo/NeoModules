@@ -14,8 +14,8 @@
   <b>Still on testing phase, do not use it on the MainNet!</b>
 </p>
 <p align="center">
-<a href="https://www.nuget.org/packages/NeoModules.RPC">
-    <img src="https://img.shields.io/badge/nuget-1.0.3-green.svg"></a>
+<a href="https://www.nuget.org/packages/NeoModules.RPC/1.0.5">
+    <img src="https://img.shields.io/badge/nuget-1.0.5-green.svg"></a>
 </p>
 
 ## Update (05-03-2018)
