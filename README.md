@@ -14,9 +14,15 @@
   <b>Still on testing phase, do not use it on the MainNet!</b>
 </p>
 <p align="center">
-<a href="https://www.nuget.org/packages/NeoModules.RPC">
-    <img src="https://img.shields.io/badge/nuget-1.0.3-green.svg"></a>
+<a href="https://www.nuget.org/packages/NeoModules.RPC/1.0.5">
+    <img src="https://img.shields.io/badge/nuget-1.0.5-green.svg"></a>
 </p>
+
+
+## Update (11-03-2018)
+Added a new REST client package to fill some missing properties needed to create transactions. This client uses the https://neoscan.io/ public API. You can see a simple usage on the Demo project.
+It's also available on nuget [now](https://www.nuget.org/packages/NeoModules.Rest/).
+
 
 ## Update (05-03-2018)
 Because of the project name changes, there is a new nuget package. To use you need to install [this](https://www.nuget.org/packages/NeoModules.RPC) for the main implementation. If during the package installation it does not install the NeoModules.JsonRpc.Client, [add it to your project manually](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/).
