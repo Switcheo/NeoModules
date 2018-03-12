@@ -7,7 +7,7 @@
 <h1 align="center">NeoModules</h1>
 
 <p align="center">
-  Modular project to use it on your <b>NEO</b> blockchain project.
+  Modular packages for C# devs to use on your <b>NEO</b> blockchain project.
 </p>
 
 <p align="center">
