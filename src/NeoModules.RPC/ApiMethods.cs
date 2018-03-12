@@ -26,7 +26,7 @@ namespace NeoModules.RPC
 		sendmany,
 		getnewaddress,
         listaddress,
-		//dumpprivkey,
+		dumpprivkey,
 		validateaddress,
 		getpeers,
 	}
