@@ -11,11 +11,11 @@
 </p>
 
 <p align="center">
-  <b>Waiting for peer review. Use on main net on you own risk</b>
+  <b>Waiting for peer review. Use on main net at your own risk</b>
 </p>
 <p align="center">
-<a href="https://www.nuget.org/packages/NeoModules.RPC/1.0.5">
-    <img src="https://img.shields.io/badge/nuget-1.0.5-green.svg"></a>
+<a href="https://www.nuget.org/packages/NeoModules.RPC/1.0.6">
+    <img src="https://img.shields.io/badge/nuget-1.0.6-green.svg"></a>
 </p>
 
 
