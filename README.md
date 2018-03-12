@@ -44,10 +44,9 @@ Each of these will get is own nuget package.
 
 Develop with decoupling in mind to make maintenance and new RPC methods implemented more quickly:
 
-* Client base - Neo.JsonRpc.Client project
-* RPC client implementation - Neo.JsonRpc.RpcClient project
-* DTO'S, Services, Helpers - Neo.RPC (main project)
-* Tests - Neo.RPC.Tests
+* Client base and RPC client implementation - NeoModules.JsonRpc.Client project
+* DTO'S, Services, Helpers - NeoModules.RPC (main project)
+* Tests - NeoModules.RPC.Tests
 * Demo - Simple demonstration project
 
 Setup the rpc client node
