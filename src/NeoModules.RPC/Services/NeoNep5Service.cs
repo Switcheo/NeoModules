@@ -37,14 +37,14 @@ namespace NeoModules.RPC.Services
 
         public async Task<string> GetSymbol()
         {
-            string name = string.Empty;
+            string symbol = string.Empty;
             var result = await GetTokenSymbol.SendRequestAsync();
             if (result != null)
             {
                 var temp = result.Stack[0].Value.ToString();
-                name = Helper.HextoString(temp);
+				symbol = Helper.HextoString(temp);
             }
-            return name;
+            return symbol;
         }
 
         public async Task<string> GetTotalSupply(string decimals)
@@ -56,7 +56,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 var value = result.Stack[0].Value.ToString();
-                var supplyValueArray = value.HexToBytes().Reverse().ToArray(); // todo, add explanation for this
+                var supplyValueArray = value.HexToBytes().Reverse().ToArray();
                 value = BitConverter.ToString(supplyValueArray).Replace("-", "");
                 totalSupply = (HexToBigInteger(value) / DecimalStringToBigInteger(decimals)).ToString();
             }
@@ -83,7 +83,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 balance = result.Stack[0].Value.ToString();
-                var supplyValueArray = balance.HexToBytes().Reverse().ToArray(); // todo, add explanation for this
+                var supplyValueArray = balance.HexToBytes().Reverse().ToArray();
                 balance = BitConverter.ToString(supplyValueArray).Replace("-", "");
                 balance = GetDecimal(HexToBigInteger(balance), (int)DecimalStringToBigInteger(decimals));              
             }

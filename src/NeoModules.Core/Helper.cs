@@ -31,5 +31,6 @@ namespace NeoModules.Core
                 result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
             return result;
         }
-    }
+		public static byte AddressVersion { get; } = byte.Parse("23");
+	}
 }

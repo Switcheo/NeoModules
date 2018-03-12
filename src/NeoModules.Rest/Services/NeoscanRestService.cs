@@ -34,7 +34,6 @@ namespace NeoModules.Rest.Services
 			}
 		}
 
-
 		// TODO: I can refractor this more
 		public async Task<string> GetBalanceAsync(string address)
 		{

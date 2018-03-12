@@ -120,8 +120,9 @@ namespace NeoModules.RPC.Demo
 			byte[] script;
 			using (ScriptBuilder sb = new ScriptBuilder())
 			{
-				sb.EmitAppCall(UInt160.Parse(scripthash), "decimals");
-                
+				sb.EmitAppCall(UInt160.Parse(scripthash), "decimals", new object[] { });
+				sb.EmitAppCall(UInt160.Parse(scripthash), "totalSupply", new object[] { });
+				sb.EmitAppCall(UInt160.Parse(scripthash), "balanceOf", new string[] { "0x0ff9070d64d19076d08947ba4a82b72709f30baf" });
 				script = sb.ToArray();
 			}
 			Debug.WriteLine(script.ToHexString());
