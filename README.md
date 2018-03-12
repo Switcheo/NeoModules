@@ -4,14 +4,14 @@
     width="125px;">
 </p>
 
-<h1 align="center">Neo-RPC-SharpClient</h1>
+<h1 align="center">NeoModules</h1>
 
 <p align="center">
-  Modular RPC client for C# <b>NEO</b> blockchain.
+  Modular project to use it on your <b>NEO</b> blockchain project.
 </p>
 
 <p align="center">
-  <b>Still on testing phase, do not use it on the MainNet!</b>
+  <b>Waiting for peer review. Use on main net on you own risk</b>
 </p>
 <p align="center">
 <a href="https://www.nuget.org/packages/NeoModules.RPC/1.0.5">
