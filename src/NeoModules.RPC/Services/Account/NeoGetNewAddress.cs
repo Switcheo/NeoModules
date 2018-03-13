@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using NeoModules.JsonRpc.Client;
+﻿using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.Infrastructure;
 
 namespace NeoModules.RPC.Services.Account
 {
@@ -24,15 +24,10 @@ namespace NeoModules.RPC.Services.Account
     ///     "result": "AVHcdW3FGKbPWGHNhkPjgVgi4GGndiCxdo"
     /// }
     /// </summary>
-    public class NeoGetNewAddress : RpcRequestResponseHandler<string>
-    {
+    public class NeoGetNewAddress : GenericRpcRequestResponseHandlerNoParam<string>
+	{
         public NeoGetNewAddress(IClient client) : base(client, ApiMethods.getnewaddress.ToString())
         {
-        }
-        
-        public Task<string> SendRequestAsync(object id = null)
-        {
-            return base.SendRequestAsync(id);
         }
     }
 }
