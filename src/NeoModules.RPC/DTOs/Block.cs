@@ -63,10 +63,10 @@ namespace NeoModules.RPC.DTOs
         public List<object> Attributes { get; set; }
 
         [JsonProperty("vin")]
-        public List<object> Vin { get; set; }
+        public List<ValueIn> Vin { get; set; }
 
         [JsonProperty("vout")]
-        public List<object> Vout { get; set; }
+        public List<ValueOut> Vout { get; set; }
 
         [JsonProperty("sys_fee")]
         public string SysFee { get; set; }
