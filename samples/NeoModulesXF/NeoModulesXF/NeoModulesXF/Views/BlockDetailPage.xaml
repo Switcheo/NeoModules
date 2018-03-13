@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NeoModulesXF.Views.BlockDetailPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Block detail">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="{Binding Hash, StringFormat='Hash: {0}'}" />
+            <Label Text="{Binding Size, StringFormat='Size: {0}'}" />
+            <Label Text="{Binding Version, StringFormat='Version: {0}'}" />
+            <Label Text="{Binding Previousblockhash, StringFormat='Previousblockhash: {0}'}" />
+            <Label Text="{Binding Merkleroot, StringFormat='Merkleroot: {0}'}" />
+            <Label Text="{Binding Time, StringFormat='Time: {0}'}" />
+            <Label Text="{Binding Index, StringFormat='Index: {0}'}" />
+            <Label Text="{Binding Nonce, StringFormat='Nonce: {0}'}" />
+            <Label Text="{Binding NextConsensus, StringFormat='NextConsensus: {0}'}" />
+            <Label Text="{Binding Confirmations, StringFormat='Confirmations: {0}'}" />
+            <Label Text="{Binding Nextblockhash, StringFormat='Nextblockhash: {0}'}" />
+            <!--  TODO: add block transactions  -->
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
