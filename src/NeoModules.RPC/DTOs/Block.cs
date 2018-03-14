@@ -36,7 +36,7 @@ namespace NeoModules.RPC.DTOs
         public Script Script { get; set; }
 
         [JsonProperty("tx")]
-        public List<BlockTx> Transaction { get; set; }
+        public List<BlockTx> Transactions { get; set; }
 
         [JsonProperty("confirmations")]
         public int Confirmations { get; set; }

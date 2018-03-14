@@ -14,10 +14,6 @@ namespace NeoModulesXF.ViewModels
 
 		public ObservableCollection<Block> Blocks { get; set; } = new ObservableCollection<Block>();
 
-		public BlocksViewModel()
-		{
-		}
-
 		public async Task GetBlocks()
 		{
 			if (Blocks.Count > 0) return;

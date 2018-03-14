@@ -24,7 +24,7 @@ namespace NeoModulesXF.Views
 
 		private async void GoToBlockDetail(object sender, SelectedItemChangedEventArgs e)
 		{
-			await Navigation.PushAsync(new BlockDetailPage(e.SelectedItem as Block));
+			await Navigation.PushAsync(new BlockDetailPage(Blocks.SelectedItem as Block));
 			Blocks.SelectedItem = null;
 		}
 	}

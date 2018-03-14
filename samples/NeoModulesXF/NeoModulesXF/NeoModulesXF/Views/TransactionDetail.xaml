@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NeoModulesXF.Views.TransactionDetail"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="{Binding Transaction hash, StringFormat='Hash: {0}'}" />
+            <Label Text="{Binding Size, StringFormat='Size: {0}'}" />
+            <Label Text="{Binding Version, StringFormat='Version: {0}'}" />
+            <Label Text="{Binding Type, StringFormat='Type: {0}'}" />
+            <Label Text="{Binding Attributes, StringFormat='Attributes: {0}'}" />
+            <Label Text="{Binding Vin, StringFormat='Vin: {0}'}" />
+            <Label Text="{Binding Vout, StringFormat='Vout: {0}'}" />
+            <Label Text="{Binding SysFee, StringFormat='SysFee: {0}'}" />
+            <Label Text="{Binding NetFee, StringFormat='NetFee: {0}'}" />
+            <Label Text="{Binding Scripts, StringFormat='Scripts: {0}'}" />
+            <Label Text="{Binding Blockhash, StringFormat='Blockhash: {0}'}" />
+            <Label Text="{Binding Confirmations, StringFormat='Confirmations: {0}'}" />
+            <Label Text="{Binding Blocktime, StringFormat='Blocktime: {0}'}" />
+            <!--  TODO: add block transactions  -->
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
