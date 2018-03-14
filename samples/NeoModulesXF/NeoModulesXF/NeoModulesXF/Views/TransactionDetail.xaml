@@ -2,7 +2,8 @@
 <ContentPage
     x:Class="NeoModulesXF.Views.TransactionDetail"
     xmlns="http://xamarin.com/schemas/2014/forms"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Transaction detail">
     <ContentPage.Content>
         <StackLayout>
             <Label Text="{Binding Transaction hash, StringFormat='Hash: {0}'}" />
