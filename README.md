@@ -13,19 +13,16 @@
 <p align="center">
   <b>Waiting for peer review. Use on main net at your own risk</b>
 </p>
-<p align="center">
-<a href="https://www.nuget.org/packages/NeoModules.RPC/1.0.6">
-    <img src="https://img.shields.io/badge/nuget-1.0.6-green.svg"></a>
-</p>
 
 
-## Update (11-03-2018)
-Added a new REST client package to fill some missing properties needed to create transactions. This client uses the https://neoscan.io/ public API. You can see a simple usage on the Demo project.
-It's also available on nuget [now](https://www.nuget.org/packages/NeoModules.Rest/).
+## Libraries
 
+|  Project Source | Nuget Package |  Description |
+| ------------- |--------------------------|-----------|
+| [NeoModules.RPC](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.RPC)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.6-green.svg)](https://www.nuget.org/packages/NeoModules.RPC/)| RPC Class Library to interact with NEO RPC nodes |
+| [NeoModules.JsonRpc.Client](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.JsonRpc.Client) | [![NuGet version](https://img.shields.io/badge/nuget-1.0.2-green.svg)](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/)| Base RPC client definition, used in NeoModules.RPC|
+| [NeoModules.Rest](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.Rest)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.0-green.svg)](https://www.nuget.org/packages/NeoModules.Rest/)| Simple Rest client for https://neoscan.io public API |
 
-## Update (05-03-2018)
-Because of the project name changes, there is a new nuget package. To use you need to install [this](https://www.nuget.org/packages/NeoModules.RPC) for the main implementation. If during the package installation it does not install the NeoModules.JsonRpc.Client, [add it to your project manually](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/).
 
 
 ## Update (25-02-2018)
@@ -108,7 +105,7 @@ Balance: 1457.82
 ## Authors
 
 * **Bruno Freitas** - [BrunoFreitasgit](https://github.com/BrunoFreitasgit)
-* Some base code comes from [Nethereum](https://github.com/Nethereum/Nethereum)
+* Multiple base code is taken/inspired from [Nethereum](https://github.com/Nethereum/Nethereum) project
 
 ## License
 
