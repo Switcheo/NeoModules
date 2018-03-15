@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\NeoModules.Core\NeoModules.Core.csproj" />
+    <ProjectReference Include="..\NeoModules.Core\NeoModules.Core.csproj" />
   </ItemGroup>
 
 </Project>

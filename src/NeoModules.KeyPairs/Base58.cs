@@ -13,7 +13,7 @@ namespace NeoModules.KeyPairs
 		public const string Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 		/// <summary>
-		/// 解码
+		/// Decoding
 		/// </summary>
 		/// <param name="input">The string to be decoded</param>
 		/// <returns>Return decoded byte array</returns>
@@ -41,7 +41,7 @@ namespace NeoModules.KeyPairs
 		}
 
 		/// <summary>
-		/// 编码
+		/// Encoding
 		/// </summary>
 		/// <param name="input">The byte array to encode</param>
 		/// <returns>Return encoded string</returns>
