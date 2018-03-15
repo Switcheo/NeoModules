@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
-using NeoModules.RPC.DTOs;
 
 namespace NeoModules.RPC.Services.Account
 {
@@ -36,13 +35,13 @@ namespace NeoModules.RPC.Services.Account
     /// }
     /// </summary>
     /// 
-    public class NeoGetBalance : RpcRequestResponseHandler<WalletBalance>
+    public class NeoGetBalance : RpcRequestResponseHandler<DTOs.WalletBalance>
     {
         public NeoGetBalance(IClient client) : base(client, ApiMethods.getbalance.ToString())
         {
         }
 
-        public Task<WalletBalance> SendRequestAsync(string assetId, object id = null)
+        public Task<DTOs.WalletBalance> SendRequestAsync(string assetId, object id = null)
         {
             if (assetId == null) throw new ArgumentNullException(nameof(assetId));
             return base.SendRequestAsync(id, assetId);

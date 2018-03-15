@@ -12,7 +12,7 @@ namespace NeoModules.RPC.Services
             GetRawTransactionSerialized = new NeoGetRawTransactionSerialized(client);
             SendRawTransaction = new NeoSendRawTransaction(client);
             GetTransactionOutput = new NeoGetTransactionOutput(client);
-            SendAssets = new NeoSendAssets(client);
+			SendToAddress = new NeoSendToAddress(client);
         }
 
         public NeoGetApplicationLog GetApplicationLog { get; private set; }
@@ -20,6 +20,6 @@ namespace NeoModules.RPC.Services
         public NeoGetRawTransactionSerialized GetRawTransactionSerialized { get; private set; }
         public NeoSendRawTransaction SendRawTransaction { get; private set; }
         public NeoGetTransactionOutput GetTransactionOutput { get; private set; }
-        public NeoSendAssets SendAssets { get; private set; }
+        public NeoSendToAddress SendToAddress { get; private set; }
     }
 }
