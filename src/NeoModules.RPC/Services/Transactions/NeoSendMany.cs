@@ -1,20 +1,21 @@
 ﻿using NeoModules.JsonRpc.Client;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NeoModules.RPC.Services.Transactions
 {
 	/// <summary>
-	///     sendtoaddress  
+	///     sendmany  
 	///     Transfers to the specified address.
 	/// 
 	///     Parameters
-	///			Asset_id: Asset ID(asset identifier), which is the transaction ID of the RegistTransaction when the asset is registered.
-	///				For NEO: c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b
-	///				For GAS: 602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7
-	///				The remaining asset IDs can be passed through the CLI commandline, the list Asset command query can also be queried in the block chain browser.
-	///			Address: Payment address
-	///			Value: Amount transferred
+	///			Array - Asset_id: Asset ID(asset identifier), which is the transaction ID of the RegistTransaction when the asset is registered.
+	///					For NEO: c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b
+	///					For GAS: 602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7
+	///					The remaining asset IDs can be passed through the CLI commandline, the list Asset command query can also be queried in the block chain browser.
+	///				Address: Payment address
+	///				Value: Amount transferred
 	///			Fee: Fee, default value is 0 (optional parameter)
 	///			Change_address: Change address, optional parameter, default is the first standard address in the wallet.
 	/// 
@@ -25,7 +26,7 @@ namespace NeoModules.RPC.Services.Transactions
 	/// 
 	///     Example
 	///     Request
-	///     curl -X POST --data '{"jsonrpc":"2.0","method":"sendtoaddress ","params": [[{"asset": "025d82f7b00a9ff1cfe709abe3c4741a105d067178e645bc3ebad9bc79af47d4","value": 1,"address": "AbRTHXb9zqdqn5sVh4EYpQHGZ536FgwCx2"},{"asset": "025d82f7b00a9ff1cfe709abe3c4741a105d067178e645bc3ebad9bc79af47d4","value": 1,"address": "AbRTHXb9zqdqn5sVh4EYpQHGZ536FgwCx2"}]],"id":1}'
+	///     curl -X POST --data '{"jsonrpc":"2.0","method":"sendmany","params": [[{"asset": "025d82f7b00a9ff1cfe709abe3c4741a105d067178e645bc3ebad9bc79af47d4","value": 1,"address": "AbRTHXb9zqdqn5sVh4EYpQHGZ536FgwCx2"},{"asset": "025d82f7b00a9ff1cfe709abe3c4741a105d067178e645bc3ebad9bc79af47d4","value": 1,"address": "AbRTHXb9zqdqn5sVh4EYpQHGZ536FgwCx2"}]],"id":1}'
 	/// 
 	///     Result
 	///     {
@@ -74,22 +75,22 @@ namespace NeoModules.RPC.Services.Transactions
 		{
 		}
 
-		public Task<DTOs.Transaction> SendRequestAsync(string assetId, string address, double amount, object id = null)
+		public Task<DTOs.Transaction> SendRequestAsync(List<DTOs.SendManyParameter> parameters, double fee = 0, string changeAddress = null, object id = null)
 		{
-			if (string.IsNullOrEmpty(assetId)) throw new ArgumentNullException(nameof(assetId));
-			if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
-			if (amount <= 0) throw new ArgumentException("Amount must be greater than 0", nameof(amount));
+			if (parameters.Count == 0) throw new ArgumentOutOfRangeException(nameof(parameters));
+			if (fee < 0) throw new ArgumentOutOfRangeException(nameof(fee));
 
-			return base.SendRequestAsync(id, assetId, address, amount);
+			if (changeAddress == null) return base.SendRequestAsync(id, parameters, fee);
+			return base.SendRequestAsync(id, parameters, fee, changeAddress);
 		}
 
-		public RpcRequest BuildRequest(string assetId, string address, double amount, object id = null)
+		public RpcRequest BuildRequest(List<DTOs.SendManyParameter> parameters, double fee = 0, string changeAddress = null, object id = null)
 		{
-			if (string.IsNullOrEmpty(assetId)) throw new ArgumentNullException(nameof(assetId));
-			if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
-			if (amount <= 0) throw new ArgumentException("Amount must be greater than 0", nameof(amount));
+			if (parameters.Count == 0) throw new ArgumentOutOfRangeException(nameof(parameters));
+			if (fee < 0) throw new ArgumentOutOfRangeException(nameof(fee));
 
-			return base.BuildRequest(id, assetId, address, amount);
+			if (changeAddress == null) return base.BuildRequest(id, parameters, fee);
+			return base.BuildRequest(id, parameters, fee, changeAddress);
 		}
 	}
 }

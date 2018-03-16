@@ -23,6 +23,7 @@ namespace NeoModules.RPC
 		invokescript,
 		sendrawtransaction,
 		sendtoaddress,
+		sendfrom,
 		sendmany,
 		getnewaddress,
         listaddress,
