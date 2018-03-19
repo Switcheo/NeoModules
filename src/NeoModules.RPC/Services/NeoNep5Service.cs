@@ -83,6 +83,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 balance = result.Stack[0].Value.ToString();
+                if (string.IsNullOrEmpty(balance)) return "0";
                 var supplyValueArray = balance.HexToBytes().Reverse().ToArray(); // todo, add explanation for this
                 balance = BitConverter.ToString(supplyValueArray).Replace("-", "");
                 balance = GetDecimal(HexToBigInteger(balance), (int)DecimalStringToBigInteger(decimals));              

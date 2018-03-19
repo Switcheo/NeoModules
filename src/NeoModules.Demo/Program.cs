@@ -12,7 +12,7 @@ namespace NeoModules.Demo
 {
 	public class Program
 	{
-		private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed5.neo.org:10332"));
+		private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed2.neo.org:10332"));
 
 		public static void Main(string[] args)
 		{
