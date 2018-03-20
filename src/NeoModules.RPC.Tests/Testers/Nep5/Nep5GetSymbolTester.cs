@@ -5,7 +5,7 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services.Nep5;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Nep5
 {
     public class Nep5GetSymbolTester : RpcRequestTester<Invoke>
     {

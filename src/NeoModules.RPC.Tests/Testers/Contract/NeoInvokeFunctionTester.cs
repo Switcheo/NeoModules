@@ -6,7 +6,7 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services.Contract;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Contract
 {
     public class NeoInvokeFunctionTester : RpcRequestTester<Invoke>
     {

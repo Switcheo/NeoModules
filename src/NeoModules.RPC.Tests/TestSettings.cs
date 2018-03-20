@@ -66,7 +66,7 @@ namespace NeoModules.RPC.Tests
             return GetAppSettingsValue("utilityAssetHash");
         }
 
-        public string GetOokenAssetHash()
+        public string GetTokenAssetHash()
         {
             return GetAppSettingsValue("tokenAssetHash");
         }

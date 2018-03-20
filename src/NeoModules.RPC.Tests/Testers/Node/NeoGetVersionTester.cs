@@ -4,7 +4,7 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services.Node;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Node
 {
     public class NeoGetVersionTester : RpcRequestTester<Version>
 	{

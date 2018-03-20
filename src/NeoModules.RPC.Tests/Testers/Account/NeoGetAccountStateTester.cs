@@ -5,7 +5,7 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services.Account;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Account
 {
     public class NeoGetAccountStateTester : RpcRequestTester<AccountState>
     {

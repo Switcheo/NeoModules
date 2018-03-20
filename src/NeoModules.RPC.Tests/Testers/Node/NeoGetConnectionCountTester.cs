@@ -4,7 +4,7 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.RPC.Services.Node;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Node
 {
     public class NeoGetConnectionCountTester : RpcRequestTester<int>
 	{

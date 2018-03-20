@@ -5,7 +5,7 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services.Transactions;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Transactions
 {
 	public class NeoGetRawTransactionTester : RpcRequestTester<Transaction>
 	{

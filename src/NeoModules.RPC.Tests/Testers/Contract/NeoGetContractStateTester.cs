@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Contract
 {
 	public class NeoGetContractStateTester : RpcRequestTester<ContractState>
 	{

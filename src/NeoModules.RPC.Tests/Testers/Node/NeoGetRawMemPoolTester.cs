@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Node
 {
 	public class NeoGetRawMemPoolTester : RpcRequestTester<string[]>
 	{

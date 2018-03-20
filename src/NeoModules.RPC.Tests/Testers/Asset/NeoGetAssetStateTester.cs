@@ -5,7 +5,7 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services.Asset;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Asset
 {
     public class NeoGetAssetStateTester : RpcRequestTester<AssetState>
     {

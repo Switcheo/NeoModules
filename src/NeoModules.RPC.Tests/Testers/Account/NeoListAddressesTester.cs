@@ -5,7 +5,7 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services.Account;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Account
 {
     public class NeoListAddressesTester : RpcRequestTester<WalletAddress[]>
     {

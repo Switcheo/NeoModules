@@ -4,7 +4,7 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.RPC.Services.Block;
 using Xunit;
 
-namespace NeoModules.RPC.Tests.Testers
+namespace NeoModules.RPC.Tests.Testers.Block
 {
     public class NeoGetBestBlockHashTester : RpcRequestTester<string>
     {
