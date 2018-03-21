@@ -7,12 +7,13 @@ using NeoModules.Rest.Models;
 using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
+using Newtonsoft.Json;
 
 namespace NeoModules.Demo
 {
 	public class Program
 	{
-		private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed2.neo.org:10332"));
+		private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed3.neo.org:10332"));
 
 		public static void Main(string[] args)
 		{
@@ -24,7 +25,7 @@ namespace NeoModules.Demo
 				var neoApiSimpleAccountService = SetupAnotherSimpleService();
 				// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-				var nep5ApiService = SetupNep5Service();
+			    var nep5ApiService = SetupNep5Service();
 
 				BlockApiTest(neoApiCompleteService).Wait();
 
@@ -33,6 +34,9 @@ namespace NeoModules.Demo
 
 				// create rest api client
 				RestClientTest().Wait();
+
+				// nodes list
+				NodesListTestAsync().Wait();
 			}
 			catch (Exception ex)
 			{
@@ -109,6 +113,15 @@ namespace NeoModules.Demo
 			var unclaimedModel = Unclaimed.FromJson(getUnclaimed);
 			var addressModel = AddressHistory.FromJson(getAddress);
 
+		}
+
+		// Test getting the nodes list registered on http://monitor.cityofzion.io
+		private static async Task<NodeList> NodesListTestAsync()
+		{
+			var service = new NeoNodesListService();
+			var result = await service.GetNodesList(MonitorNet.TestNet);
+			var nodes = JsonConvert.DeserializeObject<NodeList>(result);
+			return nodes;
 		}
 	}
 }
