@@ -24,7 +24,7 @@ namespace NeoModules.NEP6.Models
 		public int P { get; }
 
 		[JsonConstructor]
-		public ScryptParameters(int n = 16384, int r = 8, int p = 8)
+		public ScryptParameters(int n = 16384, int r = 8, int p = 8) // default values
 		{
 			N = n;
 			R = r;

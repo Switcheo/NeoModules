@@ -39,7 +39,7 @@ namespace NeoModules.NEP6.Models
 		public Wallet(string name, string version, ScryptParameters scryptParameters, List<Account> accounts, object extra = null)
 		{
 			Name = name ?? "default";
-			Version = Version ?? "1.0";
+			Version = version ?? "1.0";
 			Scrypt = scryptParameters;
 			Accounts = accounts;
 			Extra = extra;

@@ -34,11 +34,8 @@ namespace NeoModules.Core
             return result;
         }
 
-		public static byte AddressVersion { get; } = byte.Parse("23");
-
-
-		// todo: NEED FOR KEYPAIR - refractor this 
-		private static int BitLen(int w)
+        // todo: NEED FOR KEYPAIR - refractor this 
+        private static int BitLen(int w)
 		{
 			return (w < 1 << 15 ? (w < 1 << 7
 				? (w < 1 << 3 ? (w < 1 << 1
@@ -134,5 +131,5 @@ namespace NeoModules.Core
 			if (v < 0) v = (v + n) % n;
 			return v;
 		}
-	}
+    }
 }
