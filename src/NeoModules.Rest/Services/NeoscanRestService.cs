@@ -34,6 +34,20 @@ namespace NeoModules.Rest.Services
 			}
 		}
 
+		public void ChangeNet(NeoScanNet net)
+		{
+			if (_restClient != null)
+			{
+				if (net == NeoScanNet.MainNet)
+				{
+					_restClient.BaseAddress = new Uri(neoScanMainNetUrl);
+				}
+				else
+				{
+					_restClient.BaseAddress = new Uri(neoScanTestNetUrl);
+				}
+			}
+		}
 
 		// TODO: I can refractor this more
 		public async Task<string> GetBalanceAsync(string address)
