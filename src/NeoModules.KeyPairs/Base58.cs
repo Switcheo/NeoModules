@@ -5,6 +5,9 @@ using System.Text;
 
 namespace NeoModules.KeyPairs
 {
+	/// <summary>
+	/// SCrypt class from https://github.com/neo-project/neo/blob/master/neo/Cryptography/Base58.cs
+	/// </summary>
 	public static class Base58
 	{
 		/// <summary>

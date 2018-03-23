@@ -5,7 +5,10 @@ using System.Security.Cryptography;
 
 namespace NeoModules.KeyPairs.Cryptography
 {
-    [ComVisible(true)]
+	/// <summary>
+	/// SCrypt class from https://github.com/neo-project/neo/blob/master/neo/Cryptography/RIPEMD160Managed.cs
+	/// </summary>
+	[ComVisible(true)]
     public class RIPEMD160Managed : HashAlgorithm
     {
         private readonly byte[] _buffer;
