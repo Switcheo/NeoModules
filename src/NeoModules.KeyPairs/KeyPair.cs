@@ -8,6 +8,9 @@ using NeoModules.KeyPairs.Cryptography.ECC;
 
 namespace NeoModules.KeyPairs
 {
+    /// <summary>
+    /// KeyPair class from https://github.com/neo-project/neo/blob/master/neo/Wallets/KeyPair.cs
+    /// </summary>
     public class KeyPair : IEquatable<KeyPair>
     {
         public readonly byte[] PrivateKey;
@@ -65,14 +68,14 @@ namespace NeoModules.KeyPairs
             }
         }
 
-        public string Export(string passphrase, int N = 16384, int r = 8, int p = 8)
+        public string Export(string passphrase, int n = 16384, int r = 8, int p = 8)
         {
             using (Decrypt())
             {
-                var script_hash = Helper.CreateSignatureRedeemScript(PublicKey).ToScriptHash();
-                var address = Helper.ToAddress(script_hash);
+                var scriptHash = Helper.CreateSignatureRedeemScript(PublicKey).ToScriptHash();
+                var address = Helper.ToAddress(scriptHash);
                 var addresshash = Encoding.ASCII.GetBytes(address).Sha256().Sha256().Take(4).ToArray();
-                var derivedkey = SCrypt.DeriveKey(Encoding.UTF8.GetBytes(passphrase), addresshash, N, r, p, 64); //
+                var derivedkey = SCrypt.DeriveKey(Encoding.UTF8.GetBytes(passphrase), addresshash, n, r, p, 64); //
                 var derivedhalf1 = derivedkey.Take(32).ToArray();
                 var derivedhalf2 = derivedkey.Skip(32).ToArray();
                 var encryptedkey = XOR(PrivateKey, derivedhalf1).AES256Encrypt(derivedhalf2);
@@ -99,7 +102,7 @@ namespace NeoModules.KeyPairs
         private static byte[] XOR(byte[] x, byte[] y)
         {
             if (x.Length != y.Length) throw new ArgumentException();
-            return x.Zip(y, (a, b) => (byte) (a ^ b)).ToArray();
+            return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
         }
     }
 }
