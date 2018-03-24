@@ -49,6 +49,7 @@ namespace NeoModules.KeyPairs
             Buffer.BlockCopy(checksum, 0, buffer, data.Length, 4);
             return Base58.Encode(buffer);
         }
+
         public static string ToAddress(UInt160 scriptHash)
         {
             byte[] data = new byte[21];
@@ -56,6 +57,7 @@ namespace NeoModules.KeyPairs
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return data.Base58CheckEncode();
         }
+
         public static byte[] CreateSignatureRedeemScript(ECPoint publicKey)
         {
             using (var sb = new ScriptBuilder())
@@ -69,6 +71,16 @@ namespace NeoModules.KeyPairs
         public static UInt160 ToScriptHash(this byte[] script)
         {
             return new UInt160(script.Sha256().RIPEMD160());
+        }
+
+        public static UInt160 ToScriptHash(string address)
+        {
+            byte[] data = address.Base58CheckDecode();
+            if (data.Length != 21)
+                throw new FormatException();
+            if (data[0] != AddressVersion)
+                throw new FormatException();
+            return new UInt160(data.Skip(1).ToArray());
         }
 
         /// <summary>

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NeoModules.Core\NeoModules.Core.csproj" />
+    <ProjectReference Include="..\NeoModules.KeyPairs\NeoModules.KeyPairs.csproj" />
   </ItemGroup>
 
 </Project>

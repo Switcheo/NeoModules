@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using NeoModules.Core;
+using NeoModules.NEP6.Converters;
+using Newtonsoft.Json;
 
 namespace NeoModules.NEP6.Models
 {
@@ -9,7 +11,8 @@ namespace NeoModules.NEP6.Models
 		/// e.g. AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq
 		/// </summary>
 		[JsonProperty("address")]
-		public string Address { get; }
+        [JsonConverter(typeof(StringToInt160Converter))]
+		public UInt160 Address { get; }
 
 		/// <summary>
 		/// Label that the user has made to the account. 
@@ -34,7 +37,7 @@ namespace NeoModules.NEP6.Models
 		/// e.g. 6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx
 		/// </summary>
 		[JsonProperty("key")]
-		public string Key { get; private set; }
+		public string Nep2Key { get; private set; }
 
 		/// <summary>
 		/// Contract object which describes the details of the contract.
@@ -49,13 +52,13 @@ namespace NeoModules.NEP6.Models
 		public object Extra { get; set; }
 
 		[JsonConstructor]
-		public Account(string address, string label, bool isDefault, bool isLock, string key = null, Contract contract = null, object extra = null)
+		public Account(UInt160 address, string label, bool isDefault, bool isLock, string key = null, Contract contract = null, object extra = null)
 		{
 			Address = address;
 			Label = label;
 			IsDefault = isDefault;
 			IsLock = isLock;
-			Key = key;
+			Nep2Key = key;
 			Contract = contract;
 			Extra = extra;
 		}
