@@ -42,6 +42,7 @@ namespace NeoModules.Demo
                 TestNEP6ParameterSerialization();
                 TestNEP6ContractSerialization();
                 TestNEP6AccountSerialization();
+                TestNEP6WalletSerialization();
             }
             catch (Exception ex)
             {
@@ -145,6 +146,8 @@ namespace NeoModules.Demo
             Debug.WriteLine(test.Stack[0].Value);
         }
 
+
+        // TODO: MOVE THIS TESTS TO A NEW TEST PROJECT
         private static void TestNEP6ParameterSerialization()
         {
             string parameterJson = "{\"name\":\"from\",\"type\":\"Hash160\"}";
@@ -167,11 +170,20 @@ namespace NeoModules.Demo
         private static void TestNEP6AccountSerialization()
         {
             string accountJson =
-                "{\"address\":\"AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq\",\"label\":\"MyAddress\",\"isDefault\":true,\"lock\":false,\"key\":\"6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx\",\"contract\":{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false},\"extra\":null}";
+                "{\"address\":\"AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq\",\"label\":\"MyAddress\",\"isDefault\":true,\"lock\":false,\"key\":\"6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx\",\"contract\":{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false},\"extra\":\"test string extra\"}";
             var accountModel = NEP6.Models.Account.FromJson(accountJson);
 
             string deserializeAccount = NEP6.Models.Account.ToJson(accountModel);
             bool equal = string.Equals(accountJson, deserializeAccount);
+        }
+
+        private static void TestNEP6WalletSerialization()
+        {
+            string walletJson = "{\"name\":\"MyWallet\",\"version\":\"1.0\",\"scrypt\":{\"n\":16384,\"r\":8,\"p\":8},\"accounts\":[{\"address\":\"AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq\",\"label\":\"MyAddress\",\"isDefault\":true,\"lock\":false,\"key\":\"6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx\",\"contract\":{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false},\"extra\":\"test string extra\"},{\"address\":\"AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq\",\"label\":\"MyAddress\",\"isDefault\":true,\"lock\":false,\"key\":\"6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx\",\"contract\":{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false},\"extra\":\"test string extra\"}],\"extra\":null}";
+            var walletModel = NEP6.Models.Wallet.FromJson(walletJson);
+
+            string deserializeWallet = NEP6.Models.Wallet.ToJson(walletModel);
+            bool equal = string.Equals(walletJson, deserializeWallet);
         }
     }
 }

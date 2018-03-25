@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NeoModules.Core;
 using Newtonsoft.Json;
 using Helper = NeoModules.KeyPairs.Helper;

@@ -45,39 +45,6 @@ namespace NeoModules.NEP6.Models
 			Extra = extra;
 		}
 
-		//private void AddAccount(Account account, bool is_import)
-		//{
-		//	lock (Accounts)
-		//	{
-		//		if (Accounts.TryGetValue(account.ScriptHash, out NEP6Account account_old))
-		//		{
-		//			account.Label = account_old.Label;
-		//			account.IsDefault = account_old.IsDefault;
-		//			account.Lock = account_old.Lock;
-		//			if (account.Contract == null)
-		//			{
-		//				account.Contract = account_old.Contract;
-		//			}
-		//			else
-		//			{
-		//				NEP6Contract contract_old = (NEP6Contract)account_old.Contract;
-		//				if (contract_old != null)
-		//				{
-		//					NEP6Contract contract = (NEP6Contract)account.Contract;
-		//					contract.ParameterNames = contract_old.ParameterNames;
-		//					contract.Deployed = contract_old.Deployed;
-		//				}
-		//			}
-		//			account.Extra = account_old.Extra;
-		//		}
-		//		else
-		//		{
-		//			WalletIndexer.RegisterAccounts(new[] { account.ScriptHash }, is_import ? 0 : Blockchain.Default?.Height ?? 0);
-		//		}
-		//		accounts[account.ScriptHash] = account;
-		//	}
-		//}
-
 		public static Wallet FromJson(string json) => JsonConvert.DeserializeObject<Wallet>(json);
 
 		public static string ToJson(Wallet self) => JsonConvert.SerializeObject(self);
