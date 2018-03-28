@@ -20,7 +20,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.Hex", "src\NeoMo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.KeyPairs", "src\NeoModules.KeyPairs\NeoModules.KeyPairs.csproj", "{20530D6A-9B89-4D4F-97A2-C1A146E0A475}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoModules.NEP6", "src\NeoModules.NEP6\NeoModules.NEP6.csproj", "{B42B6C46-98B4-4FE6-8C59-82159B666C8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.NEP6", "src\NeoModules.NEP6\NeoModules.NEP6.csproj", "{B42B6C46-98B4-4FE6-8C59-82159B666C8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoModules.NEP6.Tests", "src\NeoModules.NEP6.Tests\NeoModules.NEP6.Tests.csproj", "{123552C6-578F-4526-9B6C-4A399C939B24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,6 +112,14 @@ Global
 		{B42B6C46-98B4-4FE6-8C59-82159B666C8A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B42B6C46-98B4-4FE6-8C59-82159B666C8A}.Release|x86.ActiveCfg = Release|Any CPU
 		{B42B6C46-98B4-4FE6-8C59-82159B666C8A}.Release|x86.Build.0 = Release|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Debug|x86.Build.0 = Debug|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Release|x86.ActiveCfg = Release|Any CPU
+		{123552C6-578F-4526-9B6C-4A399C939B24}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -17,13 +17,13 @@ namespace NeoModules.KeyPairs
         private static readonly ThreadLocal<RIPEMD160Managed> _ripemd160 =
             new ThreadLocal<RIPEMD160Managed>(() => new RIPEMD160Managed());
 
-        public static byte AddressVersion { get; } = Byte.Parse("23");
+        public static byte AddressVersion { get; } = byte.Parse("23");
 
         public static byte[] Base58CheckDecode(this string input)
         {
             var buffer = Base58.Decode(input);
             if (buffer.Length < 4) throw new FormatException();
-            byte[] checksum = buffer.Sha256(0, buffer.Length - 4).Sha256();
+            var checksum = buffer.Sha256(0, buffer.Length - 4).Sha256();
             if (!buffer.Skip(buffer.Length - 4).SequenceEqual(checksum.Take(4)))
                 throw new FormatException();
             return buffer.Take(buffer.Length - 4).ToArray();
@@ -52,7 +52,7 @@ namespace NeoModules.KeyPairs
 
         public static string ToAddress(UInt160 scriptHash)
         {
-            byte[] data = new byte[21];
+            var data = new byte[21];
             data[0] = AddressVersion;
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return data.Base58CheckEncode();
@@ -75,7 +75,7 @@ namespace NeoModules.KeyPairs
 
         public static UInt160 ToScriptHash(string address)
         {
-            byte[] data = address.Base58CheckDecode();
+            var data = address.Base58CheckDecode();
             if (data.Length != 21)
                 throw new FormatException();
             if (data[0] != AddressVersion)
@@ -105,12 +105,12 @@ namespace NeoModules.KeyPairs
 
         internal static byte[] AES256Encrypt(this byte[] block, byte[] key)
         {
-            using (Aes aes = Aes.Create())
+            using (var aes = Aes.Create())
             {
                 aes.Key = key;
                 aes.Mode = CipherMode.ECB;
                 aes.Padding = PaddingMode.None;
-                using (ICryptoTransform encryptor = aes.CreateEncryptor())
+                using (var encryptor = aes.CreateEncryptor())
                 {
                     return encryptor.TransformFinalBlock(block, 0, block.Length);
                 }

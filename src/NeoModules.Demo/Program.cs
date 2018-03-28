@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
@@ -21,28 +20,22 @@ namespace NeoModules.Demo
         {
             try
             {
-                //CreateScriptTest().Wait();
-                //var neoApiCompleteService = SetupCompleteNeoService();
+                CreateScriptTest().Wait();
+                var neoApiCompleteService = SetupCompleteNeoService();
 
-                //var neoApiSimpleContractService = SetupSimpleService();
-                //var neoApiSimpleAccountService = SetupAnotherSimpleService();
-                //// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+                var neoApiSimpleContractService = SetupSimpleService();
+                var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                // You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-                //var nep5ApiService = SetupNep5Service();
+                var nep5ApiService = SetupNep5Service();
 
-                //BlockApiTest(neoApiCompleteService).Wait();
+                BlockApiTest(neoApiCompleteService).Wait();
 
-                //TestNep5Service(nep5ApiService).Wait();
+                TestNep5Service(nep5ApiService).Wait();
 
 
-                //// create rest api client
-                //RestClientTest().Wait();
-
-                //NEP6 JSON tests
-                TestNEP6ParameterSerialization();
-                TestNEP6ContractSerialization();
-                TestNEP6AccountSerialization();
-                TestNEP6WalletSerialization();
+                // create rest api client
+                RestClientTest().Wait();
             }
             catch (Exception ex)
             {
@@ -144,46 +137,6 @@ namespace NeoModules.Demo
             var x = new NeoInvokeScript(RpcClient);
             var test = await x.SendRequestAsync(script.ToHexString());
             Debug.WriteLine(test.Stack[0].Value);
-        }
-
-
-        // TODO: MOVE THIS TESTS TO A NEW TEST PROJECT
-        private static void TestNEP6ParameterSerialization()
-        {
-            string parameterJson = "{\"name\":\"from\",\"type\":\"Hash160\"}";
-            var parameterModel = NEP6.Models.Parameter.FromJson(parameterJson);
-
-            string deserializeParameter = NEP6.Models.Parameter.ToJson(parameterModel);
-            bool equal = string.Equals(parameterJson, deserializeParameter);
-        }
-
-        private static void TestNEP6ContractSerialization()
-        {
-            string contractJson =
-                "{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false}";
-            var contractModel = NEP6.Models.Contract.FromJson(contractJson);
-
-            string deserializeContract = NEP6.Models.Contract.ToJson(contractModel);
-            bool equal = string.Equals(contractJson, deserializeContract);
-        }
-
-        private static void TestNEP6AccountSerialization()
-        {
-            string accountJson =
-                "{\"address\":\"AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq\",\"label\":\"MyAddress\",\"isDefault\":true,\"lock\":false,\"key\":\"6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx\",\"contract\":{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false},\"extra\":\"test string extra\"}";
-            var accountModel = NEP6.Models.Account.FromJson(accountJson);
-
-            string deserializeAccount = NEP6.Models.Account.ToJson(accountModel);
-            bool equal = string.Equals(accountJson, deserializeAccount);
-        }
-
-        private static void TestNEP6WalletSerialization()
-        {
-            string walletJson = "{\"name\":\"MyWallet\",\"version\":\"1.0\",\"scrypt\":{\"n\":16384,\"r\":8,\"p\":8},\"accounts\":[{\"address\":\"AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq\",\"label\":\"MyAddress\",\"isDefault\":true,\"lock\":false,\"key\":\"6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx\",\"contract\":{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false},\"extra\":\"test string extra\"},{\"address\":\"AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq\",\"label\":\"MyAddress\",\"isDefault\":true,\"lock\":false,\"key\":\"6PYWB8m1bCnu5bQkRUKAwbZp2BHNvQ3BQRLbpLdTuizpyLkQPSZbtZfoxx\",\"contract\":{\"script\":\"21036dc4bf8f0405dcf5d12a38487b359cb4bd693357a387d74fc438ffc7757948b0ac\",\"parameters\":[{\"name\":\"from\",\"type\":\"Hash160\"},{\"name\":\"from\",\"type\":\"Hash160\"}],\"deployed\":false},\"extra\":\"test string extra\"}],\"extra\":null}";
-            var walletModel = NEP6.Models.Wallet.FromJson(walletJson);
-
-            string deserializeWallet = NEP6.Models.Wallet.ToJson(walletModel);
-            bool equal = string.Equals(walletJson, deserializeWallet);
         }
     }
 }
