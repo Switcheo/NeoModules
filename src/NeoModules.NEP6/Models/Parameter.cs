@@ -1,8 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NeoModules.NEP6.Models
 {
@@ -47,13 +44,5 @@ namespace NeoModules.NEP6.Models
 		Array = 0x10,
 		InteropInterface = 0xf0,
 		Void = 0xff
-	}
-
-	public static class EnumUtil
-	{
-		public static IEnumerable<T> GetValues<T>()
-		{
-			return Enum.GetValues(typeof(T)).Cast<T>();
-		}
 	}
 }

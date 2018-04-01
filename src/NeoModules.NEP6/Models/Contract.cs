@@ -35,6 +35,8 @@ namespace NeoModules.NEP6.Models
             Script = script;
         }
 
+        public Contract() { }
+
         public static Contract FromJson(string json) => JsonConvert.DeserializeObject<Contract>(json);
 
         public static string ToJson(Contract self) => JsonConvert.SerializeObject(self);

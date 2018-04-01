@@ -58,10 +58,92 @@ namespace NeoModules.NEP6.Models
         public static string ToJson(Wallet self) => JsonConvert.SerializeObject(self);
 
 
+        public Account ImportAccount(string label, string encryptedPrivateKey, string password)
+        {
+            KeyPair key = new KeyPair(GetPrivateKeyFromNep2(encryptedPrivateKey, password, Scrypt.N, Scrypt.R, Scrypt.P));
+            var contract = new Contract
+            {
+                Script = KeyPairs.Helper.CreateSignatureRedeemScript(key.PublicKey),
+                Parameters = new List<Parameter>
+                {
+                    new Parameter("signature",ParameterType.Signature)
+                },
+                Deployed = false
+            };
 
+            Account account = new Account(key.PublicKeyHash, label)
+            {
+                Nep2Key = encryptedPrivateKey,
+                Contract = contract,
+                IsDefault = false,
+            };
+            AddAccount(account);
+            return account;
+        }
+
+        private void AddAccount(Account account)
+        {
+            lock (Accounts)
+            {
+                if (!Accounts.Exists(p => p.Address == account.Address))
+                {
+                    Accounts.Add(account);
+                }
+            }
+        }
+
+        public Account CreateAccount(byte[] privateKey, string label)
+        {
+            KeyPair key = new KeyPair(privateKey);
+            Contract contract = new Contract
+            {
+                Script = KeyPairs.Helper.CreateSignatureRedeemScript(key.PublicKey),
+                Parameters = new List<Parameter>
+                {
+                    new Parameter("signature", ParameterType.Signature)
+                },
+                Deployed = false
+            };
+            var account = new Account(key.PublicKeyHash, label)
+            {
+                Contract = contract
+            };
+            AddAccount(account);
+            return account;
+        }
+
+        private bool DeleteAccount(Account account)
+        {
+            if (account == null) return false;
+            lock (Accounts)
+            {
+                bool deleted;
+                deleted = Accounts.Remove(account);
+                return deleted;
+            }
+        }
+
+        public bool DeleteAccount(string address)
+        {
+            var scriptHash = KeyPairs.Helper.ToScriptHash(address);
+            var account = Accounts.FirstOrDefault(p => p.Address == scriptHash);
+            return DeleteAccount(account);
+        }
+
+        public Account GetAccount(string address)
+        {
+            return GetAccount(KeyPairs.Helper.ToScriptHash(address));
+        }
+
+        public Account GetAccount(UInt160 scriptHash)
+        {
+            lock (Accounts)
+            {
+                return Accounts.FirstOrDefault(p => p.Address == scriptHash);
+            }
+        }
 
         // TODO move this to somekind of service
-
         public static Wallet LoadFromFile(string filePath)
         {
             using (var file = File.OpenText(filePath))
@@ -100,9 +182,8 @@ namespace NeoModules.NEP6.Models
             if (x.Length != y.Length) throw new ArgumentException();
             return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
         }
-
-
     }
+
     public static class HelperToRemove
     {
         internal static byte[] AES256Decrypt(this byte[] block, byte[] key)

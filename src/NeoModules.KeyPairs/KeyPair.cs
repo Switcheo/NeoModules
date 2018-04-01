@@ -75,7 +75,7 @@ namespace NeoModules.KeyPairs
                 var scriptHash = Helper.CreateSignatureRedeemScript(PublicKey).ToScriptHash();
                 var address = Helper.ToAddress(scriptHash);
                 var addresshash = Encoding.ASCII.GetBytes(address).Sha256().Sha256().Take(4).ToArray();
-                var derivedkey = SCrypt.DeriveKey(Encoding.UTF8.GetBytes(passphrase), addresshash, n, r, p, 64); //
+                var derivedkey = SCrypt.DeriveKey(Encoding.UTF8.GetBytes(passphrase), addresshash, n, r, p, 64);
                 var derivedhalf1 = derivedkey.Take(32).ToArray();
                 var derivedhalf2 = derivedkey.Skip(32).ToArray();
                 var encryptedkey = XOR(PrivateKey, derivedhalf1).AES256Encrypt(derivedhalf2);
