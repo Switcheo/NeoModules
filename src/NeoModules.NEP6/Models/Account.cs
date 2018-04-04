@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NeoModules.Core;
-using NeoModules.KeyPairs;
+﻿using NeoModules.Core;
 using NeoModules.NEP6.Converters;
 using Newtonsoft.Json;
 
@@ -9,10 +6,6 @@ namespace NeoModules.NEP6.Models
 {
     public class Account
     {
-        private readonly Wallet _wallet;
-
-        private KeyPair _privKey;
-
         [JsonConstructor]
         public Account(UInt160 address, string label = "", bool isDefault = false, bool isLock = false, string key = null,
             Contract contract = null, object extra = null)
@@ -75,29 +68,5 @@ namespace NeoModules.NEP6.Models
         public static Account FromJson(string json) => JsonConvert.DeserializeObject<Account>(json);
 
         public static string ToJson(Account self) => JsonConvert.SerializeObject(self);
-
-
-        // TODO remove this default logic to somekind of service
-        public KeyPair GetKey(string password)
-        {
-            if (Nep2Key == null) return null;
-            if (_privKey == null)
-                _privKey = new KeyPair(Wallet.GetPrivateKeyFromNep2(Nep2Key, password, _wallet.Scrypt.N, _wallet.Scrypt.R,
-                    _wallet.Scrypt.P));
-            return _privKey;
-        }
-
-        public bool VerifyPassword(string password)
-        {
-            try
-            {
-                Wallet.GetPrivateKeyFromNep2(Nep2Key, password, _wallet.Scrypt.N, _wallet.Scrypt.R, _wallet.Scrypt.P);
-                return true;
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
-        }
     }
 }

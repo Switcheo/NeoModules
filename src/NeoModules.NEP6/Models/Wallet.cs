@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using NeoModules.Core;
 using NeoModules.KeyPairs.Cryptography;
+using NeoModules.NEP6.Services;
 
 namespace NeoModules.NEP6.Models
 {
@@ -43,6 +44,9 @@ namespace NeoModules.NEP6.Models
         [JsonProperty("extra")]
         public object Extra { get; set; }
 
+        [JsonIgnore]
+        public AccountService AccountService { get; set; }
+
         [JsonConstructor]
         public Wallet(string name, string version, ScryptParameters scryptParameters, List<Account> accounts, object extra = null)
         {
@@ -51,37 +55,25 @@ namespace NeoModules.NEP6.Models
             Scrypt = scryptParameters;
             Accounts = accounts;
             Extra = extra;
+
+            //AccountService = new AccountService(this);
         }
 
         public static Wallet FromJson(string json) => JsonConvert.DeserializeObject<Wallet>(json);
 
         public static string ToJson(Wallet self) => JsonConvert.SerializeObject(self);
 
-
-        public Account ImportAccount(string label, string encryptedPrivateKey, string password)
+        // TODO move this to somekind of service
+        public static Wallet LoadFromFile(string filePath)
         {
-            KeyPair key = new KeyPair(GetPrivateKeyFromNep2(encryptedPrivateKey, password, Scrypt.N, Scrypt.R, Scrypt.P));
-            var contract = new Contract
+            using (var file = File.OpenText(filePath))
             {
-                Script = KeyPairs.Helper.CreateSignatureRedeemScript(key.PublicKey),
-                Parameters = new List<Parameter>
-                {
-                    new Parameter("signature",ParameterType.Signature)
-                },
-                Deployed = false
-            };
-
-            Account account = new Account(key.PublicKeyHash, label)
-            {
-                Nep2Key = encryptedPrivateKey,
-                Contract = contract,
-                IsDefault = false,
-            };
-            AddAccount(account);
-            return account;
+                var json = file.ReadToEnd();
+                return FromJson(json);
+            }
         }
 
-        private void AddAccount(Account account)
+        public void AddAccount(Account account)
         {
             lock (Accounts)
             {
@@ -92,27 +84,7 @@ namespace NeoModules.NEP6.Models
             }
         }
 
-        public Account CreateAccount(byte[] privateKey, string label)
-        {
-            KeyPair key = new KeyPair(privateKey);
-            Contract contract = new Contract
-            {
-                Script = KeyPairs.Helper.CreateSignatureRedeemScript(key.PublicKey),
-                Parameters = new List<Parameter>
-                {
-                    new Parameter("signature", ParameterType.Signature)
-                },
-                Deployed = false
-            };
-            var account = new Account(key.PublicKeyHash, label)
-            {
-                Contract = contract
-            };
-            AddAccount(account);
-            return account;
-        }
-
-        private bool DeleteAccount(Account account)
+        public bool DeleteAccount(Account account)
         {
             if (account == null) return false;
             lock (Accounts)
@@ -123,33 +95,11 @@ namespace NeoModules.NEP6.Models
             }
         }
 
-        public bool DeleteAccount(string address)
-        {
-            var scriptHash = KeyPairs.Helper.ToScriptHash(address);
-            var account = Accounts.FirstOrDefault(p => p.Address == scriptHash);
-            return DeleteAccount(account);
-        }
-
-        public Account GetAccount(string address)
-        {
-            return GetAccount(KeyPairs.Helper.ToScriptHash(address));
-        }
-
         public Account GetAccount(UInt160 scriptHash)
         {
             lock (Accounts)
             {
                 return Accounts.FirstOrDefault(p => p.Address == scriptHash);
-            }
-        }
-
-        // TODO move this to somekind of service
-        public static Wallet LoadFromFile(string filePath)
-        {
-            using (var file = File.OpenText(filePath))
-            {
-                var json = file.ReadToEnd();
-                return FromJson(json);
             }
         }
 
