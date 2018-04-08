@@ -50,14 +50,6 @@ namespace NeoModules.KeyPairs
             return Base58.Encode(buffer);
         }
 
-        public static string ToAddress(UInt160 scriptHash)
-        {
-            var data = new byte[21];
-            data[0] = AddressVersion;
-            Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
-            return data.Base58CheckEncode();
-        }
-
         public static byte[] CreateSignatureRedeemScript(ECPoint publicKey)
         {
             using (var sb = new ScriptBuilder())

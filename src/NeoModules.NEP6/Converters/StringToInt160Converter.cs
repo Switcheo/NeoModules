@@ -1,5 +1,6 @@
 ﻿using System;
 using NeoModules.Core;
+using NeoModules.NEP6.Models;
 using Newtonsoft.Json;
 using Helper = NeoModules.KeyPairs.Helper;
 
@@ -17,7 +18,7 @@ namespace NeoModules.NEP6.Converters
 
             UInt160 data = (UInt160)value;
 
-            var stringData = Helper.ToAddress(data);
+            var stringData = Wallet.ToAddress(data);
 
             writer.WriteValue(stringData);
         }
