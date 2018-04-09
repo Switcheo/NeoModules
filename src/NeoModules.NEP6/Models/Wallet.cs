@@ -42,17 +42,25 @@ namespace NeoModules.NEP6.Models
         [JsonIgnore] public WalletManager WalletManager { get; set; }
 
         [JsonConstructor]
-        public Wallet(string name, string version, ScryptParameters scryptParameters, List<Account> accounts,
+        public Wallet(string name = "DefaultWallet", string version = "1.0", ScryptParameters scryptParameters = null, List<Account> accounts = null,
             object extra = null)
         {
-            Name = name ?? "default";
-            Version = version ?? "1.0";
-            Scrypt = scryptParameters;
-            Accounts = accounts;
+            Name = name;
+            Version = version;
+            Scrypt = scryptParameters ?? ScryptParameters.Default;
+            Accounts = accounts ?? new List<Account>();
             Extra = extra;
 
             // TODO: this needs to change to enable custom interface implementation
             WalletManager = new WalletManager(this);
+        }
+
+        public void SaveToFile(string filePath)
+        {
+            using (StreamWriter file = File.CreateText(filePath))
+            {
+                file.Write(ToJson(this));
+            }
         }
 
         public static Wallet FromJson(string json) => JsonConvert.DeserializeObject<Wallet>(json);
@@ -62,9 +70,21 @@ namespace NeoModules.NEP6.Models
         public static string ToAddress(UInt160 scriptHash)
         {
             byte[] data = new byte[21];
-            data[0] = byte.Parse("23");
+            data[0] = byte.Parse("23"); // TODO: Move Address Version 
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return data.Base58CheckEncode();
+        }
+
+        public static byte[] GetPrivateKeyFromWif(string wif)
+        {
+            if (wif == null) throw new ArgumentNullException();
+            byte[] data = wif.Base58CheckDecode();
+            if (data.Length != 34 || data[0] != 0x80 || data[33] != 0x01)
+                throw new FormatException();
+            byte[] privateKey = new byte[32];
+            Buffer.BlockCopy(data, 1, privateKey, 0, privateKey.Length);
+            Array.Clear(data, 0, data.Length);
+            return privateKey;
         }
 
         public static Wallet LoadFromFile(string filePath)

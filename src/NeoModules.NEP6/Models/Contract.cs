@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using NeoModules.Core;
+using NeoModules.KeyPairs;
 using NeoModules.NEP6.Converters;
 
 namespace NeoModules.NEP6.Models
@@ -26,6 +28,8 @@ namespace NeoModules.NEP6.Models
         /// </summary>
         [JsonProperty("deployed")]
         public bool Deployed { get; set; }
+
+        public UInt160 ScriptHash => Script.ToScriptHash();
 
         [JsonConstructor]
         public Contract(List<Parameter> parameters, bool deployed, byte[] script = null)

@@ -33,7 +33,7 @@ namespace NeoModules.NEP6
 
             using (Decrypt())
             {
-                var keyPair = new KeyPair(wif.HexToBytes());
+                var keyPair = new KeyPair(Wallet.GetPrivateKeyFromWif(wif));
                 var scriptHash =
                     Helper.CreateSignatureRedeemScript(keyPair.PublicKey).ToScriptHash(); // todo move this method
                 var address = Wallet.ToAddress(scriptHash);

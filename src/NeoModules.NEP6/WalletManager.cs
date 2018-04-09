@@ -75,6 +75,7 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
+        /// Decrypts and add the account to the Account List, using NEP2.
         /// </summary>
         /// <param name="label"></param>
         /// <param name="encryptedPrivateKey"></param>
@@ -108,7 +109,7 @@ namespace NeoModules.NEP6
         ///     Creates an Account and returns it.
         /// </summary>
         /// <returns></returns>
-        public Account CreateAccount()
+        public Account CreateAccount(string label = null)
         {
             var privateKey = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -117,6 +118,7 @@ namespace NeoModules.NEP6
             }
 
             var key = new KeyPair(privateKey);
+            Array.Clear(privateKey, 0, privateKey.Length);
             var contract = new Contract
             {
                 Script = Helper.CreateSignatureRedeemScript(key.PublicKey),
@@ -126,11 +128,10 @@ namespace NeoModules.NEP6
                 },
                 Deployed = false
             };
-            var account = new Account(key.PublicKeyHash)
+            var account = new Account(key.PublicKeyHash, label)
             {
                 Contract = contract
             };
-            Array.Clear(privateKey, 0, privateKey.Length);
             AddAccount(account);
             return account;
         }

@@ -1,4 +1,5 @@
 ﻿using NeoModules.Core;
+using NeoModules.KeyPairs;
 using NeoModules.NEP6.Converters;
 using Newtonsoft.Json;
 
@@ -17,6 +18,13 @@ namespace NeoModules.NEP6.Models
             Nep2Key = key;
             Contract = contract;
             Extra = extra;
+        }
+
+        public Account(UInt160 address, KeyPair key, string password, ScryptParameters scryptParameters)
+        {
+            _key = key;
+            Address = address;
+            Nep2Key = Nep2.Encrypt(_key.PrivateKey.ToHexString(), password, scryptParameters).Result;
         }
 
         /// <summary>
@@ -64,6 +72,12 @@ namespace NeoModules.NEP6.Models
         /// </summary>
         [JsonProperty("extra")]
         public object Extra { get; set; }
+
+        [JsonIgnore]
+        private readonly KeyPair _key;
+
+        [JsonIgnore]
+        public bool Decrypted => Nep2Key == null || _key != null;
 
         public static Account FromJson(string json) => JsonConvert.DeserializeObject<Account>(json);
 
