@@ -4,12 +4,10 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.KeyPairs.Cryptography;
 using NeoModules.NEP6.Models;
 using ECCurve = NeoModules.KeyPairs.Cryptography.ECC.ECCurve;
-using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6
 {
@@ -21,7 +19,7 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
-        /// Encrypts a WIF key using a given keyphrase under NEP-2 Standard.
+        ///     Encrypts a WIF key using a given keyphrase under NEP-2 Standard.
         /// </summary>
         /// <param name="wif">WIF key to encrypt (52 chars long).</param>
         /// <param name="password">The password will be encoded as UTF-8.</param>
@@ -59,7 +57,7 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
-        /// Decrypts an encrypted key using a given keyphrase under NEP-2 Standard.
+        ///     Decrypts an encrypted key using a given keyphrase under NEP-2 Standard.
         /// </summary>
         /// <param name="encryptedKey"></param>
         /// <param name="password"></param>
@@ -130,7 +128,7 @@ namespace NeoModules.NEP6
         private static byte[] XOR(byte[] x, byte[] y)
         {
             if (x.Length != y.Length) throw new ArgumentException();
-            return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
+            return x.Zip(y, (a, b) => (byte) (a ^ b)).ToArray();
         }
     }
 }

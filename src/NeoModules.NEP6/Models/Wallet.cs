@@ -39,8 +39,6 @@ namespace NeoModules.NEP6.Models
         [JsonProperty("extra")]
         public object Extra { get; set; }
 
-        [JsonIgnore] public WalletManager WalletManager { get; set; }
-
         [JsonConstructor]
         public Wallet(string name = "DefaultWallet", string version = "1.0", ScryptParameters scryptParameters = null, List<Account> accounts = null,
             object extra = null)
@@ -50,9 +48,6 @@ namespace NeoModules.NEP6.Models
             Scrypt = scryptParameters ?? ScryptParameters.Default;
             Accounts = accounts ?? new List<Account>();
             Extra = extra;
-
-            // TODO: this needs to change to enable custom interface implementation
-            WalletManager = new WalletManager(this);
         }
 
         public void SaveToFile(string filePath)

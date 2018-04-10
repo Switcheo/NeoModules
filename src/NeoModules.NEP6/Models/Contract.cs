@@ -29,6 +29,7 @@ namespace NeoModules.NEP6.Models
         [JsonProperty("deployed")]
         public bool Deployed { get; set; }
 
+        [JsonIgnore]
         public UInt160 ScriptHash => Script.ToScriptHash();
 
         [JsonConstructor]
