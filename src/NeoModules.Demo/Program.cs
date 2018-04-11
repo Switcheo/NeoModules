@@ -27,16 +27,16 @@ namespace NeoModules.Demo
 
 			    var nep5ApiService = SetupNep5Service();
 
-				BlockApiTest(neoApiCompleteService).Wait();
+				//BlockApiTest(neoApiCompleteService).Wait();
 
-				TestNep5Service(nep5ApiService).Wait();
+				//TestNep5Service(nep5ApiService).Wait();
 
 
 				// create rest api client
 				RestClientTest().Wait();
 
 				// nodes list
-				NodesListTestAsync().Wait();
+				//NodesListTestAsync().Wait();
 			}
 			catch (Exception ex)
 			{
@@ -100,18 +100,21 @@ namespace NeoModules.Demo
 
 			// api calls
 			var getBalance = await restService.GetBalanceAsync(testAddress);
-			//var getClaimed = await restService.GetClaimedAsync(testAddress); // returns internal server error
+			var getClaimed = await restService.GetClaimedAsync(testAddress); // returns internal server error
 			var getClaimable = await restService.GetClaimableAsync(testAddress);
 			var getUnclaimed = await restService.GetUnclaimedAsync(testAddress);
 			var getAddress = await restService.GetAddressAsync(testAddress);
+		    var nodes = await restService.GetAllNodesAsync();
+		    var transaction = await restService.GetTransactionAsync("599dec5897d416e9a668e7a34c073832fe69ad01d885577ed841eec52c1c52cf");
 
 			//Deserialization
 
 			var balanceModel = AddressBalance.FromJson(getBalance);
-			//var claimed_model = Claimed.FromJson(getClaimed);
+			var claimed_model = Claimed.FromJson(getClaimed);
 			var claimableModel = Claimable.FromJson(getClaimable);
 			var unclaimedModel = Unclaimed.FromJson(getUnclaimed);
 			var addressModel = AddressHistory.FromJson(getAddress);
+		    var nodesModel = Rest.Models.Node.FromJson(nodes);
 
 		}
 

@@ -9,5 +9,6 @@ namespace NeoModules.Rest.Services
         Task<string> GetClaimedAsync(string address);
         Task<string> GetUnclaimedAsync(string address);
         Task<string> GetAddressAsync(string address);
+        Task<string> GetTransactionAsync(string hash);
     }
 }

@@ -4,95 +4,105 @@ using System.Threading.Tasks;
 
 namespace NeoModules.Rest.Services
 {
-	public enum NeoScanNet
-	{
-		MainNet,
-		TestNet
-	}
+    public enum NeoScanNet
+    {
+        MainNet,
+        TestNet
+    }
 
-	public class NeoScanRestService : INeoRestService
-	{
-		private static readonly string neoScanTestNetUrl = "https://neoscan-testnet.io/api/test_net/v1/";
-		private static readonly string neoScanMainNetUrl = "https://neoscan.io/api/main_net/v1/";
-		private static readonly string getBalanceUrl = "get_balance/";
-		private static readonly string getClaimedUrl = "get_claimed/";
-		private static readonly string getClaimableUrl = "get_claimable/";
-		private static readonly string getUnclaimedUrl = "get_unclaimed/";
-		private static readonly string getAddressUrl = "get_address/";
+    public class NeoScanRestService : INeoRestService
+    {
+        private static readonly string neoScanTestNetUrl = "https://neoscan-testnet.io/api/test_net/v1/";
+        private static readonly string neoScanMainNetUrl = "https://neoscan.io/api/main_net/v1/";
+        private static readonly string getBalanceUrl = "get_balance/";
+        private static readonly string getClaimedUrl = "get_claimed/";
+        private static readonly string getClaimableUrl = "get_claimable/";
+        private static readonly string getUnclaimedUrl = "get_unclaimed/";
+        private static readonly string getAddressUrl = "get_address/";
+        private static readonly string getAllNodes = "get_all_nodes/";
+        private static readonly string getTransaction = "get_transaction/";
 
-		private readonly HttpClient _restClient;
+        private readonly HttpClient _restClient;
 
-		public NeoScanRestService(NeoScanNet net)
-		{
-			if (net == NeoScanNet.MainNet)
-			{
-				_restClient = new HttpClient { BaseAddress = new Uri(neoScanMainNetUrl) };
-			}
-			else
-			{
-				_restClient = new HttpClient { BaseAddress = new Uri(neoScanTestNetUrl) };
-			}
-		}
+        public NeoScanRestService(NeoScanNet net)
+        {
+            _restClient = net == NeoScanNet.MainNet ? new HttpClient {BaseAddress = new Uri(neoScanMainNetUrl)} : new HttpClient {BaseAddress = new Uri(neoScanTestNetUrl)};
+        }
 
-		public void ChangeNet(NeoScanNet net)
-		{
-			if (_restClient != null)
-			{
-				if (net == NeoScanNet.MainNet)
-				{
-					_restClient.BaseAddress = new Uri(neoScanMainNetUrl);
-				}
-				else
-				{
-					_restClient.BaseAddress = new Uri(neoScanTestNetUrl);
-				}
-			}
-		}
+        public void ChangeNet(NeoScanNet net)
+        {
+            if (_restClient != null)
+            {
+                if (net == NeoScanNet.MainNet)
+                {
+                    _restClient.BaseAddress = new Uri(neoScanMainNetUrl);
+                }
+                else
+                {
+                    _restClient.BaseAddress = new Uri(neoScanTestNetUrl);
+                }
+            }
+        }
 
-		// TODO: I can refractor this more
-		public async Task<string> GetBalanceAsync(string address)
-		{
-			var composedUrl = ComposeAddressUrl(getBalanceUrl, address);
-			var result = await _restClient.GetAsync(composedUrl);
-			var data = await result.Content.ReadAsStringAsync();
-			return data;
-		}
+        // TODO: I can refractor this more
+        public async Task<string> GetBalanceAsync(string address)
+        {
+            var composedUrl = ComposeAddressUrl(getBalanceUrl, address);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
 
-		public async Task<string> GetClaimableAsync(string address)
-		{
-			var composedUrl = ComposeAddressUrl(getClaimableUrl, address);
-			var result = await _restClient.GetAsync(composedUrl);
-			var data = await result.Content.ReadAsStringAsync();
-			return data;
-		}
+        public async Task<string> GetClaimableAsync(string address)
+        {
+            var composedUrl = ComposeAddressUrl(getClaimableUrl, address);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
 
-		public async Task<string> GetClaimedAsync(string address)
-		{
-			var composedUrl = ComposeAddressUrl(getClaimedUrl, address);
-			var result = await _restClient.GetAsync(composedUrl);
-			var data = await result.Content.ReadAsStringAsync();
-			return data;
-		}
+        public async Task<string> GetClaimedAsync(string address)
+        {
+            var composedUrl = ComposeAddressUrl(getClaimedUrl, address);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
 
-		public async Task<string> GetUnclaimedAsync(string address)
-		{
-			var composedUrl = ComposeAddressUrl(getUnclaimedUrl, address);
-			var result = await _restClient.GetAsync(composedUrl);
-			var data = await result.Content.ReadAsStringAsync();
-			return data;
-		}
+        public async Task<string> GetUnclaimedAsync(string address)
+        {
+            var composedUrl = ComposeAddressUrl(getUnclaimedUrl, address);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
 
-		public async Task<string> GetAddressAsync(string address)
-		{
-			var composedUrl = ComposeAddressUrl(getAddressUrl, address);
-			var result = await _restClient.GetAsync(composedUrl);
-			var data = await result.Content.ReadAsStringAsync();
-			return data;
-		}
+        public async Task<string> GetAddressAsync(string address)
+        {
+            var composedUrl = ComposeAddressUrl(getAddressUrl, address);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
 
-		private string ComposeAddressUrl(string url, string address)
-		{
-			return string.Format("{0}{1}", url, address);
-		}
-	}
+        public async Task<string> GetAllNodesAsync()
+        {
+            var result = await _restClient.GetAsync(getAllNodes);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public async Task<string> GetTransactionAsync(string hash)
+        {
+            var composedUrl = ComposeAddressUrl(getTransaction, hash);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        private string ComposeAddressUrl(string url, string address)
+        {
+            return string.Format("{0}{1}", url, address);
+        }
+    }
 }
