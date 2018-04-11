@@ -8,7 +8,8 @@ namespace NeoModules.NEP6.Models
     public class Account
     {
         [JsonConstructor]
-        public Account(UInt160 address, string label = "", bool isDefault = false, bool isLock = false, string key = null,
+        public Account(UInt160 address, string label = "", bool isDefault = false, bool isLock = false,
+            string key = null,
             Contract contract = null, object extra = null)
         {
             Address = address;
@@ -32,7 +33,7 @@ namespace NeoModules.NEP6.Models
         ///     e.g. AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq
         /// </summary>
         [JsonProperty("address")]
-        [JsonConverter(typeof(StringToInt160Converter))]
+        [JsonConverter(typeof(StringToAddressInt160Converter))]
         public UInt160 Address { get; }
 
         /// <summary>
@@ -73,11 +74,9 @@ namespace NeoModules.NEP6.Models
         [JsonProperty("extra")]
         public object Extra { get; set; }
 
-        [JsonIgnore]
-        private readonly KeyPair _key;
+        [JsonIgnore] private readonly KeyPair _key;
 
-        [JsonIgnore]
-        public bool Decrypted => Nep2Key == null || _key != null;
+        [JsonIgnore] public bool Decrypted => Nep2Key == null || _key != null;
 
         public static Account FromJson(string json) => JsonConvert.DeserializeObject<Account>(json);
 

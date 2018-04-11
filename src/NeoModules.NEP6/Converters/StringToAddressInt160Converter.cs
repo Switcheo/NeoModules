@@ -6,7 +6,7 @@ using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6.Converters
 {
-    public class StringToInt160Converter : JsonConverter
+    public class StringToAddressInt160Converter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {

@@ -75,13 +75,40 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
-        /// Decrypts and add the account to the Account List, using NEP2.
+        /// Decrypts and add the account to the Wallet Account List, using WIF.
+        /// </summary>
+        /// <param name="wif"></param>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public Account ImportAccount(string wif, string label = null)
+        {
+            KeyPair key = new KeyPair(Wallet.GetPrivateKeyFromWif(wif));
+            Contract contract = new Contract
+            {
+                Script = Helper.CreateSignatureRedeemScript(key.PublicKey),
+                Parameters = new List<Parameter>
+                {
+                    new Parameter("signature", ParameterType.Signature)
+                },
+                Deployed = false
+            };
+            Account account = new Account(contract.ScriptHash)
+            {
+                Contract = contract,
+                Label = label
+            };
+            AddAccount(account);
+            return account;
+        }
+
+        /// <summary>
+        /// Decrypts and add the account to the Wallet Account List, using NEP2.
         /// </summary>
         /// <param name="label"></param>
         /// <param name="encryptedPrivateKey"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<Account> ImportAccount(string label, string encryptedPrivateKey, string password)
+        public async Task<Account> ImportAccount(string encryptedPrivateKey, string password, string label = null)
         {
             var privateKey = await Nep2.Decrypt(encryptedPrivateKey, password, _wallet.Scrypt);
             var key = new KeyPair(privateKey);
