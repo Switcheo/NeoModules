@@ -8,7 +8,7 @@
     <TabbedPage.Children>
         <views:BlockList Title="Blocks" />
         <views:TransactionsList Title="Transactions" />
-        <ContentPage Title="Tab 3" />
+        <views:WalletPage Title="Tab 3" />
     </TabbedPage.Children>
 
 </TabbedPage>

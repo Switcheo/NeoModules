@@ -23,7 +23,7 @@ namespace NeoModulesXF.ViewModels
 			{
 				var block = await NeoService.Blocks.GetBlock.SendRequestAsync(2017000);
 				int i = 0;
-				foreach (var item in block.Transaction)
+				foreach (var item in block.Transactions)
 				{
 					var transaction = await NeoService.Transactions.GetRawTransaction.SendRequestAsync(item.Txid);
 					Transactions.Add(transaction);
