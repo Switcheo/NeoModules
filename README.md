@@ -15,7 +15,7 @@
 </p>
 
 
-## Libraries
+## Libraries (ready for use)
 
 |  Project Source | Nuget Package |  Description |
 | ------------- |--------------------------|-----------|
@@ -23,7 +23,13 @@
 | [NeoModules.JsonRpc.Client](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.JsonRpc.Client) | [![NuGet version](https://img.shields.io/badge/nuget-1.0.2-green.svg)](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/)| Base RPC client definition, used in NeoModules.RPC|
 | [NeoModules.Rest](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.Rest)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.0-green.svg)](https://www.nuget.org/packages/NeoModules.Rest/)| Simple Rest client for https://neoscan.io public API |
 
-
+## Libraries (in dev)
+|  Project Source | Nuget Package |  Description |
+| ------------- |--------------------------|-----------|
+| [NeoModules.Core](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.Core)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.1-yellow.svg)](https://www.nuget.org/packages/NeoModules.Core/)| Core data types and methods used in NeoModules |
+| [NeoModules.NVM](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.NVM)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.1-yellow.svg)](https://www.nuget.org/packages/NeoModules.NVM/)| Neo VM with only the necessary functions to support script construction and KeyPair/NEP6 |
+| [NeoModules.KeyPairs](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.KeyPairs)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.1-yellow.svg)](https://www.nuget.org/packages/NeoModules.KeyPairs/)| KeyPair project, has the crypto methods needed for KeyPair creation and KeyPair definition |
+| [NeoModules.NEP6](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.NEP6)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.1-yellow.svg)](https://www.nuget.org/packages/NeoModules.NEP6/)| NEP6 light wallet implementation |
 
 ## Update (25-02-2018)
 This project will be rename to **neo-modules** and it will host small different packages to help C# devs to start working on Neo. It follows a similar struture as [Nethereum](https://github.com/Nethereum/Nethereum) to ease the migration of Ethereum devs to Neo. This will include: 
