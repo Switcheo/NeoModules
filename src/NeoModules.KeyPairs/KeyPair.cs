@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using NeoModules.Core;
-using NeoModules.KeyPairs.Cryptography;
 using NeoModules.KeyPairs.Cryptography.ECC;
 
 namespace NeoModules.KeyPairs
@@ -76,12 +73,6 @@ namespace NeoModules.KeyPairs
         public override string ToString()
         {
             return PublicKey.ToString();
-        }
-
-        private static byte[] XOR(byte[] x, byte[] y)
-        {
-            if (x.Length != y.Length) throw new ArgumentException();
-            return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
         }
     }
 }

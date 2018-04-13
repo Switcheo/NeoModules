@@ -5,10 +5,10 @@ using System.Security.Cryptography;
 
 namespace NeoModules.KeyPairs.Cryptography
 {
-	/// <summary>
-	/// SCrypt class from https://github.com/neo-project/neo/blob/master/neo/Cryptography/RIPEMD160Managed.cs
-	/// </summary>
-	[ComVisible(true)]
+    /// <summary>
+    /// SCrypt class from https://github.com/neo-project/neo/blob/master/neo/Cryptography/RIPEMD160Managed.cs
+    /// </summary>
+    [ComVisible(true)]
     public class RIPEMD160Managed : HashAlgorithm
     {
         private readonly byte[] _buffer;
@@ -44,13 +44,13 @@ namespace NeoModules.KeyPairs.Cryptography
             Array.Clear(_buffer, 0, _buffer.Length);
         }
 
-        [SecuritySafeCritical]  // auto-generated
+        [SecuritySafeCritical] // auto-generated
         protected override void HashCore(byte[] rgb, int ibStart, int cbSize)
         {
             _HashData(rgb, ibStart, cbSize);
         }
 
-        [System.Security.SecuritySafeCritical]  // auto-generated
+        [System.Security.SecuritySafeCritical] // auto-generated
         protected override byte[] HashFinal()
         {
             return _EndHash();
@@ -73,7 +73,7 @@ namespace NeoModules.KeyPairs.Cryptography
             _stateMD160[4] = 0xc3d2e1f0;
         }
 
-        [System.Security.SecurityCritical]  // auto-generated
+        [System.Security.SecurityCritical] // auto-generated
         private unsafe void _HashData(byte[] partIn, int ibStart, int cbSize)
         {
             int bufferLen;
@@ -81,7 +81,7 @@ namespace NeoModules.KeyPairs.Cryptography
             int partInBase = ibStart;
 
             /* Compute length of buffer */
-            bufferLen = (int)(_count & 0x3f);
+            bufferLen = (int) (_count & 0x3f);
 
             /* Update number of bytes */
             _count += partInLen;
@@ -119,7 +119,7 @@ namespace NeoModules.KeyPairs.Cryptography
             }
         }
 
-        [SecurityCritical]  // auto-generated
+        [SecurityCritical] // auto-generated
         private byte[] _EndHash()
         {
             byte[] pad;
@@ -130,7 +130,7 @@ namespace NeoModules.KeyPairs.Cryptography
             /* Compute padding: 80 00 00 ... 00 00 <bit count>
              */
 
-            padLen = 64 - (int)(_count & 0x3f);
+            padLen = 64 - (int) (_count & 0x3f);
             if (padLen <= 8)
                 padLen += 64;
 
@@ -141,14 +141,14 @@ namespace NeoModules.KeyPairs.Cryptography
             bitCount = _count * 8;
 
             // The convention for RIPEMD is little endian (the same as MD4)
-            pad[padLen - 1] = (byte)((bitCount >> 56) & 0xff);
-            pad[padLen - 2] = (byte)((bitCount >> 48) & 0xff);
-            pad[padLen - 3] = (byte)((bitCount >> 40) & 0xff);
-            pad[padLen - 4] = (byte)((bitCount >> 32) & 0xff);
-            pad[padLen - 5] = (byte)((bitCount >> 24) & 0xff);
-            pad[padLen - 6] = (byte)((bitCount >> 16) & 0xff);
-            pad[padLen - 7] = (byte)((bitCount >> 8) & 0xff);
-            pad[padLen - 8] = (byte)((bitCount >> 0) & 0xff);
+            pad[padLen - 1] = (byte) ((bitCount >> 56) & 0xff);
+            pad[padLen - 2] = (byte) ((bitCount >> 48) & 0xff);
+            pad[padLen - 3] = (byte) ((bitCount >> 40) & 0xff);
+            pad[padLen - 4] = (byte) ((bitCount >> 32) & 0xff);
+            pad[padLen - 5] = (byte) ((bitCount >> 24) & 0xff);
+            pad[padLen - 6] = (byte) ((bitCount >> 16) & 0xff);
+            pad[padLen - 7] = (byte) ((bitCount >> 8) & 0xff);
+            pad[padLen - 8] = (byte) ((bitCount >> 0) & 0xff);
 
             /* Digest padding */
             _HashData(pad, 0, pad.Length);
@@ -159,7 +159,7 @@ namespace NeoModules.KeyPairs.Cryptography
             return hash;
         }
 
-        [System.Security.SecurityCritical]  // auto-generated
+        [System.Security.SecurityCritical] // auto-generated
         private static unsafe void MDTransform(uint* blockDWords, uint* state, byte* block)
         {
             uint aa = state[0];
@@ -1028,14 +1028,14 @@ namespace NeoModules.KeyPairs.Cryptography
             return (x ^ (y | ~z));
         }
 
-        [SecurityCritical]  // auto-generated
+        [SecurityCritical] // auto-generated
         private unsafe static void DWORDFromLittleEndian(uint* x, int digits, byte* block)
         {
             int i;
             int j;
 
             for (i = 0, j = 0; i < digits; i++, j += 4)
-                x[i] = (uint)(block[j] | (block[j + 1] << 8) | (block[j + 2] << 16) | (block[j + 3] << 24));
+                x[i] = (uint) (block[j] | (block[j + 1] << 8) | (block[j + 2] << 16) | (block[j + 3] << 24));
         }
 
         private static void DWORDToLittleEndian(byte[] block, uint[] x, int digits)
@@ -1045,10 +1045,10 @@ namespace NeoModules.KeyPairs.Cryptography
 
             for (i = 0, j = 0; i < digits; i++, j += 4)
             {
-                block[j] = (byte)(x[i] & 0xff);
-                block[j + 1] = (byte)((x[i] >> 8) & 0xff);
-                block[j + 2] = (byte)((x[i] >> 16) & 0xff);
-                block[j + 3] = (byte)((x[i] >> 24) & 0xff);
+                block[j] = (byte) (x[i] & 0xff);
+                block[j + 1] = (byte) ((x[i] >> 8) & 0xff);
+                block[j + 2] = (byte) ((x[i] >> 16) & 0xff);
+                block[j + 3] = (byte) ((x[i] >> 24) & 0xff);
             }
         }
     }

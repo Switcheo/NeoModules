@@ -2,9 +2,25 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.1</Version>
+    <Authors>Bruno Freitas</Authors>
+    <Company>Bruno Freitas</Company>
+    <Description>Base dependency of NeoModules.NEP6project. It has the necessary original code from neo-project to support a light wallet.</Description>
+    <Copyright>MIT</Copyright>
+    <PackageLicenseUrl>https://github.com/CityOfZion/NeoModules/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/CityOfZion/NeoModules/</PackageProjectUrl>
+    <PackageIconUrl>https://camo.githubusercontent.com/a555bc2ad2e3ebc8f3497e2df53c50ada648d10d/687474703a2f2f7265732e636c6f7564696e6172792e636f6d2f76696473792f696d6167652f75706c6f61642f76313530333136303832302f436f5a5f49636f6e5f4441524b424c55455f3230307831373870785f6f713067786d2e706e67</PackageIconUrl>
+    <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
+    <PackageTags>Neo KeyPair KeyStore NEP6 Light wallet CityofZion Blockchain</PackageTags>
+    <PackageReleaseNotes>Initial test release</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
