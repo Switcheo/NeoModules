@@ -11,6 +11,7 @@
     <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
     <PackageTags>Neo KeyPair VM NEP6 Light wallet CityofZion Blockchain</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Fixed bug with importing account</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
