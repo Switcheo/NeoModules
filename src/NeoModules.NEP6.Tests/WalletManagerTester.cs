@@ -77,7 +77,12 @@ namespace NeoModules.NEP6.Tests
             Wallet wallet = new Wallet();
             WalletManager walletManager = new WalletManager(wallet);
 
-            var account = walletManager.ImportAccount("L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP"); //wif
+            var account =
+                walletManager.ImportAccount("L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP", "accoun1"); //wif
+            var account2 = walletManager.ImportAccount("6PYVPVe1fQznphjbUxXP9KZJqPMVnVwCx5s5pr5axRJ8uHkMtZg97eT5kL",
+                "TestingOneTwoThree", "account2").Result;
+
+            Assert.Equal(account2.Address, account.Address); // make sure the importing from wif and importing from nep2 returns the same account
             var address = "AStZHy8E6StCqYQbzMqi4poH7YNDHQKxvt"; // account address
             var addressScript = Helper.ToScriptHash(address); // address to UInt160
 

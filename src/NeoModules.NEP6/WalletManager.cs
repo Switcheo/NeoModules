@@ -80,7 +80,7 @@ namespace NeoModules.NEP6
         /// <param name="wif"></param>
         /// <param name="label"></param>
         /// <returns></returns>
-        public Account ImportAccount(string wif, string label = null)
+        public Account ImportAccount(string wif, string label)
         {
             KeyPair key = new KeyPair(Wallet.GetPrivateKeyFromWif(wif));
             Contract contract = new Contract
@@ -108,10 +108,12 @@ namespace NeoModules.NEP6
         /// <param name="encryptedPrivateKey"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<Account> ImportAccount(string encryptedPrivateKey, string password, string label = null)
+        public async Task<Account> ImportAccount(string encryptedPrivateKey, string password, string label)
         {
             var privateKey = await Nep2.Decrypt(encryptedPrivateKey, password, _wallet.Scrypt);
             var key = new KeyPair(privateKey);
+            Array.Clear(privateKey, 0, privateKey.Length);
+
             var contract = new Contract
             {
                 Script = Helper.CreateSignatureRedeemScript(key.PublicKey),
@@ -122,7 +124,7 @@ namespace NeoModules.NEP6
                 Deployed = false
             };
 
-            var account = new Account(key.PublicKeyHash, label)
+            var account = new Account(contract.ScriptHash, label)
             {
                 Nep2Key = encryptedPrivateKey,
                 Contract = contract,
