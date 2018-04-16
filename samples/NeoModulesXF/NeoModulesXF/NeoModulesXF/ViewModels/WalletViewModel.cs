@@ -22,7 +22,13 @@ namespace NeoModulesXF.ViewModels
         public ICommand DeleteAccountCommand => new Command<Account>(DeleteAccountExecute);
         public ICommand ImportEncryptedAccountCommand => new Command(async () => await ImportEncryptedAccountExecute());
 
-        public string EncryptedKey { get; set; } = "6PYN6mjwYfjPUuYT3Exajvx25UddFVLpCw4bMsmtLdnKwZ9t1Mi3CfKe8S"; //do not use this account on main net!
+        public ICommand ImportWifAccountCommand => new Command(ImportWifAccountExecute);
+
+        public string Wif { get; set; } = "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7";
+
+        public string EncryptedKey { get; set; } =
+            "6PYN6mjwYfjPUuYT3Exajvx25UddFVLpCw4bMsmtLdnKwZ9t1Mi3CfKe8S"; //do not use this account on main net!
+
         public string Password { get; set; } = "Satoshi";
 
         private int count = 0;
@@ -55,6 +61,14 @@ namespace NeoModulesXF.ViewModels
                 count++;
                 Accounts.Add(account);
             }
+        }
+
+        private void ImportWifAccountExecute()
+        {
+            if (string.IsNullOrEmpty(Wif)) return;
+            var account = TestWalletManager.ImportAccount(Wif);
+            count++;
+            Accounts.Add(account);
         }
     }
 }

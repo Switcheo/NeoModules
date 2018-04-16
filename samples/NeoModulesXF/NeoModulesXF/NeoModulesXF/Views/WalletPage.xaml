@@ -6,6 +6,19 @@
     <ContentPage.Content>
         <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <StackLayout>
+               
+                <Button Text="Create New Account" Command="{Binding CreateNewAccountCommand}" />
+                <BoxView HeightRequest="1" Color="Red" HorizontalOptions="FillAndExpand" />
+                <Label Text="NEP2" FontSize="20" />
+                <Entry Text="{Binding EncryptedKey}" Placeholder="NEP2 key" />
+                <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Password" />
+                <Button Text="Import encrypted account" Command="{Binding ImportEncryptedAccountCommand}" />
+                <BoxView HeightRequest="1" Color="Red" HorizontalOptions="FillAndExpand" />
+                <Label Text="WIF" FontSize="20" />
+                <Entry Text="{Binding Wif}" IsPassword="True" Placeholder="Password" />
+                <Button Text="Import encrypted account" Command="{Binding ImportWifAccountCommand}" />
+                <BoxView HeightRequest="1" Color="Red" HorizontalOptions="FillAndExpand" />
+                <Label Text="List" FontSize="20" />
                 <ListView ItemsSource="{Binding Accounts}" HasUnevenRows="True" x:Name="AccountsList">
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -24,12 +37,6 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Button Text="Create New Account" Command="{Binding CreateNewAccountCommand}" />
-                <BoxView HeightRequest="1" Color="Red" HorizontalOptions="FillAndExpand" />
-                <Label Text="NEP2" FontSize="20"></Label>
-                <Entry Text="{Binding EncryptedKey}" Placeholder="NEP2 key"/>
-                <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Password"/>
-                <Button Text="Import encrypted account" Command="{Binding ImportEncryptedAccountCommand}" />
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>
