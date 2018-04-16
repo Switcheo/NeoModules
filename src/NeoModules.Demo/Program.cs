@@ -19,17 +19,17 @@ namespace NeoModules.Demo
 		{
 			try
 			{
-				//var neoApiCompleteService = SetupCompleteNeoService();
+				var neoApiCompleteService = SetupCompleteNeoService();
 
-				//var neoApiSimpleContractService = SetupSimpleService();
-				//var neoApiSimpleAccountService = SetupAnotherSimpleService();
+				var neoApiSimpleContractService = SetupSimpleService();
+				var neoApiSimpleAccountService = SetupAnotherSimpleService();
 				// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-			    //var nep5ApiService = SetupNep5Service();
+			    var nep5ApiService = SetupNep5Service();
 
-				//BlockApiTest(neoApiCompleteService).Wait();
+				BlockApiTest(neoApiCompleteService).Wait();
 
-				//TestNep5Service(nep5ApiService).Wait();
+				TestNep5Service(nep5ApiService).Wait();
 
 
 				// create rest api client
@@ -115,7 +115,7 @@ namespace NeoModules.Demo
 			var unclaimedModel = Unclaimed.FromJson(getUnclaimed);
 			var addressModel = AddressHistory.FromJson(getAddress);
 		    var nodesModel = Rest.Models.Node.FromJson(nodes);
-		    var transactionModel = Rest.Models.Transaction.FromJson(transaction);
+		    //var transactionModel = Rest.Models.Transaction.FromJson(transaction);
 
 		}
 
