@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using NeoModules.NEP6;
 using NeoModules.NEP6.Models;
@@ -18,6 +19,11 @@ namespace NeoModulesXF.ViewModels
         public ObservableCollection<Account> Accounts { get; set; }
 
         public ICommand CreateNewAccountCommand => new Command(CreateNewAccountExecute);
+        public ICommand DeleteAccountCommand => new Command<Account>(DeleteAccountExecute);
+        public ICommand ImportEncryptedAccountCommand => new Command(async () => await ImportEncryptedAccountExecute());
+
+        public string EncryptedKey { get; set; } = "6PYN6mjwYfjPUuYT3Exajvx25UddFVLpCw4bMsmtLdnKwZ9t1Mi3CfKe8S"; //do not use this account on main net!
+        public string Password { get; set; } = "Satoshi";
 
         private int count = 0;
 
@@ -33,6 +39,22 @@ namespace NeoModulesXF.ViewModels
             var account = TestWalletManager.CreateAccount("TestAccount" + count);
             Accounts.Add(account);
             count++;
+        }
+
+        private void DeleteAccountExecute(Account a)
+        {
+            TestWalletManager.DeleteAccount(a);
+            Accounts.Remove(a);
+        }
+
+        private async Task ImportEncryptedAccountExecute()
+        {
+            if (!string.IsNullOrEmpty(EncryptedKey) && !string.IsNullOrEmpty(Password))
+            {
+                var account = await TestWalletManager.ImportAccount(EncryptedKey, Password, "ImportedAccount" + count);
+                count++;
+                Accounts.Add(account);
+            }
         }
     }
 }

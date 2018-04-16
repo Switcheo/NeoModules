@@ -1,19 +1,35 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="NeoModulesXF.Views.WalletPage">
     <ContentPage.Content>
         <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <StackLayout>
-                <ListView ItemsSource="{Binding Accounts}">
+                <ListView ItemsSource="{Binding Accounts}" HasUnevenRows="True" x:Name="AccountsList">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <TextCell Text="{Binding Label}"/>
+                            <ViewCell>
+                                <StackLayout>
+                                    <Label Text="Address" />
+                                    <Label
+                                        Text="{Binding Address, Converter={StaticResource ScriptHashToAddressConverter}}" />
+                                    <Label Text="Label" />
+                                    <Label Text="{Binding Label}" />
+                                    <Button Text="Delete Account"
+                                            Command="{Binding Path=BindingContext.DeleteAccountCommand, Source={x:Reference Name=AccountsList}}"
+                                            CommandParameter="{Binding}" />
+                                </StackLayout>
+                            </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Button Text="Create New Account" Command="{Binding CreateNewAccountCommand}"/>
-
+                <Button Text="Create New Account" Command="{Binding CreateNewAccountCommand}" />
+                <BoxView HeightRequest="1" Color="Red" HorizontalOptions="FillAndExpand" />
+                <Label Text="NEP2" FontSize="20"></Label>
+                <Entry Text="{Binding EncryptedKey}" Placeholder="NEP2 key"/>
+                <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Password"/>
+                <Button Text="Import encrypted account" Command="{Binding ImportEncryptedAccountCommand}" />
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>
