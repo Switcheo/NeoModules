@@ -73,13 +73,13 @@ namespace NeoModules.Rest.DTOs
     public class TxidBalance
     {
         [JsonProperty("asset")]
-        public Asset Asset { get; set; }
+        public GovernanceAsset Asset { get; set; }
 
         [JsonProperty("amount")]
         public float Amount { get; set; }
     }
 
-    public enum Asset
+    public enum GovernanceAsset
     {
         Gas,
         Neo

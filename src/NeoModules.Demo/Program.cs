@@ -8,6 +8,7 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
 using Newtonsoft.Json;
+using Asset = NeoModules.Rest.DTOs.Asset;
 using Node = NeoModules.Rest.DTOs.Node;
 using Transaction = NeoModules.Rest.DTOs.Transaction;
 
@@ -21,24 +22,24 @@ namespace NeoModules.Demo
 		{
 			try
 			{
-				//var neoApiCompleteService = SetupCompleteNeoService();
+                var neoApiCompleteService = SetupCompleteNeoService();
 
-				//var neoApiSimpleContractService = SetupSimpleService();
-				//var neoApiSimpleAccountService = SetupAnotherSimpleService();
-				//// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+                var neoApiSimpleContractService = SetupSimpleService();
+                var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                // You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-			 //   var nep5ApiService = SetupNep5Service();
+                var nep5ApiService = SetupNep5Service();
 
-				//BlockApiTest(neoApiCompleteService).Wait();
+                BlockApiTest(neoApiCompleteService).Wait();
 
-				//TestNep5Service(nep5ApiService).Wait();
+                TestNep5Service(nep5ApiService).Wait();
 
 
-				// create rest api client
-				RestClientTest().Wait();
+                // create rest api client
+                RestClientTest().Wait();
 
 				// nodes list
-				//NodesListTestAsync().Wait();
+				NodesListTestAsync().Wait();
 			}
 			catch (Exception ex)
 			{
@@ -73,7 +74,7 @@ namespace NeoModules.Demo
 		// Block api demonstration
 		private static async Task BlockApiTest(NeoApiService service)
 		{
-			Block genesisBlock = await service.Blocks.GetBlock.SendRequestAsync(0); // Get genesis block by index (can pass a string with block hash as parameter too)
+            RPC.DTOs.Block genesisBlock = await service.Blocks.GetBlock.SendRequestAsync(0); // Get genesis block by index (can pass a string with block hash as parameter too)
 			string bestBlockHash = await service.Blocks.GetBestBlockHash.SendRequestAsync();
 			int blockCount = await service.Blocks.GetBlockCount.SendRequestAsync();
 			string blockHash = await service.Blocks.GetBlockHash.SendRequestAsync(0);
@@ -102,22 +103,32 @@ namespace NeoModules.Demo
 
             // api calls
             var getBalance = await restService.GetBalanceAsync(testAddress);
-            var getClaimed = await restService.GetClaimedAsync(testAddress); // returns internal server error
+            var getClaimed = await restService.GetClaimedAsync(testAddress);
             var getClaimable = await restService.GetClaimableAsync(testAddress);
             var getUnclaimed = await restService.GetUnclaimedAsync(testAddress);
             var getAddress = await restService.GetAddressAsync(testAddress);
             var nodes = await restService.GetAllNodesAsync();
             var transaction = await restService.GetTransactionAsync("599dec5897d416e9a668e7a34c073832fe69ad01d885577ed841eec52c1c52cf");
+		    var assets = await restService.GetAssetsAsync();
+		    var asset = await restService.GetAssetAsync("089cd37714d43511e304dc559e05a5a965274685dc21686bdcd05a45e17aab7a");
+		    var height = await restService.GetHeight();
+		    var highestBlock = await restService.GetHighestBlock();
+		    var lastBlocks = await restService.GetLastBlocks();
 
             //Deserialization
 
             var balanceModel = AddressBalance.FromJson(getBalance);
-            var claimed_model = Claimed.FromJson(getClaimed);
+            var claimedModel = Claimed.FromJson(getClaimed);
             var claimableModel = Claimable.FromJson(getClaimable);
             var unclaimedModel = Unclaimed.FromJson(getUnclaimed);
             var addressModel = AddressHistory.FromJson(getAddress);
             var nodesModel = Node.FromJson(nodes);
             var transactionModel = Transaction.FromJson(transaction);
+		    var assetsModel = Assets.FromJson(assets);
+		    var assetModel = Asset.FromJson(asset);
+		    long chainHeight = Convert.ToInt64(height);
+		    var highestBlockModel = Rest.DTOs.Block.FromJson(highestBlock);
+		    var lastBlocksModel = Blocks.FromJson(lastBlocks);
 		    var x = 1;
 		}
 

@@ -10,5 +10,11 @@ namespace NeoModules.Rest.Services
         Task<string> GetUnclaimedAsync(string address);
         Task<string> GetAddressAsync(string address);
         Task<string> GetTransactionAsync(string hash);
+        Task<string> GetAllNodesAsync();
+        Task<string> GetAssetsAsync();
+        Task<string> GetAssetAsync(string assetHash);
+        Task<string> GetHeight();
+        Task<string> GetHighestBlock();
+        Task<string> GetLastBlocks();
     }
 }

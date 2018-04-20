@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NeoModules.Rest.Services
 {
@@ -22,6 +22,20 @@ namespace NeoModules.Rest.Services
         private static readonly string getAddressUrl = "get_address/";
         private static readonly string getAllNodes = "get_all_nodes/";
         private static readonly string getTransaction = "get_transaction/";
+        private static readonly string getAddressAbstracts = "get_address_abstracts/";
+        private static readonly string getAddressNeon = "get_address_neon/";
+        private static readonly string getAddressToAddressAbstracts = "get_address_to_address_abstracts/";
+        private static readonly string getAsset = "get_asset/";
+        private static readonly string getAssets = "get_assets/";
+        private static readonly string getBlock = "get_block/";
+        private static readonly string getFeesInRange = "get_fees_in_range/";
+        private static readonly string getHeight = "get_height/";
+        private static readonly string getHighestBlock = "get_highest_block/";
+        private static readonly string getLastBlocks = "get_last_blocks/";
+        private static readonly string getLastTransactions = "get_last_transactions/";
+        private static readonly string getLastTransactionsByAddress = "get_last_transactions_by_address/";
+        private static readonly string getNodes = "get_nodes/";
+
 
         private readonly HttpClient _restClient;
 
@@ -32,21 +46,7 @@ namespace NeoModules.Rest.Services
                 : new HttpClient {BaseAddress = new Uri(neoScanTestNetUrl)};
         }
 
-        public void ChangeNet(NeoScanNet net)
-        {
-            if (_restClient == null) return;
-            switch (net)
-            {
-                case NeoScanNet.MainNet:
-                    _restClient.BaseAddress = new Uri(neoScanMainNetUrl);
-                    return;
-                case NeoScanNet.TestNet:
-                    _restClient.BaseAddress = new Uri(neoScanTestNetUrl);
-                    return;
-            }
-        }
-
-        // TODO: I can refractor this more
+        // TODO: I can refractor this more, move the 3 lines of each call to a function
         public async Task<string> GetBalanceAsync(string address)
         {
             var composedUrl = ComposeAddressUrl(getBalanceUrl, address);
@@ -87,6 +87,28 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
+        public async Task<string> GetTransactionAsync(string hash)
+        {
+            var composedUrl = ComposeAddressUrl(getTransaction, hash);
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public void ChangeNet(NeoScanNet net)
+        {
+            if (_restClient == null) return;
+            switch (net)
+            {
+                case NeoScanNet.MainNet:
+                    _restClient.BaseAddress = new Uri(neoScanMainNetUrl);
+                    return;
+                case NeoScanNet.TestNet:
+                    _restClient.BaseAddress = new Uri(neoScanTestNetUrl);
+                    return;
+            }
+        }
+
         public async Task<string> GetAllNodesAsync()
         {
             var result = await _restClient.GetAsync(getAllNodes);
@@ -94,10 +116,38 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetTransactionAsync(string hash)
+        public async Task<string> GetAssetsAsync()
         {
-            var composedUrl = ComposeAddressUrl(getTransaction, hash);
+            var result = await _restClient.GetAsync(getAssets);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public async Task<string> GetAssetAsync(string assetHash)
+        {
+            var composedUrl = ComposeAddressUrl(getAsset, assetHash);
             var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public async Task<string> GetHeight()
+        {
+            var result = await _restClient.GetAsync(getHeight);
+            var data = await result.Content.ReadAsStringAsync();
+            return JObject.Parse(data)["height"].ToString();
+        }
+
+        public async Task<string> GetHighestBlock()
+        {
+            var result = await _restClient.GetAsync(getHighestBlock);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public async Task<string> GetLastBlocks()
+        {
+            var result = await _restClient.GetAsync(getLastBlocks);
             var data = await result.Content.ReadAsStringAsync();
             return data;
         }
