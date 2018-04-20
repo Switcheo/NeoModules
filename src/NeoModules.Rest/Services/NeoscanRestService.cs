@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace NeoModules.Rest.Services
 {
@@ -26,21 +27,22 @@ namespace NeoModules.Rest.Services
 
         public NeoScanRestService(NeoScanNet net)
         {
-            _restClient = net == NeoScanNet.MainNet ? new HttpClient {BaseAddress = new Uri(neoScanMainNetUrl)} : new HttpClient {BaseAddress = new Uri(neoScanTestNetUrl)};
+            _restClient = net == NeoScanNet.MainNet
+                ? new HttpClient {BaseAddress = new Uri(neoScanMainNetUrl)}
+                : new HttpClient {BaseAddress = new Uri(neoScanTestNetUrl)};
         }
 
         public void ChangeNet(NeoScanNet net)
         {
-            if (_restClient != null)
+            if (_restClient == null) return;
+            switch (net)
             {
-                if (net == NeoScanNet.MainNet)
-                {
+                case NeoScanNet.MainNet:
                     _restClient.BaseAddress = new Uri(neoScanMainNetUrl);
-                }
-                else
-                {
+                    return;
+                case NeoScanNet.TestNet:
                     _restClient.BaseAddress = new Uri(neoScanTestNetUrl);
-                }
+                    return;
             }
         }
 

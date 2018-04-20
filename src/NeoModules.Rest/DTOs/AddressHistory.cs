@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace NeoModules.Rest.Models
+namespace NeoModules.Rest.DTOs
 {
     public class AddressHistory
     {
@@ -41,7 +41,12 @@ namespace NeoModules.Rest.Models
 
         public static AddressHistory FromJson(string json)
         {
-            return JsonConvert.DeserializeObject<AddressHistory>(json);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<AddressHistory>(json, settings);
         }
     }
 

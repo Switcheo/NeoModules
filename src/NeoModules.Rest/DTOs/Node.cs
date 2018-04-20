@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace NeoModules.Rest.Models
+namespace NeoModules.Rest.DTOs
 {
     public class Node
     {
@@ -18,9 +18,14 @@ namespace NeoModules.Rest.Models
         [JsonProperty("height")]
         public long Height { get; set; }
 
-        public static List<Node> FromJson(string json)
+        public static IList<Node> FromJson(string json)
         {
-            return JsonConvert.DeserializeObject<List<Node>>(json);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<IList<Node>>(json, settings);
         }
     }
 }

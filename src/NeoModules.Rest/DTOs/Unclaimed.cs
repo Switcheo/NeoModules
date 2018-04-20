@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace NeoModules.Rest.Models
+namespace NeoModules.Rest.DTOs
 {
     public class Unclaimed
     {
@@ -18,7 +18,12 @@ namespace NeoModules.Rest.Models
 
         public static Unclaimed FromJson(string json)
         {
-            return JsonConvert.DeserializeObject<Unclaimed>(json);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<Unclaimed>(json, settings);
         }
     }
 }
