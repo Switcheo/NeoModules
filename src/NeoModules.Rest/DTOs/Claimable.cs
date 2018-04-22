@@ -5,14 +5,6 @@ namespace NeoModules.Rest.DTOs
 {
     public class Claimable
     {
-        [JsonConstructor]
-        public Claimable(float unclaimed, IList<ClaimableElement> claimableList, string address)
-        {
-            Unclaimed = unclaimed;
-            ClaimableList = claimableList;
-            Address = address;
-        }
-
         [JsonProperty("unclaimed")]
         public float Unclaimed { get; set; }
 
@@ -35,16 +27,6 @@ namespace NeoModules.Rest.DTOs
 
     public class ClaimableElement
     {
-        [JsonConstructor]
-        public ClaimableElement(float value, float unclaimed, string txid, int startHeight, int endHeight)
-        {
-            Value = value;
-            Unclaimed = unclaimed;
-            Txid = txid;
-            StartHeight = startHeight;
-            EndHeight = endHeight;
-        }
-
         [JsonProperty("value")]
         public float Value { get; set; }
 

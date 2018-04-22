@@ -20,6 +20,9 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("txid")]
         public string Txid { get; set; }
 
+        [JsonProperty("transfers")]
+        public object Transfers { get; set; }
+
         [JsonProperty("time")]
         public long Time { get; set; }
 
@@ -33,7 +36,7 @@ namespace NeoModules.Rest.DTOs
         public IList<Script> Scripts { get; set; }
 
         [JsonProperty("script")]
-        public object Script { get; set; }
+        public string Script { get; set; }
 
         [JsonProperty("pubkey")]
         public string Pubkey { get; set; }
@@ -54,7 +57,7 @@ namespace NeoModules.Rest.DTOs
         public object Contract { get; set; }
 
         [JsonProperty("claims")]
-        public IList<Claim> Claims { get; set; }
+        public IList<Vin> Claims { get; set; }
 
         [JsonProperty("block_height")]
         public long BlockHeight { get; set; }
@@ -63,7 +66,7 @@ namespace NeoModules.Rest.DTOs
         public string BlockHash { get; set; }
 
         [JsonProperty("attributes")]
-        public IList<object> Attributes { get; set; }
+        public IList<Atributes> Attributes { get; set; }
 
         [JsonProperty("asset_moved")]
         public string AssetMoved { get; set; }
@@ -78,7 +81,20 @@ namespace NeoModules.Rest.DTOs
                 NullValueHandling = NullValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
-            return JsonConvert.DeserializeObject<Transaction>(json,settings);
+            return JsonConvert.DeserializeObject<Transaction>(json, settings);
+        }
+    }
+
+    public class Transactions
+    {
+        public static IList<Transaction> FromJson(string json)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<IList<Transaction>>(json, settings);
         }
     }
 
@@ -115,30 +131,12 @@ namespace NeoModules.Rest.DTOs
         public string AddressHash { get; set; }
     }
 
-    public class Script
+    public class Atributes
     {
-        [JsonProperty("verification")]
-        public string Verification { get; set; }
+        [JsonProperty("usage")]
+        public string Usage { get; set; }
 
-        [JsonProperty("invocation")]
-        public string Invocation { get; set; }
-    }
-
-    public class Claim
-    {
-        [JsonProperty("value")]
-        public long Value { get; set; }
-
-        [JsonProperty("txid")]
-        public string Txid { get; set; }
-
-        [JsonProperty("n")]
-        public long N { get; set; }
-
-        [JsonProperty("asset")]
-        public string Asset { get; set; }
-
-        [JsonProperty("address_hash")]
-        public string AddressHash { get; set; }
+        [JsonProperty("data")]
+        public string Data { get; set; }
     }
 }

@@ -5,13 +5,6 @@ namespace NeoModules.Rest.DTOs
 {
     public class AddressBalance
     {
-        [JsonConstructor]
-        public AddressBalance(IList<Balance> balance, string address)
-        {
-            Balance = balance;
-            Address = address;
-        }
-
         [JsonProperty("balance")]
         public IList<Balance> Balance { get; set; }
 
@@ -31,14 +24,6 @@ namespace NeoModules.Rest.DTOs
 
     public class Balance
     {
-        [JsonConstructor]
-        public Balance(IList<Unspent> unspentList, string asset, float amount)
-        {
-            Unspent = unspentList;
-            Asset = asset;
-            Amount = amount;
-        }
-
         [JsonProperty("unspent")]
         public IList<Unspent> Unspent { get; set; }
 
@@ -51,14 +36,6 @@ namespace NeoModules.Rest.DTOs
 
     public class Unspent
     {
-        [JsonConstructor]
-        public Unspent(float value, string txId, int n)
-        {
-            Value = value;
-            TxId = txId;
-            N = n;
-        }
-
         [JsonProperty("value")]
         public float Value { get; set; }
 

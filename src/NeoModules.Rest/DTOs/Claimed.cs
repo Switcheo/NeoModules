@@ -5,12 +5,6 @@ namespace NeoModules.Rest.DTOs
 {
     public class Claimed
     {
-        public Claimed(string address, IList<ClaimedElement> claimedList)
-        {
-            Address = address;
-            ClaimedList = claimedList;
-        }
-
         [JsonProperty("claimed")]
         public IList<ClaimedElement> ClaimedList { get; set; }
 
@@ -26,11 +20,5 @@ namespace NeoModules.Rest.DTOs
             };
             return JsonConvert.DeserializeObject<Claimed>(json, settings);
         }
-    }
-
-    public class ClaimedElement
-    {
-        [JsonProperty("txids")]
-        public List<string> Txids { get; set; }
     }
 }
