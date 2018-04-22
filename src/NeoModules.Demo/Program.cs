@@ -114,21 +114,23 @@ namespace NeoModules.Demo
 		    var height = await restService.GetHeight();
 		    var highestBlock = await restService.GetHighestBlock();
 		    var lastBlocks = await restService.GetLastBlocks();
+		    var feesInRange = await restService.GetFeesInRange(4, 6);
 
             //Deserialization
 
-            var balanceModel = AddressBalance.FromJson(getBalance);
-            var claimedModel = Claimed.FromJson(getClaimed);
-            var claimableModel = Claimable.FromJson(getClaimable);
-            var unclaimedModel = Unclaimed.FromJson(getUnclaimed);
-            var addressModel = AddressHistory.FromJson(getAddress);
-            var nodesModel = Node.FromJson(nodes);
-            var transactionModel = Transaction.FromJson(transaction);
-		    var assetsModel = Assets.FromJson(assets);
-		    var assetModel = Asset.FromJson(asset);
+            var balanceDto = AddressBalance.FromJson(getBalance);
+            var claimedDto = Claimed.FromJson(getClaimed);
+            var claimableDto = Claimable.FromJson(getClaimable);
+            var unclaimedDto = Unclaimed.FromJson(getUnclaimed);
+            var addressDto = AddressHistory.FromJson(getAddress);
+            var nodesDto = Node.FromJson(nodes);
+            var transactionDto = Transaction.FromJson(transaction);
+		    var assetsDto = Assets.FromJson(assets);
+		    var assetDto = Asset.FromJson(asset);
 		    long chainHeight = Convert.ToInt64(height);
-		    var highestBlockModel = Rest.DTOs.Block.FromJson(highestBlock);
-		    var lastBlocksModel = Blocks.FromJson(lastBlocks);
+		    var highestBlockDto = Rest.DTOs.Block.FromJson(highestBlock);
+		    var lastBlocksDto = Blocks.FromJson(lastBlocks);
+		    var feesInRangeDto = FeesInRange.FromJson(feesInRange);
 		    var x = 1;
 		}
 

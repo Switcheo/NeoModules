@@ -152,6 +152,14 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
+        public async Task<string> GetFeesInRange(int range1, int range2)
+        {
+            var composedUrl = ComposeAddressUrl(getFeesInRange, string.Concat(range1, "-", range2));
+            var result = await _restClient.GetAsync(composedUrl);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
         private string ComposeAddressUrl(string url, string address)
         {
             return string.Format("{0}{1}", url, address);
