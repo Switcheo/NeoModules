@@ -14,15 +14,7 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("address")]
         public string Address { get; set; }
 
-        public static Claimable FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<Claimable>(json, settings);
-        }
+        public static Claimable FromJson(string json) => JsonConvert.DeserializeObject<Claimable>(json, Utils.Settings);
     }
 
     public class ClaimableElement

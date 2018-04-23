@@ -59,16 +59,7 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("confirmations")]
         public long Confirmations { get; set; }
 
-
-        public static Block FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<Block>(json, settings);
-        }
+        public static Block FromJson(string json) => JsonConvert.DeserializeObject<Block>(json, Utils.Settings);
     }
 
     public class Blocks

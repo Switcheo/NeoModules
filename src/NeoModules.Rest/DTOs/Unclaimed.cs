@@ -16,14 +16,6 @@ namespace NeoModules.Rest.DTOs
 
         public string Address { get; set; }
 
-        public static Unclaimed FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<Unclaimed>(json, settings);
-        }
+        public static Unclaimed FromJson(string json) => JsonConvert.DeserializeObject<Unclaimed>(json, Utils.Settings);
     }
 }

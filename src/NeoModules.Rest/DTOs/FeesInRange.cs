@@ -10,14 +10,6 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("total_net_fee")]
         public long TotalNetFee { get; set; }
 
-        public static FeesInRange FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<FeesInRange>(json, settings);
-        }
+        public static FeesInRange FromJson(string json) => JsonConvert.DeserializeObject<FeesInRange>(json, Utils.Settings);
     }
 }

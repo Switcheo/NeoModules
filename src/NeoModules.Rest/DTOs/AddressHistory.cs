@@ -26,14 +26,6 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("balance")]
         public IList<Balance> Balance { get; set; }
 
-        public static AddressHistory FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<AddressHistory>(json, settings);
-        }
+        public static AddressHistory FromJson(string json) => JsonConvert.DeserializeObject<AddressHistory>(json, Utils.Settings);
     }
 }

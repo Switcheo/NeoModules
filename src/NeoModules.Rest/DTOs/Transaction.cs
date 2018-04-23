@@ -21,7 +21,7 @@ namespace NeoModules.Rest.DTOs
         public string Txid { get; set; }
 
         [JsonProperty("transfers")]
-        public object Transfers { get; set; }
+        public IList<Transfer> Transfers { get; set; }
 
         [JsonProperty("time")]
         public long Time { get; set; }
@@ -42,7 +42,7 @@ namespace NeoModules.Rest.DTOs
         public string Pubkey { get; set; }
 
         [JsonProperty("nonce")]
-        public long Nonce { get; set; }
+        public long? Nonce { get; set; }
 
         [JsonProperty("net_fee")]
         public string NetFee { get; set; }
@@ -66,7 +66,7 @@ namespace NeoModules.Rest.DTOs
         public string BlockHash { get; set; }
 
         [JsonProperty("attributes")]
-        public IList<Atributes> Attributes { get; set; }
+        public IList<Atribute> Attributes { get; set; }
 
         [JsonProperty("asset_moved")]
         public string AssetMoved { get; set; }
@@ -74,28 +74,12 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("asset")]
         public object Asset { get; set; }
 
-        public static Transaction FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<Transaction>(json, settings);
-        }
+        public static Transaction FromJson(string json) => JsonConvert.DeserializeObject<Transaction>(json, Utils.Settings);
     }
 
     public class Transactions
     {
-        public static IList<Transaction> FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<IList<Transaction>>(json, settings);
-        }
+        public static IList<Transaction> FromJson(string json) => JsonConvert.DeserializeObject<IList<Transaction>>(json, Utils.Settings);
     }
 
     public class Vout
@@ -105,6 +89,9 @@ namespace NeoModules.Rest.DTOs
 
         [JsonProperty("n")]
         public long N { get; set; }
+
+        [JsonProperty("transaction_id")]
+        public long TransactionId { get; set; }
 
         [JsonProperty("asset")]
         public string Asset { get; set; }
@@ -119,7 +106,7 @@ namespace NeoModules.Rest.DTOs
         public float Value { get; set; }
 
         [JsonProperty("txid")]
-        public float Txid { get; set; }
+        public string Txid { get; set; }
 
         [JsonProperty("n")]
         public long N { get; set; }
@@ -131,7 +118,7 @@ namespace NeoModules.Rest.DTOs
         public string AddressHash { get; set; }
     }
 
-    public class Atributes
+    public class Atribute
     {
         [JsonProperty("usage")]
         public string Usage { get; set; }
@@ -139,4 +126,29 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("data")]
         public string Data { get; set; }
     }
+
+    public class Transfer
+    {
+        [JsonProperty("txid")]
+        public string Txid { get; set; }
+
+        [JsonProperty("time")]
+        public long Time { get; set; }
+
+        [JsonProperty("contract")]
+        public string Contract { get; set; }
+
+        [JsonProperty("block_height")]
+        public long BlockHeight { get; set; }
+
+        [JsonProperty("amount")]
+        public long Amount { get; set; }
+
+        [JsonProperty("address_to")]
+        public string AddressTo { get; set; }
+
+        [JsonProperty("address_from")]
+        public string AddressFrom { get; set; }
+    }
+
 }

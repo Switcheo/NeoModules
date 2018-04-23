@@ -11,15 +11,7 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("address")]
         public string Address { get; set; }
 
-        public static AddressBalance FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<AddressBalance>(json,settings);
-        }
+        public static AddressBalance FromJson(string json) => JsonConvert.DeserializeObject<AddressBalance>(json,Utils.Settings);
     }
 
     public class Balance

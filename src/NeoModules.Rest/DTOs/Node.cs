@@ -11,14 +11,6 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("height")]
         public long Height { get; set; }
 
-        public static IList<Node> FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<IList<Node>>(json, settings);
-        }
+        public static IList<Node> FromJson(string json) => JsonConvert.DeserializeObject<IList<Node>>(json, Utils.Settings);
     }
 }

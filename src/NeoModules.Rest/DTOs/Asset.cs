@@ -38,30 +38,9 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("admin")]
         public string Admin { get; set; }
 
-        public static Asset FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<Asset>(json, settings);
-        }
+        public static Asset FromJson(string json) => JsonConvert.DeserializeObject<Asset>(json, Utils.Settings);
+        public static IList<Asset> FromJsonList(string json) => JsonConvert.DeserializeObject<IList<Asset>>(json, Utils.Settings);
     }
-
-    public class Assets
-    {
-        public static IList<Asset> FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<IList<Asset>>(json, settings);
-        }
-    }
-
 
     public class Name
     {

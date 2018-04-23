@@ -23,15 +23,7 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("address")]
         public string Address { get; set; }
 
-        public static NeonAddress FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<NeonAddress>(json, settings);
-        }
+        public static NeonAddress FromJson(string json)=> JsonConvert.DeserializeObject<NeonAddress>(json, Utils.Settings);
     }
 
     public class NeonBalance

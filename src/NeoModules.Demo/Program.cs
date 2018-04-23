@@ -24,24 +24,24 @@ namespace NeoModules.Demo
         {
             try
             {
-                var neoApiCompleteService = SetupCompleteNeoService();
+                //var neoApiCompleteService = SetupCompleteNeoService();
 
-                var neoApiSimpleContractService = SetupSimpleService();
-                var neoApiSimpleAccountService = SetupAnotherSimpleService();
-                // You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+                //var neoApiSimpleContractService = SetupSimpleService();
+                //var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                //// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-                var nep5ApiService = SetupNep5Service();
+                //var nep5ApiService = SetupNep5Service();
 
-                BlockApiTest(neoApiCompleteService).Wait();
+                //BlockApiTest(neoApiCompleteService).Wait();
 
-                TestNep5Service(nep5ApiService).Wait();
+                //TestNep5Service(nep5ApiService).Wait();
 
 
                 //create rest api client
                 RestClientTest().Wait();
 
-                //nodes list
-                NodesListTestAsync().Wait();
+                ////nodes list
+                //NodesListTestAsync().Wait();
             }
             catch (Exception ex)
             {
@@ -117,12 +117,9 @@ namespace NeoModules.Demo
             var getUnclaimed = await restService.GetUnclaimedAsync(testAddress);
             var getAddress = await restService.GetAddressAsync(testAddress);
             var nodes = await restService.GetAllNodesAsync();
-            var transaction =
-                await restService.GetTransactionAsync(
-                    "599dec5897d416e9a668e7a34c073832fe69ad01d885577ed841eec52c1c52cf");
+            var transaction = await restService.GetTransactionAsync("599dec5897d416e9a668e7a34c073832fe69ad01d885577ed841eec52c1c52cf");
             var assets = await restService.GetAssetsAsync();
-            var asset = await restService.GetAssetAsync(
-                "089cd37714d43511e304dc559e05a5a965274685dc21686bdcd05a45e17aab7a");
+            var asset = await restService.GetAssetAsync("089cd37714d43511e304dc559e05a5a965274685dc21686bdcd05a45e17aab7a");
             var height = await restService.GetHeight();
             var highestBlock = await restService.GetHighestBlock();
             var lastBlocks = await restService.GetLastBlocks();
@@ -144,7 +141,7 @@ namespace NeoModules.Demo
             var addressDto = AddressHistory.FromJson(getAddress);
             var nodesDto = Node.FromJson(nodes);
             var transactionDto = Transaction.FromJson(transaction);
-            var assetsDto = Assets.FromJson(assets);
+            var assetsDto = Asset.FromJsonList(assets);
             var assetDto = Asset.FromJson(asset);
             long chainHeight = Convert.ToInt64(height);
             var highestBlockDto = Rest.DTOs.Block.FromJson(highestBlock);
@@ -155,8 +152,7 @@ namespace NeoModules.Demo
             var addressToAddressAbstractDto = AbstractAddress.FromJson(addressToAddressAbstract);
             var blockDto = Block.FromJson(block);
             var lastTransactionsDto = Transactions.FromJson(lastTransactions);
-
-            var x = 1;
+            var lastTransactionsByAddressDto = Transactions.FromJson(lastTransactionsByAddress);
         }
 
         // Test getting the nodes list registered on http://monitor.cityofzion.io

@@ -20,15 +20,7 @@ namespace NeoModules.Rest.DTOs
         [JsonProperty("entries")]
         public IList<AbstractEntry> Entries { get; set; }
 
-        public static AbstractAddress FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<AbstractAddress>(json, settings);
-        }
+        public static AbstractAddress FromJson(string json) => JsonConvert.DeserializeObject<AbstractAddress>(json, Utils.Settings);
     }
 }
 
