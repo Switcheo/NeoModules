@@ -2,12 +2,17 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
+using NeoModules.KeyPairs;
+using NeoModules.NEP6;
+using NeoModules.NEP6.Models;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
+using NeoModules.RPC.TransactionManagers;
 using Newtonsoft.Json;
 using Asset = NeoModules.Rest.DTOs.Asset;
 using Block = NeoModules.Rest.DTOs.Block;
@@ -19,6 +24,7 @@ namespace NeoModules.Demo
     public class Program
     {
         private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed3.neo.org:10332"));
+        private static readonly RpcClient RpcTestNetClient = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
 
         public static void Main(string[] args)
         {
@@ -38,10 +44,13 @@ namespace NeoModules.Demo
 
 
                 //create rest api client
-                RestClientTest().Wait();
+                //RestClientTest().Wait();
 
                 ////nodes list
                 //NodesListTestAsync().Wait();
+
+                //wallet
+                WalletManagerTestAsync().Wait();
             }
             catch (Exception ex)
             {
@@ -163,5 +172,28 @@ namespace NeoModules.Demo
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
             return nodes;
         }
+
+
+        private static async Task WalletManagerTestAsync()
+        {
+            var wallet = new Wallet();
+            var transactionManager = new TransactionManager(RpcTestNetClient);
+            var restService = new NeoScanRestService(NeoScanNet.TestNet);
+            var walletManager = new WalletManager(wallet, transactionManager, restService);
+
+            var privateKey = "L1mLVqjnuSHNeeGPpPq2aRv74Pm9TXJcXkhCJAz2K9s1Lrrd5fzH";
+            var keypair = Wallet.GetPrivateKeyFromWif(privateKey);
+            walletManager.ImportAccount(privateKey, "ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
+            var address = walletManager.GetAccount("ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
+            var scriptHash = NEP6.Utils.GetScriptHashFromString("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
+
+            var tx = await walletManager.CallContract(new KeyPair(keypair), scriptHash, "registerMailbox", new object[] { address.ReadableAddress, "testNeoModules" });
+
+            var service = new NeoNodesListService();
+            var result = await service.GetNodesList(MonitorNet.TestNet);
+            var nodes = JsonConvert.DeserializeObject<NodeList>(result);
+
+        }
+
     }
 }

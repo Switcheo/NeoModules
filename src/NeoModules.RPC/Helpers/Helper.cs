@@ -20,14 +20,6 @@ namespace NeoModules.RPC.Helpers
             return result;
         }
 
-        public static string ToHexString(this IEnumerable<byte> value)
-        {
-            var sb = new StringBuilder();
-            foreach (var b in value)
-                sb.AppendFormat("{0:x2}", b);
-            return sb.ToString();
-        }
-
         public static string HextoString(string inputText)
         {
             var bb = Enumerable.Range(0, inputText.Length)

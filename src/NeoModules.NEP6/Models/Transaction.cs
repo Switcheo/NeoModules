@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
@@ -58,7 +59,7 @@ namespace NeoModules.NEP6.Models
             var txstr = txdata.HexToBytes();
 
             var privkey = key.PrivateKey;
-            var pubkey = key.PublicKey.EncodePoint(true); //todo validate this encodingpoint
+            var pubkey = key.PublicKey.EncodePoint(false).Skip(1).ToArray(); ; //todo validate this encodingpoint
             var signature = Utils.Sign(txstr, privkey, pubkey);
 
             var invocationScript = "40" + signature.ToHexString();
@@ -120,10 +121,16 @@ namespace NeoModules.NEP6.Models
 
         protected static string SerializeTransactionOutput(Output output)
         {
-            var value = Fixed8.FromDecimal(output.Value);
+            var value = Num2Fixed8(output.Value);
             return Utils.ReverseHex(output.AssetId) + value + Utils.ReverseHex(output.ScriptHash);
         }
 
+        public static string Num2Fixed8(decimal num)
+        {
+            long val = (long)Math.Round(num * 100000000);
+            var hexValue = val.ToString("X16");
+            return Utils.ReverseHex(("0000000000000000" + hexValue).Substring(hexValue.Length));
+        }
         #endregion
     }
 }

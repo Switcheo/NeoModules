@@ -15,7 +15,7 @@ namespace NeoModules.Core
         public static string ToHexString(this IEnumerable<byte> value)
         {
             var sb = new StringBuilder();
-            foreach (var b in value)
+            foreach (byte b in value)
                 sb.AppendFormat("{0:x2}", b);
             return sb.ToString();
         }
@@ -30,6 +30,12 @@ namespace NeoModules.Core
             for (var i = 0; i < result.Length; i++)
                 result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
             return result;
+        }
+
+        public static string ByteToHex(this byte[] data)
+        {
+            string hex = BitConverter.ToString(data).Replace("-", "");
+            return hex;
         }
     }
 }

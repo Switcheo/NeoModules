@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using NeoModules.RPC.Helpers;
 
 namespace NeoModules.NEP6
 {
     public static class Utils
     {
+        private static readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         public static byte[] Sign(byte[] message, byte[] prikey, byte[] pubkey)
         {
             using (var ecdsa = ECDsa.Create(new ECParameters
@@ -29,6 +32,16 @@ namespace NeoModules.NEP6
             var result = "";
             for (var i = hex.Length - 2; i >= 0; i -= 2) result += hex.Substring(i, 2);
             return result;
+        }
+
+        public static byte[] GetScriptHashFromString(string hash)
+        {
+            return hash.HexToBytes().Reverse().ToArray();
+        }
+
+        public static uint ToTimestamp(this DateTime time)
+        {
+            return (uint)(time.ToUniversalTime() - unixEpoch).TotalSeconds;
         }
     }
 

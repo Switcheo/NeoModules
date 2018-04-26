@@ -27,7 +27,7 @@ namespace NeoModules.NEP6.Tests
             Wallet wallet = Wallet.FromJson(walletJson);
             WalletManager walletManager = new WalletManager(wallet);
 
-            var scriptHash = KeyPairs.Helper.ToScriptHash("AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq");
+            var scriptHash = "AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq".ToScriptHash();
             var accountToDelete = new Account(scriptHash);
             walletManager.AddAccount(accountToDelete);
             walletManager.DeleteAccount("AQLASLtT6pWbThcSCYU1biVqhMnzhTgLFq");
@@ -84,7 +84,7 @@ namespace NeoModules.NEP6.Tests
 
             Assert.Equal(account2.Address, account.Address); // make sure the importing from wif and importing from nep2 returns the same account
             var address = "AStZHy8E6StCqYQbzMqi4poH7YNDHQKxvt"; // account address
-            var addressScript = Helper.ToScriptHash(address); // address to UInt160
+            var addressScript = address.ToScriptHash(); // address to UInt160
 
             Assert.NotNull(account);
             Assert.Equal(account.Address, addressScript);

@@ -1,5 +1,6 @@
 ﻿using System;
 using NeoModules.Core;
+using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
 using Newtonsoft.Json;
 using Helper = NeoModules.KeyPairs.Helper;
@@ -26,7 +27,7 @@ namespace NeoModules.NEP6.Converters
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var result = (string)reader.Value;
-            return Helper.ToScriptHash(result);
+            return result.ToScriptHash();
         }
 
         public override bool CanConvert(Type objectType)

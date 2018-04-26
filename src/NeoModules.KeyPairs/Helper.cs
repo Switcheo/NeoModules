@@ -78,7 +78,7 @@ namespace NeoModules.KeyPairs
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
-        public static UInt160 ToScriptHash(string address)
+        public static UInt160 ToScriptHash(this string address)
         {
             var data = address.Base58CheckDecode();
             if (data.Length != 21)

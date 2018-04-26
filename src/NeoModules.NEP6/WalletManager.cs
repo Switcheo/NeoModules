@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
-using NeoModules.Rest.Models;
+using NeoModules.NVM;
+using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.TransactionManagers;
 using Helper = NeoModules.KeyPairs.Helper;
+using Transaction = NeoModules.NEP6.Models.Transaction;
 
 namespace NeoModules.NEP6
 {
@@ -181,7 +184,7 @@ namespace NeoModules.NEP6
         /// <returns></returns>
         public bool DeleteAccount(string address)
         {
-            var scriptHash = Helper.ToScriptHash(address);
+            var scriptHash = address.ToScriptHash();
             var account = _wallet.Accounts.FirstOrDefault(p => p.Address == scriptHash);
             return DeleteAccount(account);
         }
@@ -210,7 +213,7 @@ namespace NeoModules.NEP6
         /// <returns></returns>
         public Account GetAccount(string address)
         {
-            return GetAccount(Helper.ToScriptHash(address));
+            return GetAccount(address.ToScriptHash());
         }
 
         /// <summary>
@@ -263,11 +266,22 @@ namespace NeoModules.NEP6
         //TODO: move this to separate class/service because of SRP
 
 
+        public async Task<Transaction> CallContract(KeyPair key, byte[] scriptHash, object[] args)
+        {
+            var bytes = GenerateScript(scriptHash, args);
+            return await CallAndSignContract(key, scriptHash, bytes); //TODO changes .Result
+        }
+
+        public async Task<Transaction> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args)
+        {
+            return await CallContract(key, scriptHash, new object[] { operation, args });
+        }
+
         public async Task<Transaction> CallAndSignContract(KeyPair key, byte[] scriptHash, byte[] bytes)
         {
             var gasCost = 0;
 
-            GenerateInputsOutputs(key, scriptHash, new Dictionary<string, decimal> {{"GAS", gasCost}}, out var inputs,
+            GenerateInputsOutputs(key, scriptHash, new Dictionary<string, decimal> { { "GAS", gasCost } }, out var inputs,
                 out var outputs);
 
             var tx = new Transaction
@@ -316,7 +330,9 @@ namespace NeoModules.NEP6
         {
             if (ammounts == null || ammounts.Count == 0) throw new WalletException("Invalid amount list");
 
-            var unspent = GetUnspent(Wallet.ToAddress(key.PublicKeyHash)).Result;
+            var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
+            var unspent = GetUnspent(Wallet.ToAddress(address.ToScriptHash())).Result;
+
             // filter any asset lists with zero unspent inputs
             unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
 
@@ -348,8 +364,8 @@ namespace NeoModules.NEP6
 
                     var input = new Transaction.Input
                     {
-                        PrevHash = src.Txid,
-                        PrevIndex = src.Index
+                        PrevHash = src.TxId,
+                        PrevIndex = src.N
                     };
 
                     inputs.Add(input);
@@ -373,13 +389,14 @@ namespace NeoModules.NEP6
                 if (selected > cost || cost == 0)
                 {
                     var left = selected - cost;
-
+                    var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
+                    var signatureHash = signatureScript.ToScriptHash();
+                    var scripthash = Utils.ReverseHex(signatureHash.ToArray().ByteToHex());
                     var change = new Transaction.Output
                     {
                         AssetId = assetId,
                         // ScriptHash = Utils.ReverseHex(key.signatureHash.ToArray().ByteToHex()),
-                        ScriptHash =
-                            Utils.ReverseHex(Helper.CreateSignatureRedeemScript(key.PublicKey).ToArray().ToHexString()),
+                        ScriptHash = scripthash,
                         Value = left
                     };
                     outputs.Add(change);
@@ -392,35 +409,35 @@ namespace NeoModules.NEP6
             return Utils.ReverseHex(hash.ToHexString());
         }
 
-        public async Task<Dictionary<string, List<UnspentEntry>>> GetUnspent(string address)
+        public async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
         {
             var response = await _restService.GetBalanceAsync(address);
             var addressBalance = AddressBalance.FromJson(response);
 
-            var result = new Dictionary<string, List<UnspentEntry>>();
+            var result = new Dictionary<string, List<Unspent>>();
             foreach (var balanceEntry in addressBalance.Balance)
             {
                 var child = balanceEntry.Unspent;
                 if (child?.Count > 0)
                 {
-                    List<UnspentEntry> list;
+                    List<Unspent> list;
                     if (result.ContainsKey(balanceEntry.Asset))
                     {
                         list = result[balanceEntry.Asset];
                     }
                     else
                     {
-                        list = new List<UnspentEntry>();
+                        list = new List<Unspent>();
                         result[balanceEntry.Asset] = list;
                     }
 
                     foreach (var data in balanceEntry.Unspent)
                     {
-                        var input = new UnspentEntry
+                        var input = new Unspent
                         {
-                            Txid = data.TxId,
-                            Index = Convert.ToUInt32(data.N),
-                            Value = Convert.ToDecimal(data.Value)
+                            TxId = data.TxId,
+                            N = data.N,
+                            Value = data.Value
                         };
 
                         list.Add(input);
@@ -453,6 +470,93 @@ namespace NeoModules.NEP6
             public string Txid;
             public uint Index;
             public decimal Value;
+        }
+
+        public static byte[] GenerateScript(byte[] scriptHash, object[] args)
+        {
+            using (var sb = new ScriptBuilder())
+            {
+                var items = new Stack<object>();
+
+                if (args != null)
+                {
+                    foreach (var item in args)
+                    {
+                        items.Push(item);
+                    }
+                }
+
+                while (items.Count > 0)
+                {
+                    var item = items.Pop();
+                    EmitObject(sb, item);
+                }
+
+                sb.EmitAppCall(scriptHash, false);
+
+                var timestamp = DateTime.UtcNow.ToTimestamp();
+                var nonce = BitConverter.GetBytes(timestamp);
+
+                //sb.Emit(OpCode.THROWIFNOT);
+                sb.Emit(OpCode.RET);
+                sb.EmitPush(nonce);
+
+                var bytes = sb.ToArray();
+
+                string hex = bytes.ToHexString();
+                //System.IO.File.WriteAllBytes(@"D:\code\Crypto\neo-debugger-tools\ICO-Template\bin\Debug\inputs.avm", bytes);
+
+                return bytes;
+            }
+        }
+
+
+
+        private static void EmitObject(ScriptBuilder sb, object item)
+        {
+            if (item is IEnumerable<byte>)
+            {
+                var arr = ((IEnumerable<byte>)item).ToArray();
+
+                sb.EmitPush(arr);
+            }
+            else
+            if (item is IEnumerable<object>)
+            {
+                var arr = ((IEnumerable<object>)item).ToArray();
+
+                for (int index = arr.Length - 1; index >= 0; index--)
+                {
+                    EmitObject(sb, arr[index]);
+                }
+
+                sb.EmitPush(arr.Length);
+                sb.Emit(OpCode.PACK);
+            }
+            else
+            if (item == null)
+            {
+                sb.EmitPush("");
+            }
+            else
+            if (item is string)
+            {
+                sb.EmitPush((string)item);
+            }
+            else
+            if (item is bool)
+            {
+                sb.EmitPush((bool)item);
+            }
+            else
+            if (item is BigInteger)
+            {
+                sb.EmitPush((BigInteger)item);
+            }
+            else
+            {
+                throw new Exception("Unsupported contract parameter: " + item.ToString());
+            }
         }
     }
 }

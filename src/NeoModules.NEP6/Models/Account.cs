@@ -78,6 +78,8 @@ namespace NeoModules.NEP6.Models
 
         [JsonIgnore] public bool Decrypted => Nep2Key == null || _key != null;
 
+        [JsonIgnore] public string ReadableAddress => Wallet.ToAddress(Address);
+
         public static Account FromJson(string json) => JsonConvert.DeserializeObject<Account>(json);
 
         public static string ToJson(Account self) => JsonConvert.SerializeObject(self);
