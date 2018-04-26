@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 
-namespace NeoModules.RPC.TransactionManagers
+namespace NeoModules.NEP6
 {
     public static class Utils
     {
@@ -20,6 +22,20 @@ namespace NeoModules.RPC.TransactionManagers
             {
                 return ecdsa.SignData(message, HashAlgorithmName.SHA256);
             }
+        }
+
+        public static string ReverseHex(string hex)
+        {
+            var result = "";
+            for (var i = hex.Length - 2; i >= 0; i -= 2) result += hex.Substring(i, 2);
+            return result;
+        }
+    }
+
+    public class WalletException : Exception
+    {
+        public WalletException(string msg) : base(msg)
+        {
         }
     }
 }
