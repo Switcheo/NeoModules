@@ -9,7 +9,7 @@ namespace NeoModules.RPC.Services
 		{
 			GetContractState = new NeoGetContractState(client);
 			GetStorage = new NeoGetStorage(client);
-			InvokeContract = new NeoInvokeContract(client);
+			Invoke = new NeoInvoke(client);
 			InvokeFunction = new NeoInvokeFunction(client);
 			InvokeScript = new NeoInvokeScript(client);
 		}
@@ -18,7 +18,7 @@ namespace NeoModules.RPC.Services
 
 		public NeoGetStorage GetStorage { get; set; }
 
-		public NeoInvokeContract InvokeContract { get; set; }
+		public NeoInvoke Invoke { get; set; }
 
 		public NeoInvokeFunction InvokeFunction { get; set; }
 
