@@ -34,11 +34,6 @@ namespace NeoModules.NEP6
             return result;
         }
 
-        public static byte[] GetScriptHashFromString(string hash)
-        {
-            return hash.HexToBytes().Reverse().ToArray();
-        }
-
         public static uint ToTimestamp(this DateTime time)
         {
             return (uint)(time.ToUniversalTime() - unixEpoch).TotalSeconds;

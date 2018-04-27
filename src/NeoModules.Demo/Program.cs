@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
@@ -51,6 +52,9 @@ namespace NeoModules.Demo
 
                 //wallet
                 WalletManagerTestAsync().Wait();
+
+                
+                
             }
             catch (Exception ex)
             {
@@ -185,13 +189,34 @@ namespace NeoModules.Demo
             var keypair = Wallet.GetPrivateKeyFromWif(privateKey);
             walletManager.ImportAccount(privateKey, "ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
             var address = walletManager.GetAccount("ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
-            var scriptHash = NEP6.Utils.GetScriptHashFromString("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
 
-            var tx = await walletManager.CallContract(new KeyPair(keypair), scriptHash, "registerMailbox", new object[] { address.ReadableAddress, "testNeoModules" });
+            var scriptHash = UInt160.Parse("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
+            var key = new KeyPair(keypair);
 
-            var service = new NeoNodesListService();
-            var result = await service.GetNodesList(MonitorNet.TestNet);
-            var nodes = JsonConvert.DeserializeObject<NodeList>(result);
+            var tx = await walletManager.CallContract(key, scriptHash.ToArray(), "registerInbox", new object[] { key.PublicKey.EncodePoint(true), "testNeoModules" });
+            //var txstring = tx.Serialize(true);
+            //byte[] script;
+            //using (var sb = new ScriptBuilder())
+            //{
+            //    sb.EmitAppCall(scriptHash, "name");
+            //    sb.EmitAppCall(scriptHash, "decimals");
+            //    sb.EmitAppCall(scriptHash, "symbol");
+            //    sb.EmitAppCall(scriptHash, "totalSupply");
+            //    script = sb.ToArray();
+            //}
+            //Debug.WriteLine(script.ToHexString());
+
+            var x = new NeoApiContractService(RpcTestNetClient);
+            var parametersList = new List<InvokeParameter>
+            {
+                new InvokeParameter
+                {
+                    Type = "String",
+                    Value = "testNeoModules"
+                }
+            };
+            var test = await x.InvokeFunction.SendRequestAsync(scriptHash.ToString(), "getMailCount", parametersList);
+            Debug.WriteLine(test.Stack[0].Value);
 
         }
 
