@@ -8,6 +8,7 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6;
 using NeoModules.NEP6.Models;
+using NeoModules.NVM;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.DTOs;
@@ -195,16 +196,16 @@ namespace NeoModules.Demo
 
             var tx = await walletManager.CallContract(key, scriptHash.ToArray(), "registerInbox", new object[] { key.PublicKey.EncodePoint(true), "testNeoModules" });
             //var txstring = tx.Serialize(true);
-            //byte[] script;
-            //using (var sb = new ScriptBuilder())
-            //{
-            //    sb.EmitAppCall(scriptHash, "name");
-            //    sb.EmitAppCall(scriptHash, "decimals");
-            //    sb.EmitAppCall(scriptHash, "symbol");
-            //    sb.EmitAppCall(scriptHash, "totalSupply");
-            //    script = sb.ToArray();
-            //}
-            //Debug.WriteLine(script.ToHexString());
+            byte[] script;
+            using (var sb = new ScriptBuilder())
+            {
+                sb.EmitAppCall(scriptHash, "name");
+                sb.EmitAppCall(scriptHash, "decimals");
+                sb.EmitAppCall(scriptHash, "symbol");
+                sb.EmitAppCall(scriptHash, "totalSupply");
+                script = sb.ToArray();
+            }
+            Debug.WriteLine(script.ToHexString());
 
             var x = new NeoApiContractService(RpcTestNetClient);
             var parametersList = new List<InvokeParameter>
@@ -216,6 +217,7 @@ namespace NeoModules.Demo
                 }
             };
             var test = await x.InvokeFunction.SendRequestAsync(scriptHash.ToString(), "getMailCount", parametersList);
+            var testScript = await x.InvokeScript.SendRequestAsync(script.ToHexString());
             Debug.WriteLine(test.Stack[0].Value);
 
         }
