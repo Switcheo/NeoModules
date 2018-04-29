@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
-using NeoModules.RPC.Helpers;
+using NeoModules.NVM;
 
 namespace NeoModules.NEP6
 {
     public static class Utils
     {
-        private static readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static byte[] Sign(byte[] message, byte[] prikey, byte[] pubkey)
         {
@@ -36,8 +36,43 @@ namespace NeoModules.NEP6
 
         public static uint ToTimestamp(this DateTime time)
         {
-            return (uint)(time.ToUniversalTime() - unixEpoch).TotalSeconds;
+            return (uint)(time.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
+
+        public static byte[] GenerateScript(byte[] scriptHash, object[] args)
+        {
+            using (var sb = new ScriptBuilder())
+            {
+                var items = new Stack<object>();
+
+                if (args != null)
+                {
+                    foreach (var item in args)
+                    {
+                        items.Push(item);
+                    }
+                }
+
+                while (items.Count > 0)
+                {
+                    var item = items.Pop();
+                    Helper.EmitObject(sb, item);
+                }
+
+                sb.EmitAppCall(scriptHash, false);
+
+                var timestamp = DateTime.UtcNow.ToTimestamp();
+                var nonce = BitConverter.GetBytes(timestamp);
+
+                sb.Emit(OpCode.RET);
+                sb.EmitPush(nonce);
+
+                var bytes = sb.ToArray();
+                return bytes;
+            }
+        }
+
+       
     }
 
     public class WalletException : Exception

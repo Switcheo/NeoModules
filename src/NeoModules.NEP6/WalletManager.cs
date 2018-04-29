@@ -268,7 +268,7 @@ namespace NeoModules.NEP6
 
         public async Task<Transaction> CallContract(KeyPair key, byte[] scriptHash, object[] args)
         {
-            var bytes = GenerateScript(scriptHash, args);
+            var bytes = Utils.GenerateScript(scriptHash, args);
             return await CallAndSignContract(key, scriptHash, bytes); //TODO changes .Result
         }
 
@@ -296,7 +296,7 @@ namespace NeoModules.NEP6
 
             tx.Sign(key);
 
-            var hexTx = tx.Serialize();
+            var hexTx = tx.Serialize(true);
 
             var ok = await _transactionManager.SendRawTransactionAsync(hexTx);
             return ok ? tx : null;
@@ -380,7 +380,8 @@ namespace NeoModules.NEP6
                     var output = new Transaction.Output
                     {
                         AssetId = assetId,
-                        ScriptHash = GetStringFromScriptHash(outputHash),
+                        //ScriptHash = GetStringFromScriptHash(outputHash),
+                        ScriptHash = outputHash.ToHexString(),
                         Value = cost
                     };
                     outputs.Add(output);
@@ -389,24 +390,18 @@ namespace NeoModules.NEP6
                 if (selected > cost || cost == 0)
                 {
                     var left = selected - cost;
-                    var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
-                    var signatureHash = signatureScript.ToScriptHash();
-                    var scripthash = Utils.ReverseHex(signatureHash.ToArray().ByteToHex());
+                    var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
+                    var signatureHash = signatureScript.ToString().Substring(2);
+
                     var change = new Transaction.Output
                     {
                         AssetId = assetId,
-                        // ScriptHash = Utils.ReverseHex(key.signatureHash.ToArray().ByteToHex()),
-                        ScriptHash = scripthash,
+                        ScriptHash = signatureHash,
                         Value = left
                     };
                     outputs.Add(change);
                 }
             }
-        }
-
-        public static string GetStringFromScriptHash(byte[] hash)
-        {
-            return Utils.ReverseHex(hash.ToHexString());
         }
 
         public async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
@@ -463,100 +458,6 @@ namespace NeoModules.NEP6
         private static void AddAsset(string symbol, string hash)
         {
             _systemAssets[symbol] = hash;
-        }
-
-        public struct UnspentEntry // todo: replace this with Unspent class from REST
-        {
-            public string Txid;
-            public uint Index;
-            public decimal Value;
-        }
-
-        public static byte[] GenerateScript(byte[] scriptHash, object[] args)
-        {
-            using (var sb = new ScriptBuilder())
-            {
-                var items = new Stack<object>();
-
-                if (args != null)
-                {
-                    foreach (var item in args)
-                    {
-                        items.Push(item);
-                    }
-                }
-
-                while (items.Count > 0)
-                {
-                    var item = items.Pop();
-                    EmitObject(sb, item);
-                }
-
-                sb.EmitAppCall(scriptHash, false);
-
-                var timestamp = DateTime.UtcNow.ToTimestamp();
-                var nonce = BitConverter.GetBytes(timestamp);
-
-                //sb.Emit(OpCode.THROWIFNOT);
-                sb.Emit(OpCode.RET);
-                sb.EmitPush(nonce);
-
-                var bytes = sb.ToArray();
-
-                string hex = bytes.ToHexString();
-                //System.IO.File.WriteAllBytes(@"D:\code\Crypto\neo-debugger-tools\ICO-Template\bin\Debug\inputs.avm", bytes);
-
-                return bytes;
-            }
-        }
-
-
-
-        private static void EmitObject(ScriptBuilder sb, object item)
-        {
-            if (item is IEnumerable<byte>)
-            {
-                var arr = ((IEnumerable<byte>)item).ToArray();
-
-                sb.EmitPush(arr);
-            }
-            else
-            if (item is IEnumerable<object>)
-            {
-                var arr = ((IEnumerable<object>)item).ToArray();
-
-                for (int index = arr.Length - 1; index >= 0; index--)
-                {
-                    EmitObject(sb, arr[index]);
-                }
-
-                sb.EmitPush(arr.Length);
-                sb.Emit(OpCode.PACK);
-            }
-            else
-            if (item == null)
-            {
-                sb.EmitPush("");
-            }
-            else
-            if (item is string)
-            {
-                sb.EmitPush((string)item);
-            }
-            else
-            if (item is bool)
-            {
-                sb.EmitPush((bool)item);
-            }
-            else
-            if (item is BigInteger)
-            {
-                sb.EmitPush((BigInteger)item);
-            }
-            else
-            {
-                throw new Exception("Unsupported contract parameter: " + item.ToString());
-            }
         }
     }
 }

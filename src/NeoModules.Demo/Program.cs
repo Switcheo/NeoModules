@@ -54,8 +54,8 @@ namespace NeoModules.Demo
                 //wallet
                 WalletManagerTestAsync().Wait();
 
-                
-                
+
+
             }
             catch (Exception ex)
             {
@@ -191,34 +191,37 @@ namespace NeoModules.Demo
             walletManager.ImportAccount(privateKey, "ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
             var address = walletManager.GetAccount("ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
 
-            var scriptHash = UInt160.Parse("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
+            var scriptHash = UInt160.Parse("0xde1a53be359e8be9f3d11627bcca40548a2d5bc1");
+            var tests = scriptHash.ToArray();
             var key = new KeyPair(keypair);
+            //var testNeoModules = System.Text.Encoding.ASCII.GetBytes("testNeoModules").ToHexString();
+            var tx = await walletManager.CallContract(key, tests, "registerMailbox", new object[] { key.PublicKey.EncodePoint(true), "testNeoModules" });
+            //byte[] script;
+            //using (var sb = new ScriptBuilder())
+            //{
+            //    sb.EmitAppCall(scriptHash, "name");
+            //    sb.EmitAppCall(scriptHash, "decimals");
+            //    sb.EmitAppCall(scriptHash, "symbol");
+            //    sb.EmitAppCall(scriptHash, "totalSupply");
+            //    script = sb.ToArray();
+            //}
+            //Debug.WriteLine(script.ToHexString());
 
-            var tx = await walletManager.CallContract(key, scriptHash.ToArray(), "registerInbox", new object[] { key.PublicKey.EncodePoint(true), "testNeoModules" });
-            //var txstring = tx.Serialize(true);
-            byte[] script;
-            using (var sb = new ScriptBuilder())
-            {
-                sb.EmitAppCall(scriptHash, "name");
-                sb.EmitAppCall(scriptHash, "decimals");
-                sb.EmitAppCall(scriptHash, "symbol");
-                sb.EmitAppCall(scriptHash, "totalSupply");
-                script = sb.ToArray();
-            }
-            Debug.WriteLine(script.ToHexString());
-
-            var x = new NeoApiContractService(RpcTestNetClient);
-            var parametersList = new List<InvokeParameter>
-            {
-                new InvokeParameter
-                {
-                    Type = "String",
-                    Value = "testNeoModules"
-                }
-            };
-            var test = await x.InvokeFunction.SendRequestAsync(scriptHash.ToString(), "getMailCount", parametersList);
-            var testScript = await x.InvokeScript.SendRequestAsync(script.ToHexString());
-            Debug.WriteLine(test.Stack[0].Value);
+            //var x = new NeoApiContractService(RpcTestNetClient);
+            //var parametersList = new List<InvokeParameter>
+            //{
+            //    new InvokeParameter
+            //    {
+            //        Type = "String",
+            //        Value = "testNeoModules"
+            //    }
+            //};
+            //var test = await x.InvokeFunction.SendRequestAsync(scriptHash.ToString(), "getMailCount", parametersList);
+            //var testScript = await x.InvokeScript.SendRequestAsync(script.ToHexString());
+            //var testSendAssets = await walletManager.SendAsset(key,
+            //    "AbusTXjfsgULHFaJPNujimTUK63M7JD8R3".ToScriptHash().ToArray(),
+            //    new Dictionary<string, decimal>() { { "GAS", new decimal(0.5) } });
+            //Debug.WriteLine(test.Stack[0].Value);
 
         }
 

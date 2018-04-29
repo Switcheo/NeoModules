@@ -31,7 +31,7 @@ namespace NeoModules.NEP6.Models
             {
                 result.Append(Num2VarInt(tx.Script.Length));
                 result.Append(tx.Script.ToHexString());
-                if (tx.Version >= 1) result.Append(Fixed8.FromDecimal(tx.Gas));
+                if (tx.Version >= 1) result.Append(Num2Fixed8(tx.Gas));
             }
 
             // Don't need any attributes
@@ -58,11 +58,13 @@ namespace NeoModules.NEP6.Models
             var txdata = Serialize(false);
             var txstr = txdata.HexToBytes();
 
-            var privkey = key.PrivateKey;
-            var pubkey = key.PublicKey.EncodePoint(false).Skip(1).ToArray(); ; //todo validate this encodingpoint
-            var signature = Utils.Sign(txstr, privkey, pubkey);
+            byte[] signed;
+            using (key.Decrypt())
+            {
+                signed = Utils.Sign(txstr, key.PrivateKey, key.PublicKey.EncodePoint(false).Skip(1).ToArray());
+            }
 
-            var invocationScript = "40" + signature.ToHexString();
+            var invocationScript = "40" + signed.ToHexString();
             var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToHexString();
             Witnesses = new[]
             {

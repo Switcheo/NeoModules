@@ -12,7 +12,7 @@ namespace NeoModules.KeyPairs
 {
     public static class Helper
     {
-        private static readonly ThreadLocal<SHA256> _sha256 = new ThreadLocal<SHA256>(() => SHA256.Create());
+        private static readonly ThreadLocal<SHA256> _sha256 = new ThreadLocal<SHA256>(SHA256.Create);
 
         private static readonly ThreadLocal<RIPEMD160Managed> _ripemd160 =
             new ThreadLocal<RIPEMD160Managed>(() => new RIPEMD160Managed());
@@ -106,7 +106,7 @@ namespace NeoModules.KeyPairs
         /// <param name="offset">Offset, starting from this offset when hashing</param>
         /// <param name="count">The number of bytes to calculate the hash value</param>
         /// <returns>Return this hash value</returns>
-        public static byte[] Sha256(this byte[] value, int offset, int count)
+        internal static byte[] Sha256(this byte[] value, int offset, int count)
         {
             return _sha256.Value.ComputeHash(value, offset, count);
         }
@@ -116,7 +116,7 @@ namespace NeoModules.KeyPairs
         /// </summary>
         /// <param name="value">Byte array</param>
         /// <returns>Return this hash value</returns>
-        public static byte[] RIPEMD160(this IEnumerable<byte> value)
+        internal static byte[] RIPEMD160(this IEnumerable<byte> value)
         {
             return _ripemd160.Value.ComputeHash(value.ToArray());
         }

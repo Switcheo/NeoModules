@@ -31,11 +31,5 @@ namespace NeoModules.Core
                 result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
             return result;
         }
-
-        public static string ByteToHex(this byte[] data)
-        {
-            string hex = BitConverter.ToString(data).Replace("-", "");
-            return hex;
-        }
     }
 }

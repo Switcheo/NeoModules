@@ -30,7 +30,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 var temp = result.Stack[0].Value.ToString();
-                name = Helper.HextoString(temp);
+                name = Helper.HexToString(temp);
             }
             return name;
         }
@@ -42,7 +42,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 var temp = result.Stack[0].Value.ToString();
-                name = Helper.HextoString(temp);
+                name = Helper.HexToString(temp);
             }
             return name;
         }
@@ -56,7 +56,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 var value = result.Stack[0].Value.ToString();
-                var supplyValueArray = value.HexToBytes().Reverse().ToArray(); // todo, add explanation for this
+                var supplyValueArray = value.HexToBytes().Reverse().ToArray();
                 value = BitConverter.ToString(supplyValueArray).Replace("-", "");
                 totalSupply = (HexToBigInteger(value) / DecimalStringToBigInteger(decimals)).ToString();
             }
@@ -84,7 +84,7 @@ namespace NeoModules.RPC.Services
             {
                 balance = result.Stack[0].Value.ToString();
                 if (string.IsNullOrEmpty(balance)) return "0";
-                var supplyValueArray = balance.HexToBytes().Reverse().ToArray(); // todo, add explanation for this
+                var supplyValueArray = balance.HexToBytes().Reverse().ToArray();
                 balance = BitConverter.ToString(supplyValueArray).Replace("-", "");
                 balance = GetDecimal(HexToBigInteger(balance), (int)DecimalStringToBigInteger(decimals));              
             }
