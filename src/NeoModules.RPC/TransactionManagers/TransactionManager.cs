@@ -14,7 +14,7 @@ namespace NeoModules.RPC.TransactionManagers
 
         public IClient Client { get; set; }
 
-        public Task<string> SendTransactionAsync(string from, string to, double amount)
+        public Task<string> SendTransactionAsync(string from, string to, decimal amount)
         {
             throw new NotImplementedException();
         }

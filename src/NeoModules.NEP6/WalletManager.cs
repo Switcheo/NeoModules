@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
-using NeoModules.NVM;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.TransactionManagers;
@@ -263,9 +261,9 @@ namespace NeoModules.NEP6
         }
 
 
+
+
         //TODO: move this to separate class/service because of SRP
-
-
         public async Task<Transaction> CallContract(KeyPair key, byte[] scriptHash, object[] args)
         {
             var bytes = Utils.GenerateScript(scriptHash, args);
@@ -296,10 +294,26 @@ namespace NeoModules.NEP6
 
             tx.Sign(key);
 
-            var hexTx = tx.Serialize(true);
+            var hexTx = tx.Serialize();
 
             var ok = await _transactionManager.SendRawTransactionAsync(hexTx);
             return ok ? tx : null;
+        }
+
+        public async Task<Transaction> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
+        {
+            return await SendAsset(fromKey, toAddress, new Dictionary<string, decimal>() { { symbol, amount } });
+        }
+
+        public async Task<Transaction> SendAsset(KeyPair fromKey, string toAddress, Dictionary<string, decimal> amounts)
+        {
+            if (String.Equals(fromKey.PublicKeyHash.ToString(), toAddress, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new WalletException("Source and dest addresses are the same");
+            }
+
+            var toScriptHash = toAddress.ToScriptHash().ToArray();
+            return await SendAsset(fromKey, toScriptHash, amounts);
         }
 
         public async Task<Transaction> SendAsset(KeyPair fromKey, byte[] scriptHash,
@@ -380,8 +394,7 @@ namespace NeoModules.NEP6
                     var output = new Transaction.Output
                     {
                         AssetId = assetId,
-                        //ScriptHash = GetStringFromScriptHash(outputHash),
-                        ScriptHash = outputHash.ToHexString(),
+                        ScriptHash = outputHash.Reverse().ToHexString(),
                         Value = cost
                     };
                     outputs.Add(output);
@@ -390,13 +403,12 @@ namespace NeoModules.NEP6
                 if (selected > cost || cost == 0)
                 {
                     var left = selected - cost;
+                    
                     var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                    var signatureHash = signatureScript.ToString().Substring(2);
-
                     var change = new Transaction.Output
                     {
                         AssetId = assetId,
-                        ScriptHash = signatureHash,
+                        ScriptHash = signatureScript.ToArray().Reverse().ToHexString(),
                         Value = left
                     };
                     outputs.Add(change);

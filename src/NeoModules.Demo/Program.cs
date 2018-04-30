@@ -50,6 +50,8 @@ namespace NeoModules.Demo
 
                 ////nodes list
                 //NodesListTestAsync().Wait();
+
+                WalletManagerTestAsync().Wait();
             }
             catch (Exception ex)
             {
@@ -170,6 +172,54 @@ namespace NeoModules.Demo
             var result = await service.GetNodesList(MonitorNet.TestNet);
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
             return nodes;
+        }
+
+        private static async Task WalletManagerTestAsync()
+        {
+            var wallet = new Wallet();
+            var transactionManager = new TransactionManager(RpcTestNetClient);
+            var restService = new NeoScanRestService(NeoScanNet.TestNet);
+            var walletManager = new WalletManager(wallet, transactionManager, restService);
+
+            var privateKey = "L1mLVqjnuSHNeeGPpPq2aRv74Pm9TXJcXkhCJAz2K9s1Lrrd5fzH";
+            var keypair = Wallet.GetPrivateKeyFromWif(privateKey);
+            walletManager.ImportAccount(privateKey, "ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
+            var address = walletManager.GetAccount("ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
+
+            var scriptHash = UInt160.Parse("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
+            var tests = scriptHash.ToArray();
+            var key = new KeyPair(keypair);
+            //var tx = await walletManager.CallContract(key, tests, "registerMailbox", new object[] { key.PublicKey.EncodePoint(true).ToArray(), "testNeoModules" });
+            //byte[] script;
+            //using (var sb = new ScriptBuilder())
+            //{
+            //    sb.EmitAppCall(scriptHash, "name");
+            //    sb.EmitAppCall(scriptHash, "decimals");
+            //    sb.EmitAppCall(scriptHash, "symbol");
+            //    sb.EmitAppCall(scriptHash, "totalSupply");
+            //    sb.EmitAppCall(scriptHash, "sendMessage", key.PublicKey.EncodePoint(true).ToArray(), "testNeoModules", "testMessage");
+            //    script = sb.ToArray();
+            //}
+            //Debug.WriteLine(script.ToHexString());
+
+            //var x = new NeoApiContractService(RpcTestNetClient);
+            //var parametersList = new List<InvokeParameter>
+            //{
+            //    new InvokeParameter
+            //    {
+            //        Type = "ByteArray",
+            //        Value = System.Text.Encoding.ASCII.GetBytes("testNeoModules").ToHexString()
+            //    }
+            //};
+            //var test = await x.InvokeFunction.SendRequestAsync(scriptHash.ToString(), "getMailCount", parametersList);
+            //var testScript = await x.InvokeScript.SendRequestAsync(script.ToHexString());
+            //var tx2 = await walletManager.CallContract(key, tests, "sendMessage", new object[] { key.PublicKey.EncodePoint(true).ToArray(), "testNeoModules", "testMessage" });
+
+            var testSendAssets = await walletManager.SendAsset(key,
+                "AbusTXjfsgULHFaJPNujimTUK63M7JD8R3".ToScriptHash().ToArray(),
+                new Dictionary<string, decimal>() { { "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7", new decimal(0.02) } });
+            //Debug.WriteLine(test.Stack[0].Value);
+
         }
     }
 }

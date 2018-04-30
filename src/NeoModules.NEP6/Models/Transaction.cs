@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
+using NeoModules.RPC.DTOs;
 using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6.Models
@@ -17,7 +18,7 @@ namespace NeoModules.NEP6.Models
 
         public byte Type;
         public byte Version;
-        public Witness[] Witnesses;
+        public Script[] Witnesses;
 
         public virtual string Serialize(bool signed = true)
         {
@@ -68,15 +69,9 @@ namespace NeoModules.NEP6.Models
             var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToHexString();
             Witnesses = new[]
             {
-                new Witness {InvocationScript = invocationScript, VerificationScript = verificationScript}
+                new Script {Invocation = invocationScript, Verification = verificationScript}
             };
-        }
-
-        public struct Witness
-        {
-            public string InvocationScript;
-            public string VerificationScript;
-        }
+        }   
 
         public struct Input
         {
@@ -109,11 +104,11 @@ namespace NeoModules.NEP6.Models
             return "ff" + Num2Hexstring(num, 8) + Num2Hexstring(num / (int) Math.Pow(2, 32), 8);
         }
 
-        protected static string SerializeWitness(Witness witness)
+        protected static string SerializeWitness(Script witness)
         {
-            var invoLength = Num2Hexstring(witness.InvocationScript.Length / 2);
-            var veriLength = Num2Hexstring(witness.VerificationScript.Length / 2);
-            return invoLength + witness.InvocationScript + veriLength + witness.VerificationScript;
+            var invoLength = Num2Hexstring(witness.Invocation.Length / 2);
+            var veriLength = Num2Hexstring(witness.Verification.Length / 2);
+            return invoLength + witness.Invocation + veriLength + witness.Verification;
         }
 
         protected static string SerializeTransactionInput(Input input)
