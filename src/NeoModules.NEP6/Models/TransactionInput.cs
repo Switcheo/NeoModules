@@ -8,7 +8,7 @@ using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6.Models
 {
-    public class Transaction
+    public class TransactionInput
     {
         public decimal Gas;
 
@@ -88,12 +88,12 @@ namespace NeoModules.NEP6.Models
 
         #region HELPERS
 
-        protected static string Num2Hexstring(long num, int size = 2)
+        private static string Num2Hexstring(long num, int size = 2)
         {
             return num.ToString("X" + size);
         }
 
-        protected static string Num2VarInt(long num)
+        private static string Num2VarInt(long num)
         {
             if (num < 0xfd) return Num2Hexstring(num);
 
@@ -104,25 +104,25 @@ namespace NeoModules.NEP6.Models
             return "ff" + Num2Hexstring(num, 8) + Num2Hexstring(num / (int) Math.Pow(2, 32), 8);
         }
 
-        protected static string SerializeWitness(Script witness)
+        private static string SerializeWitness(Script witness)
         {
             var invoLength = Num2Hexstring(witness.Invocation.Length / 2);
             var veriLength = Num2Hexstring(witness.Verification.Length / 2);
             return invoLength + witness.Invocation + veriLength + witness.Verification;
         }
 
-        protected static string SerializeTransactionInput(Input input)
+        private static string SerializeTransactionInput(Input input)
         {
             return Utils.ReverseHex(input.PrevHash) + Utils.ReverseHex(Num2Hexstring(input.PrevIndex, 4));
         }
 
-        protected static string SerializeTransactionOutput(Output output)
+        private static string SerializeTransactionOutput(Output output)
         {
             var value = Num2Fixed8(output.Value);
             return Utils.ReverseHex(output.AssetId) + value + Utils.ReverseHex(output.ScriptHash);
         }
 
-        public static string Num2Fixed8(decimal num)
+        private static string Num2Fixed8(decimal num)
         {
             long val = (long)Math.Round(num * 100000000);
             var hexValue = val.ToString("X16");

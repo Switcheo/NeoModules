@@ -14,18 +14,15 @@ namespace NeoModules.RPC.TransactionManagers
 
         public IClient Client { get; set; }
 
-        public Task<string> SendTransactionAsync(string from, string to, decimal amount)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> SendRawTransactionAsync(string hexTx)
+        public async Task<bool> SendTransactionAsync(string hexTx) //another method with TransactionInput parameter
         {
             if (Client == null) throw new NullReferenceException("Client not configured");
             if (string.IsNullOrEmpty(hexTx)) throw new ArgumentNullException(nameof(hexTx));
 
             var neoSendTransaction = new NeoSendRawTransaction(Client);
             return await neoSendTransaction.SendRequestAsync(hexTx).ConfigureAwait(false); 
-        }   
+        }
+
+
     }
 }

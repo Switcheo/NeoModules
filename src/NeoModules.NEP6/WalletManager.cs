@@ -10,7 +10,6 @@ using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.TransactionManagers;
 using Helper = NeoModules.KeyPairs.Helper;
-using Transaction = NeoModules.NEP6.Models.Transaction;
 
 namespace NeoModules.NEP6
 {
@@ -110,6 +109,8 @@ namespace NeoModules.NEP6
             AddAccount(account);
             return account;
         }
+
+
 
         /// <summary>
         ///     Decrypts and add the account to the Wallet Account List, using NEP2.
@@ -260,29 +261,35 @@ namespace NeoModules.NEP6
             }
         }
 
-
-
-
-        //TODO: move this to separate class/service because of SRP
-        public async Task<Transaction> CallContract(KeyPair key, byte[] scriptHash, object[] args)
+        // OLD
+        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, object[] args)
         {
             var bytes = Utils.GenerateScript(scriptHash, args);
             return await CallAndSignContract(key, scriptHash, bytes); //TODO changes .Result
         }
 
-        public async Task<Transaction> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args)
+        //public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args)
+        //{
+        //    return await CallContract(key, scriptHash, new object[] { operation, args });
+        //}
+
+        // OLD FINISH
+
+        //TODO: move this to separate class/service because of SRP
+        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args = null)
         {
-            return await CallContract(key, scriptHash, new object[] { operation, args });
+            var scriptBuilderResult = Utils.GenerateScript(scriptHash, operation, args);
+            return await CallAndSignContract(key, scriptHash, scriptBuilderResult);
         }
 
-        public async Task<Transaction> CallAndSignContract(KeyPair key, byte[] scriptHash, byte[] bytes)
+        public async Task<TransactionInput> CallAndSignContract(KeyPair key, byte[] scriptHash, byte[] bytes)
         {
             var gasCost = 0;
 
             GenerateInputsOutputs(key, scriptHash, new Dictionary<string, decimal> { { "GAS", gasCost } }, out var inputs,
                 out var outputs);
 
-            var tx = new Transaction
+            var tx = new TransactionInput
             {
                 Type = 0xd1,
                 Version = 0,
@@ -292,20 +299,16 @@ namespace NeoModules.NEP6
                 Outputs = outputs.ToArray()
             };
 
-            tx.Sign(key);
-
-            var hexTx = tx.Serialize();
-
-            var ok = await _transactionManager.SendRawTransactionAsync(hexTx);
-            return ok ? tx : null;
+            var result = await SignAndSendTransaction(key, tx);
+            return result ? tx : null;
         }
 
-        public async Task<Transaction> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
+        public async Task<TransactionInput> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
         {
             return await SendAsset(fromKey, toAddress, new Dictionary<string, decimal>() { { symbol, amount } });
         }
 
-        public async Task<Transaction> SendAsset(KeyPair fromKey, string toAddress, Dictionary<string, decimal> amounts)
+        public async Task<TransactionInput> SendAsset(KeyPair fromKey, string toAddress, Dictionary<string, decimal> amounts)
         {
             if (String.Equals(fromKey.PublicKeyHash.ToString(), toAddress, StringComparison.OrdinalIgnoreCase))
             {
@@ -316,12 +319,12 @@ namespace NeoModules.NEP6
             return await SendAsset(fromKey, toScriptHash, amounts);
         }
 
-        public async Task<Transaction> SendAsset(KeyPair fromKey, byte[] scriptHash,
+        public async Task<TransactionInput> SendAsset(KeyPair fromKey, byte[] scriptHash,
             Dictionary<string, decimal> amounts)
         {
             GenerateInputsOutputs(fromKey, scriptHash, amounts, out var inputs, out var outputs);
 
-            var tx = new Transaction
+            var tx = new TransactionInput
             {
                 Type = 128,
                 Version = 0,
@@ -331,18 +334,22 @@ namespace NeoModules.NEP6
                 Outputs = outputs.ToArray()
             };
 
-            tx.Sign(fromKey);
+            var result = await SignAndSendTransaction(fromKey, tx);
+            return result ? tx : null;
+        }
 
-            var hexTx = tx.Serialize();
-
-            var ok = await _transactionManager.SendRawTransactionAsync(hexTx);
-            return ok ? tx : null;
+        private async Task<bool> SignAndSendTransaction(KeyPair key, TransactionInput txInput)
+        {
+            if (txInput == null) return false;
+            txInput.Sign(key);
+            var serializedTx = txInput.Serialize();
+            return await _transactionManager.SendTransactionAsync(serializedTx);
         }
 
         private void GenerateInputsOutputs(KeyPair key, byte[] outputHash, Dictionary<string, decimal> ammounts,
-            out List<Transaction.Input> inputs, out List<Transaction.Output> outputs)
+            out List<TransactionInput.Input> inputs, out List<TransactionInput.Output> outputs)
         {
-            if (ammounts == null || ammounts.Count == 0) throw new WalletException("Invalid amount list");
+            if (ammounts == null || ammounts.Count == 0) throw new WalletException("Invalid amounts");
 
             var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
             var unspent = GetUnspent(Wallet.ToAddress(address.ToScriptHash())).Result;
@@ -350,8 +357,8 @@ namespace NeoModules.NEP6
             // filter any asset lists with zero unspent inputs
             unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            inputs = new List<Transaction.Input>();
-            outputs = new List<Transaction.Output>();
+            inputs = new List<TransactionInput.Input>();
+            outputs = new List<TransactionInput.Output>();
 
             foreach (var entry in ammounts)
             {
@@ -376,7 +383,7 @@ namespace NeoModules.NEP6
                 {
                     selected += src.Value;
 
-                    var input = new Transaction.Input
+                    var input = new TransactionInput.Input
                     {
                         PrevHash = src.TxId,
                         PrevIndex = src.N
@@ -391,7 +398,7 @@ namespace NeoModules.NEP6
 
                 if (cost > 0)
                 {
-                    var output = new Transaction.Output
+                    var output = new TransactionInput.Output
                     {
                         AssetId = assetId,
                         ScriptHash = outputHash.Reverse().ToHexString(),
@@ -403,9 +410,9 @@ namespace NeoModules.NEP6
                 if (selected > cost || cost == 0)
                 {
                     var left = selected - cost;
-                    
+
                     var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                    var change = new Transaction.Output
+                    var change = new TransactionInput.Output
                     {
                         AssetId = assetId,
                         ScriptHash = signatureScript.ToArray().Reverse().ToHexString(),
@@ -425,31 +432,24 @@ namespace NeoModules.NEP6
             foreach (var balanceEntry in addressBalance.Balance)
             {
                 var child = balanceEntry.Unspent;
-                if (child?.Count > 0)
+                if (!(child?.Count > 0)) continue;
+                List<Unspent> list;
+                if (result.ContainsKey(balanceEntry.Asset))
                 {
-                    List<Unspent> list;
-                    if (result.ContainsKey(balanceEntry.Asset))
-                    {
-                        list = result[balanceEntry.Asset];
-                    }
-                    else
-                    {
-                        list = new List<Unspent>();
-                        result[balanceEntry.Asset] = list;
-                    }
-
-                    foreach (var data in balanceEntry.Unspent)
-                    {
-                        var input = new Unspent
-                        {
-                            TxId = data.TxId,
-                            N = data.N,
-                            Value = data.Value
-                        };
-
-                        list.Add(input);
-                    }
+                    list = result[balanceEntry.Asset];
                 }
+                else
+                {
+                    list = new List<Unspent>();
+                    result[balanceEntry.Asset] = list;
+                }
+
+                list.AddRange(balanceEntry.Unspent.Select(data => new Unspent
+                {
+                    TxId = data.TxId,
+                    N = data.N,
+                    Value = data.Value
+                }));
             }
 
             return result;

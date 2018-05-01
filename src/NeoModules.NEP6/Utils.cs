@@ -2,15 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using NeoModules.Core;
+using NeoModules.KeyPairs;
 using NeoModules.NVM;
+using Helper = NeoModules.NVM.Helper;
 
 namespace NeoModules.NEP6
 {
     public static class Utils
     {
+        private static readonly string NeoToken = "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
+        private static readonly string GasToken = "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
+
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public static byte[] Sign(byte[] message, byte[] prikey, byte[] pubkey)
+        internal static byte[] Sign(byte[] message, byte[] prikey, byte[] pubkey)
         {
             using (var ecdsa = ECDsa.Create(new ECParameters
             {
@@ -72,7 +78,32 @@ namespace NeoModules.NEP6
             }
         }
 
-       
+        public static byte[] GenerateScript(byte[] scriptHash, string operation, object[] args)
+        {
+            var script = scriptHash.ToScriptHash();
+            using (var sb = new ScriptBuilder())
+            {
+                if (args != null)
+                {
+                    sb.EmitAppCall(script, operation, args);
+                }
+                else
+                {
+                    sb.EmitAppCall(script, operation);
+                }
+                
+
+                //TODO: not sure about this
+                var timestamp = DateTime.UtcNow.ToTimestamp();
+                var nonce = BitConverter.GetBytes(timestamp);
+
+                sb.Emit(OpCode.RET);
+                sb.EmitPush(nonce);
+
+                var bytes = sb.ToArray();
+                return bytes;
+            }
+        }
     }
 
     public class WalletException : Exception
