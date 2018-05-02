@@ -1,11 +1,13 @@
 ﻿using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Converters;
+using NeoModules.RPC.Infrastructure;
+using NeoModules.RPC.TransactionManagers;
 using Newtonsoft.Json;
 
 namespace NeoModules.NEP6.Models
 {
-    public class Account
+    public class Account : IAccount
     {
         [JsonConstructor]
         public Account(UInt160 address, string label = "", bool isDefault = false, bool isLock = false,
@@ -23,9 +25,9 @@ namespace NeoModules.NEP6.Models
 
         public Account(UInt160 address, KeyPair key, string password, ScryptParameters scryptParameters)
         {
-            _key = key;
+            Key = key;
             Address = address;
-            Nep2Key = Nep2.Encrypt(_key.PrivateKey.ToHexString(), password, scryptParameters).Result;
+            Nep2Key = Nep2.Encrypt(Key.PrivateKey.ToHexString(), password, scryptParameters).Result;
         }
 
         /// <summary>
@@ -34,7 +36,9 @@ namespace NeoModules.NEP6.Models
         /// </summary>
         [JsonProperty("address")]
         [JsonConverter(typeof(StringToAddressInt160Converter))]
-        public UInt160 Address { get; }
+        public UInt160 Address { get; set; }
+
+        public ITransactionManager TransactionManager { get; set; }
 
         /// <summary>
         ///     Label that the user has made to the account.
@@ -74,14 +78,17 @@ namespace NeoModules.NEP6.Models
         [JsonProperty("extra")]
         public object Extra { get; set; }
 
-        [JsonIgnore] private readonly KeyPair _key;
-
-        [JsonIgnore] public bool Decrypted => Nep2Key == null || _key != null;
-
-        [JsonIgnore] public string ReadableAddress => Wallet.ToAddress(Address);
+        [JsonIgnore]
+        public bool Decrypted => Nep2Key == null || Key != null;
 
         public static Account FromJson(string json) => JsonConvert.DeserializeObject<Account>(json);
 
         public static string ToJson(Account self) => JsonConvert.SerializeObject(self);
+
+        [JsonIgnore]
+        string IAccount.Address => Wallet.ToAddress(Address);
+
+        [JsonIgnore]
+        public readonly KeyPair Key;
     }
 }

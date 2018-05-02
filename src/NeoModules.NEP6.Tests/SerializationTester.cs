@@ -40,7 +40,7 @@ namespace NeoModules.NEP6.Tests
         [Fact]
         public static void Nep6WalletFromFileTest()
         {
-            var wallet = Wallet.LoadFromFile("walletFile.json");
+            var wallet = WalletManager.LoadFromFile("walletFile.json");
             Assert.NotNull(wallet);
         }
 

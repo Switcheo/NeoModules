@@ -13,7 +13,7 @@ namespace NeoModules.NEP6
     {
         private static readonly string NeoToken = "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
         private static readonly string GasToken = "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
-
+        public static Dictionary<string, string> _systemAssets;
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         internal static byte[] Sign(byte[] message, byte[] prikey, byte[] pubkey)
@@ -33,6 +33,21 @@ namespace NeoModules.NEP6
             }
         }
 
+        internal static Dictionary<string, string> GetAssetsInfo() //TODO redo this
+        {
+            if (_systemAssets != null) return _systemAssets;
+            _systemAssets = new Dictionary<string, string>();
+            AddAsset("NEO", "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b");
+            AddAsset("GAS", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7");
+
+            return _systemAssets;
+        }
+
+        private static void AddAsset(string symbol, string hash)
+        {
+            _systemAssets[symbol] = hash;
+        }
+
         public static string ReverseHex(string hex)
         {
             var result = "";
@@ -45,7 +60,7 @@ namespace NeoModules.NEP6
             return (uint)(time.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
 
-        public static byte[] GenerateScript(byte[] scriptHash, object[] args)
+        public static byte[] GenerateScript(byte[] scriptHash, object[] args) // todo redo generateScript
         {
             using (var sb = new ScriptBuilder())
             {

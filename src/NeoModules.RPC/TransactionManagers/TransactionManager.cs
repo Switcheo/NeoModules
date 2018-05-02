@@ -1,28 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.DTOs;
+using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.Services.Transactions;
 
 namespace NeoModules.RPC.TransactionManagers
 {
-    public class TransactionManager : ITransactionManager
+    public class TransactionManager : TransactionManagerBase
     {
         public TransactionManager(IClient client)
         {
             Client = client;
         }
 
-        public IClient Client { get; set; }
-
-        public async Task<bool> SendTransactionAsync(string hexTx) //another method with TransactionInput parameter
+        public override Task<bool> SendTransactionAsync(CallInput transactionInput)
         {
-            if (Client == null) throw new NullReferenceException("Client not configured");
-            if (string.IsNullOrEmpty(hexTx)) throw new ArgumentNullException(nameof(hexTx));
-
-            var neoSendTransaction = new NeoSendRawTransaction(Client);
-            return await neoSendTransaction.SendRequestAsync(hexTx).ConfigureAwait(false); 
+            throw new NotImplementedException();
         }
-
-
     }
 }

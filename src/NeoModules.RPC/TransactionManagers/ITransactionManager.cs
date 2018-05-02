@@ -1,11 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.DTOs;
+using NeoModules.RPC.Infrastructure;
 
 namespace NeoModules.RPC.TransactionManagers
 {
     public interface ITransactionManager
     {
         IClient Client { get; set; }
-        Task<bool> SendTransactionAsync(string hexTx);
+        IAccount Account { get; set; }
+        Task<double> EstimateGasAsync(string serializedScriptHash);
+        Task<double> EstimateGasAsync(string scriptHash, string operation, List<InvokeParameter> parameterList);
+        Task<bool> SendTransactionAsync(string serializedAndSignedTx);
+        //Task<bool> SendTransactionAsync(CallInput input);
     }
 }

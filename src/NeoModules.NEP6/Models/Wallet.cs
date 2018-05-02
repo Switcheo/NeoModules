@@ -4,6 +4,7 @@ using NeoModules.KeyPairs;
 using System;
 using System.IO;
 using NeoModules.Core;
+using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6.Models
 {
@@ -65,7 +66,7 @@ namespace NeoModules.NEP6.Models
         public static string ToAddress(UInt160 scriptHash)
         {
             byte[] data = new byte[21];
-            data[0] = byte.Parse("23"); // TODO: Move Address Version 
+            data[0] = Helper.AddressVersion; // TODO: Move Address Version 
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return data.Base58CheckEncode();
         }
@@ -80,15 +81,6 @@ namespace NeoModules.NEP6.Models
             Buffer.BlockCopy(data, 1, privateKey, 0, privateKey.Length);
             Array.Clear(data, 0, data.Length);
             return privateKey;
-        }
-
-        public static Wallet LoadFromFile(string filePath)
-        {
-            using (var file = File.OpenText(filePath))
-            {
-                var json = file.ReadToEnd();
-                return FromJson(json);
-            }
         }
     }
 }
