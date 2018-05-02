@@ -38,6 +38,7 @@ namespace NeoModules.NEP6.Models
         [JsonConverter(typeof(StringToAddressInt160Converter))]
         public UInt160 Address { get; set; }
 
+        [JsonIgnore]
         public ITransactionManager TransactionManager { get; set; }
 
         /// <summary>
