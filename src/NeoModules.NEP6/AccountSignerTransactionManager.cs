@@ -32,25 +32,31 @@ namespace NeoModules.NEP6
         }
 
         //// OLD
-        //public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, object[] args)
-        //{
-        //    var bytes = Utils.GenerateScript(scriptHash, args);
-        //    return await CallContract(key, scriptHash, bytes);
-        //}
+        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, object[] args)
+        {
+            var bytes = Utils.GenerateScript(scriptHash, args);
+            return await CallContract(key, scriptHash, bytes);
+        }
 
-        ////public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args)
-        ////{
-        ////    return await CallContract(key, scriptHash, new object[] { operation, args });
-        ////}
+        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args)
+        {
+            return await CallContract(key, scriptHash, new object[] { operation, args });
+        }
 
         //// OLD FINISH
 
         //TODO: move this to separate class/service because of SRP
-        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args = null)
-        {
-            var scriptBuilderResult = Utils.GenerateScript(scriptHash, operation, args);
-            return await CallContract(key, scriptHash, scriptBuilderResult);
-        }
+        //public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args = null)
+        //{
+        //    var scriptBuilderResult = Utils.GenerateScript(scriptHash, operation, args);
+        //    return await CallContract(key, scriptHash, scriptBuilderResult);
+        //}
+
+        //public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation,
+        //    object[] args = null)
+        //{
+
+        //}
 
         public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, byte[] bytes)
         {

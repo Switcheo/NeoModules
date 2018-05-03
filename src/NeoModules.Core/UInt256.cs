@@ -4,25 +4,22 @@ using System.Linq;
 
 namespace NeoModules.Core
 {
-    /// Taken from neo-project https://github.com/neo-project/neo/blob/master/neo/UInt160.cs
-    /// <summary>
-    /// ECC elliptic curve parameters
-    /// </summary>
-    public class UInt160 : UIntBase, IComparable<UInt160>, IEquatable<UInt160>
+    /// Taken from neo-project https://github.com/neo-project/neo/blob/master/neo/UInt256.cs
+    public class UInt256 : UIntBase, IComparable<UInt256>, IEquatable<UInt256>
     {
-        public static readonly UInt160 Zero = new UInt160();
+        public static readonly UInt256 Zero = new UInt256();
 
-        public UInt160()
+        public UInt256()
             : this(null)
         {
         }
 
-        public UInt160(byte[] value)
-            : base(20, value)
+        public UInt256(byte[] value)
+            : base(32, value)
         {
         }
 
-        public int CompareTo(UInt160 other)
+        public int CompareTo(UInt256 other)
         {
             var x = ToArray();
             var y = other.ToArray();
@@ -33,66 +30,70 @@ namespace NeoModules.Core
                 if (x[i] < y[i])
                     return -1;
             }
+
             return 0;
         }
 
-        bool IEquatable<UInt160>.Equals(UInt160 other)
+        bool IEquatable<UInt256>.Equals(UInt256 other)
         {
             return Equals(other);
         }
 
-        public new static UInt160 Parse(string value)
+        public new static UInt256 Parse(string s)
         {
-            if (value == null)
+            if (s == null)
                 throw new ArgumentNullException();
-            if (value.StartsWith("0x"))
-                value = value.Substring(2);
-            if (value.Length != 40)
+            if (s.StartsWith("0x"))
+                s = s.Substring(2);
+            if (s.Length != 64)
                 throw new FormatException();
-            return new UInt160(value.HexToBytes().Reverse().ToArray());
+            return new UInt256(s.HexToBytes().Reverse().ToArray());
         }
 
-        public static bool TryParse(string s, out UInt160 result)
+        public static bool TryParse(string s, out UInt256 result)
         {
             if (s == null)
             {
                 result = null;
                 return false;
             }
+
             if (s.StartsWith("0x"))
                 s = s.Substring(2);
-            if (s.Length != 40)
+            if (s.Length != 64)
             {
                 result = null;
                 return false;
             }
-            var data = new byte[20];
-            for (var i = 0; i < 20; i++)
+
+            var data = new byte[32];
+            for (var i = 0; i < 32; i++)
                 if (!byte.TryParse(s.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier, null, out data[i]))
                 {
                     result = null;
                     return false;
                 }
-            result = new UInt160(data.Reverse().ToArray());
+
+            result = new UInt256(data.Reverse().ToArray());
             return true;
         }
 
-        public static bool operator >(UInt160 left, UInt160 right)
+        public static bool operator >(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) > 0;
         }
 
-        public static bool operator >=(UInt160 left, UInt160 right)
+        public static bool operator >=(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) >= 0;
         }
 
-        public static bool operator <(UInt160 left, UInt160 right)
+        public static bool operator <(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) < 0;
         }
 
-        public static bool operator <=(UInt160 left, UInt160 right)
+        public static bool operator <=(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) <= 0;
         }

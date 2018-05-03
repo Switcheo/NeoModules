@@ -121,6 +121,11 @@ namespace NeoModules.KeyPairs
             return _ripemd160.Value.ComputeHash(value.ToArray());
         }
 
+        public static byte[] Hash256(byte[] message)
+        {
+            return message.Sha256().Sha256();
+        }
+
         internal static byte[] AES256Encrypt(this byte[] block, byte[] key)
         {
             using (var aes = Aes.Create())

@@ -60,7 +60,7 @@ namespace NeoModules.NEP6
             return (uint)(time.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
 
-        public static byte[] GenerateScript(byte[] scriptHash, object[] args) // todo redo generateScript
+        public static byte[] GenerateScript(byte[] scriptHash, object[] args) 
         {
             using (var sb = new ScriptBuilder())
             {
@@ -93,7 +93,7 @@ namespace NeoModules.NEP6
             }
         }
 
-        public static byte[] GenerateScript(byte[] scriptHash, string operation, object[] args)
+        public static byte[] GenerateScript(byte[] scriptHash, string operation, object[] args) // TODO: this does not work correctly
         {
             var script = scriptHash.ToScriptHash();
             using (var sb = new ScriptBuilder())

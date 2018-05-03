@@ -10,6 +10,8 @@ namespace NeoModules.NEP6.Models
 {
     public class TransactionInput
     {
+        private UInt256 _hash;
+
         public decimal Gas;
 
         public Input[] Inputs;
@@ -19,6 +21,22 @@ namespace NeoModules.NEP6.Models
         public byte Type;
         public byte Version;
         public Script[] Witnesses;
+
+        public UInt256 Hash
+        {
+            get
+            {
+                if (_hash == null)
+                {
+                    var rawTx = Serialize(false);
+                    var bytes = rawTx.HexToBytes();
+                    _hash = new UInt256(Helper.Hash256(bytes));
+                }
+
+                return _hash;
+            }
+        }
+
 
         public virtual string Serialize(bool signed = true)
         {
@@ -71,7 +89,7 @@ namespace NeoModules.NEP6.Models
             {
                 new Script {Invocation = invocationScript, Verification = verificationScript}
             };
-        }   
+        }
 
         public struct Input
         {
@@ -124,10 +142,11 @@ namespace NeoModules.NEP6.Models
 
         private static string Num2Fixed8(decimal num)
         {
-            long val = (long)Math.Round(num * 100000000);
+            var val = (long) Math.Round(num * 100000000);
             var hexValue = val.ToString("X16");
             return Utils.ReverseHex(("0000000000000000" + hexValue).Substring(hexValue.Length));
         }
+
         #endregion
     }
 }

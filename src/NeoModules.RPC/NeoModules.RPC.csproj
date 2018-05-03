@@ -13,14 +13,11 @@
     <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT</Copyright>
-    <PackageReleaseNotes>Missing methods implemented: sendfrom, sendmany.
-Added a service to look for all nodes registered in http://monitor.cityofzion.io/
-Some minor bugs fixed.
-Updated Newtonsoft version.
+    <PackageReleaseNotes>Base code added to support Account transactions.
 
 </PackageReleaseNotes>
-    <Version>1.0.8</Version>
-    <FileVersion>1.0.8.0</FileVersion>
+    <Version>1.0.9-beta</Version>
+    <FileVersion>1.0.9.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

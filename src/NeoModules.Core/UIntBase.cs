@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace NeoModules.Core
 {
+    /// Taken from neo-project https://github.com/neo-project/neo/blob/master/neo/UIntBase.cs
     public abstract class UIntBase : IEquatable<UIntBase>, ISerializable
     {
         private readonly byte[] _dataBytes;
