@@ -89,6 +89,48 @@ namespace NeoModules.KeyPairs
         }
 
         /// <summary>
+        /// Verifies the signature of a message using the public key
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="signature"></param>
+        /// <param name="pubkey"></param>
+        /// <returns></returns>
+        public static bool VerifySignature(byte[] message, byte[] signature, byte[] pubkey)
+        {
+            if (pubkey.Length == 33 && (pubkey[0] == 0x02 || pubkey[0] == 0x03))
+            {
+                try
+                {
+                    pubkey = ECPoint.DecodePoint(pubkey, Cryptography.ECC.ECCurve.Secp256r1).EncodePoint(false).Skip(1).ToArray();
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else if (pubkey.Length == 65 && pubkey[0] == 0x04)
+            {
+                pubkey = pubkey.Skip(1).ToArray();
+            }
+            else if (pubkey.Length != 64)
+            {
+                throw new ArgumentException();
+            }
+            using (var ecdsa = ECDsa.Create(new ECParameters
+            {
+                Curve = ECCurve.NamedCurves.nistP256,
+                Q = new System.Security.Cryptography.ECPoint
+                {
+                    X = pubkey.Take(32).ToArray(),
+                    Y = pubkey.Skip(32).ToArray()
+                }
+            }))
+            {
+                return ecdsa.VerifyData(message, signature, HashAlgorithmName.SHA256);
+            }
+        }
+
+        /// <summary>
         ///     Find the sha256 hash value of the byte array
         /// </summary>
         /// <param name="value">Byte array</param>

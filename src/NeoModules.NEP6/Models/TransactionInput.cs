@@ -22,6 +22,11 @@ namespace NeoModules.NEP6.Models
         public byte Version;
         public Script[] Witnesses;
 
+        /// <summary>
+        /// If using Xamarin, you should set this to true, because Xamarin does not support implementation for creating nist P-256 ECDSA signatures
+        /// </summary>
+        public static bool SendFromMobile { get; set; } = false;
+
         public UInt256 Hash
         {
             get
@@ -80,9 +85,8 @@ namespace NeoModules.NEP6.Models
             byte[] signed;
             using (key.Decrypt())
             {
-                signed = Utils.Sign(txstr, key.PrivateKey, key.PublicKey.EncodePoint(false).Skip(1).ToArray());
+                signed = SendFromMobile ? Utils.Sign(txstr, key.PrivateKey) : Utils.Sign(txstr, key.PrivateKey, key.PublicKey.EncodePoint(false).Skip(1).ToArray());
             }
-
             var invocationScript = "40" + signed.ToHexString();
             var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToHexString();
             Witnesses = new[]
@@ -119,7 +123,7 @@ namespace NeoModules.NEP6.Models
 
             if (num <= 0xffffffff) return "fe" + Num2Hexstring(num, 8);
 
-            return "ff" + Num2Hexstring(num, 8) + Num2Hexstring(num / (int) Math.Pow(2, 32), 8);
+            return "ff" + Num2Hexstring(num, 8) + Num2Hexstring(num / (int)Math.Pow(2, 32), 8);
         }
 
         private static string SerializeWitness(Script witness)
@@ -142,7 +146,7 @@ namespace NeoModules.NEP6.Models
 
         private static string Num2Fixed8(decimal num)
         {
-            var val = (long) Math.Round(num * 100000000);
+            var val = (long)Math.Round(num * 100000000);
             var hexValue = val.ToString("X16");
             return Utils.ReverseHex(("0000000000000000" + hexValue).Substring(hexValue.Length));
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
 using NeoModules.Rest.DTOs;
@@ -10,6 +9,7 @@ using NeoModules.Rest.Services;
 using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.TransactionManagers;
 using NeoModules.Core;
+using NeoModules.JsonRpc.Client;
 using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6
@@ -28,7 +28,7 @@ namespace NeoModules.NEP6
 
         public override Task<bool> SendTransactionAsync(CallInput transactionInput)
         {
-           throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
         //// OLD
@@ -62,8 +62,7 @@ namespace NeoModules.NEP6
         {
             var gasCost = 0;
 
-            GenerateInputsOutputs(key, scriptHash, new Dictionary<string, decimal> { { "GAS", gasCost } }, out var inputs,
-                out var outputs);
+            var (inputs, outputs) = await GenerateInputsOutputs(key, scriptHash, new Dictionary<string, decimal> { { "GAS", gasCost } });
 
             var tx = new TransactionInput
             {
@@ -98,7 +97,7 @@ namespace NeoModules.NEP6
         public async Task<TransactionInput> SendAsset(KeyPair fromKey, byte[] scriptHash,
             Dictionary<string, decimal> amounts)
         {
-            GenerateInputsOutputs(fromKey, scriptHash, amounts, out var inputs, out var outputs);
+            var (inputs, outputs) = await GenerateInputsOutputs(fromKey, scriptHash, amounts);
 
             var tx = new TransactionInput
             {
@@ -122,19 +121,18 @@ namespace NeoModules.NEP6
             return await SendTransactionAsync(serializedTx);
         }
 
-        private void GenerateInputsOutputs(KeyPair key, byte[] outputHash, Dictionary<string, decimal> ammounts,
-            out List<TransactionInput.Input> inputs, out List<TransactionInput.Output> outputs)
+        private async Task<(List<TransactionInput.Input> inputs, List<TransactionInput.Output> outputs)> GenerateInputsOutputs(KeyPair key, byte[] outputHash, Dictionary<string, decimal> ammounts)
         {
             if (ammounts == null || ammounts.Count == 0) throw new WalletException("Invalid amounts");
 
             var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
-            var unspent = GetUnspent(Wallet.ToAddress(address.ToScriptHash())).Result; // todo remove result
+            var unspent = await GetUnspent(Wallet.ToAddress(address.ToScriptHash())); // todo remove result
 
             // filter any asset lists with zero unspent inputs
             unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            inputs = new List<TransactionInput.Input>();
-            outputs = new List<TransactionInput.Output>();
+            var inputs = new List<TransactionInput.Input>();
+            var outputs = new List<TransactionInput.Output>();
 
             foreach (var entry in ammounts)
             {
@@ -197,6 +195,8 @@ namespace NeoModules.NEP6
                     outputs.Add(change);
                 }
             }
+
+            return (inputs, outputs);
         }
 
         public async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
