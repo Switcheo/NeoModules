@@ -172,37 +172,6 @@ namespace NeoModules.Demo
             var result = await service.GetNodesList(MonitorNet.TestNet);
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
 
-            var privateKey = "L1mLVqjnuSHNeeGPpPq2aRv74Pm9TXJcXkhCJAz2K9s1Lrrd5fzH";
-            var keypair = Wallet.GetPrivateKeyFromWif(privateKey);
-            var key = new KeyPair(keypair);
-            var tesst=  key.PublicKey.EncodePoint(true).ToArray().ToHexString();
-            var test2 = "746573744d657373616765".HexToBytes();
-            var test3 = System.Text.Encoding.ASCII.GetString(test2);
-
-
-
-            var scriptHash = UInt160.Parse("cb9f3b7c6fb1cf2c13a40637c189bdd066a272b4");
-            byte[] script;
-            using (var sb = new ScriptBuilder())
-            {
-                //sb.EmitAppCall(scriptHash, "getMailCount", "testNeoModules");
-                sb.EmitAppCall(scriptHash, "name");
-                sb.EmitAppCall(scriptHash, "decimals");
-                sb.EmitAppCall(scriptHash, "symbol");
-                sb.EmitAppCall(scriptHash, "totalSupply");
-                //sb.EmitAppCall(scriptHash, "sendMessage", key.PublicKey.EncodePoint(true).ToArray(), "testNeoModules", "testMessage");
-                script = sb.ToArray();
-            }
-            Debug.WriteLine(script.ToHexString());
-
-            //var scriptHash = UInt160.Parse("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
-            //var tests = scriptHash.ToArray();
-
-            //var accountSigner = new AccountSignerTransactionManager(RpcTestNetClient,
-            //    new NeoScanRestService(NeoScanNet.TestNet), new Account(null));
-
-            //var tx2 = await accountSigner.CallContract(key, tests, "sendMessage", new object[] { key.PublicKey.EncodePoint(true).ToArray(), "testNeoModules", "phantasma" });
-
             return nodes;
         }
     }
