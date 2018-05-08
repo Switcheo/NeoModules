@@ -1,4 +1,6 @@
-﻿using NeoModules.Core;
+﻿using System;
+using System.Text;
+using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Converters;
 using NeoModules.RPC.Infrastructure;
@@ -23,11 +25,14 @@ namespace NeoModules.NEP6.Models
             Extra = extra;
         }
 
-        public Account(UInt160 address, KeyPair key, string password, ScryptParameters scryptParameters)
+        public Account(UInt160 address, KeyPair key, string password = null)
         {
             Key = key;
             Address = address;
-            Nep2Key = Nep2.Encrypt(Key.PrivateKey.ToHexString(), password, scryptParameters).Result;
+            if (!string.IsNullOrEmpty(password))
+            {
+                Nep2Key = Nep2.Encrypt(key.Export(), password, ScryptParameters.Default).Result;
+            }
         }
 
         /// <summary>

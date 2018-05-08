@@ -146,9 +146,10 @@ namespace NeoModules.NEP6
                 Deployed = false
             };
 
-            var account = new Account(contract.ScriptHash, label)
+            var account = new Account(contract.ScriptHash, key, password)
             {
                 Nep2Key = encryptedPrivateKey,
+                Label = label,
                 Contract = contract,
                 IsDefault = false
             };
@@ -160,7 +161,7 @@ namespace NeoModules.NEP6
         ///     Creates an Account and returns it.
         /// </summary>
         /// <returns></returns>
-        public Account CreateAccount(string label = null)
+        public Account CreateAccount(string label)
         {
             var privateKey = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -179,9 +180,44 @@ namespace NeoModules.NEP6
                 },
                 Deployed = false
             };
-            var account = new Account(key.PublicKeyHash, label)
+            var account = new Account(key.PublicKeyHash)
             {
-                Contract = contract
+                Contract = contract,
+                Label = label
+            };
+            AddAccount(account);
+            return account;
+        }
+
+        /// <summary>
+        ///     Creates an Account, ecrypts it using NEP2 and returns it.
+        /// </summary>
+        /// <returns></returns>
+        public Account CreateAccount(string label, string password)
+        {
+            var privateKey = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(privateKey);
+            }
+
+            var key = new KeyPair(privateKey);
+            Array.Clear(privateKey, 0, privateKey.Length);
+            var contract = new Contract
+            {
+                Script = Helper.CreateSignatureRedeemScript(key.PublicKey),
+                Parameters = new List<Parameter>
+                {
+                    new Parameter("signature", ParameterType.Signature)
+                },
+                Deployed = false
+            };
+            var encryptedKey = Nep2.Encrypt(key.PrivateKey.ToHexString(), password).Result;
+            var account = new Account(key.PublicKeyHash, key, password)
+            {
+                Nep2Key = encryptedKey,
+                Contract = contract,
+                Label = label
             };
             AddAccount(account);
             return account;

@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NeoModules.Core;
-using NeoModules.JsonRpc.Client;
+﻿using System.Threading.Tasks;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
-using NeoModules.Rest.Services;
-using NeoModules.RPC;
-using NeoModules.RPC.DTOs;
-using NeoModules.RPC.TransactionManagers;
 using Xunit;
 
 namespace NeoModules.NEP6.Tests
@@ -68,13 +59,13 @@ namespace NeoModules.NEP6.Tests
         }
 
         [Fact]
-        public static void ImportAccountNep2Test()
+        public static async void ImportAccountNep2Test()
         {
             Wallet wallet = new Wallet();
             WalletManager walletManager = new WalletManager(wallet);
 
-            var account = walletManager.ImportAccount("6PYVPVe1fQznphjbUxXP9KZJqPMVnVwCx5s5pr5axRJ8uHkMtZg97eT5kL",
-                "TestingOneTwoThree", "testAccount").Result;
+            var account = await walletManager.ImportAccount("6PYVPVe1fQznphjbUxXP9KZJqPMVnVwCx5s5pr5axRJ8uHkMtZg97eT5kL",
+                "TestingOneTwoThree", "testAccount");
 
             Assert.NotNull(account);
             Assert.Contains(account, wallet.Accounts);
