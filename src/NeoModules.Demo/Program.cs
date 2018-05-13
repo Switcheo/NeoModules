@@ -1,11 +1,9 @@
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
-using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
 using Newtonsoft.Json;
@@ -19,29 +17,31 @@ namespace NeoModules.Demo
     public class Program
     {
         private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed3.neo.org:10332"));
+        private static readonly RpcClient RpcTestNetClient = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
 
         public static void Main(string[] args)
         {
             try
             {
-                //var neoApiCompleteService = SetupCompleteNeoService();
+                var neoApiCompleteService = SetupCompleteNeoService();
 
-                //var neoApiSimpleContractService = SetupSimpleService();
-                //var neoApiSimpleAccountService = SetupAnotherSimpleService();
-                //// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+                var neoApiSimpleContractService = SetupSimpleService();
+                var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                //You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-                //var nep5ApiService = SetupNep5Service();
 
-                //BlockApiTest(neoApiCompleteService).Wait();
+                var nep5ApiService = SetupNep5Service();
 
-                //TestNep5Service(nep5ApiService).Wait();
+                BlockApiTest(neoApiCompleteService).Wait();
+
+                TestNep5Service(nep5ApiService).Wait();
 
 
                 //create rest api client
                 RestClientTest().Wait();
 
-                ////nodes list
-                //NodesListTestAsync().Wait();
+                //nodes list
+                NodesListTestAsync().Wait();
             }
             catch (Exception ex)
             {
@@ -163,6 +163,7 @@ namespace NeoModules.Demo
             var service = new NeoNodesListService();
             var result = await service.GetNodesList(MonitorNet.TestNet);
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
+
             return nodes;
         }
     }

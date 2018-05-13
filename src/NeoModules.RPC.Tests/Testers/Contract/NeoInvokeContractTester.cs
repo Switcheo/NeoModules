@@ -8,10 +8,10 @@ using Xunit;
 
 namespace NeoModules.RPC.Tests.Testers.Contract
 {
-    public class NeoInvokeContractTester : RpcRequestTester<Invoke>
+    public class NeoInvokeTester : RpcRequestTester<Invoke>
     {
         [Fact]
-        public async void ShouldReturnInvokeContractResult()
+        public async void ShouldReturnInvokeResult()
         {
             var result = await ExecuteAsync();
             Assert.NotNull(result);
@@ -19,7 +19,7 @@ namespace NeoModules.RPC.Tests.Testers.Contract
 
         public override async Task<Invoke> ExecuteAsync(IClient client)
         {
-            var invoke = new NeoInvokeContract(client);
+            var invoke = new NeoInvoke(client);
             var parametersList = new List<InvokeParameter>
             {
                 new InvokeParameter

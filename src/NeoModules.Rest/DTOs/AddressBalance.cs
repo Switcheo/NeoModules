@@ -29,12 +29,12 @@ namespace NeoModules.Rest.DTOs
     public class Unspent
     {
         [JsonProperty("value")]
-        public float Value { get; set; }
+        public decimal Value { get; set; }
 
         [JsonProperty("txid")]
         public string TxId { get; set; }
 
         [JsonProperty("n")]
-        public int N { get; set; }
+        public uint N { get; set; }
     }
 }

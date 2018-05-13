@@ -51,9 +51,9 @@ namespace NeoModules.RPC.Services.Contract
 	///     }
 	/// }
 	/// </Summary>   
-	public class NeoInvokeContract : RpcRequestResponseHandler<DTOs.Invoke>
+	public class NeoInvoke : RpcRequestResponseHandler<DTOs.Invoke>
 	{
-		public NeoInvokeContract(IClient client) : base(client, ApiMethods.invoke.ToString())
+		public NeoInvoke(IClient client) : base(client, ApiMethods.invoke.ToString())
 		{
 		}
 		public Task<DTOs.Invoke> SendRequestAsync(string scriptHash, List<DTOs.InvokeParameter> parameters, object id = null)

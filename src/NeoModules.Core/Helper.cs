@@ -1,12 +1,25 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
-namespace NeoModules.RPC.Helpers
+namespace NeoModules.Core
 {
     public static class Helper
     {
+        public static int ToInt32(this byte[] value, int startIndex)
+        {
+            return BitConverter.ToInt32(value, startIndex);
+        }
+
+        public static string ToHexString(this IEnumerable<byte> value)
+        {
+            var sb = new StringBuilder();
+            foreach (byte b in value)
+                sb.AppendFormat("{0:x2}", b);
+            return sb.ToString();
+        }
+
         public static byte[] HexToBytes(this string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -17,15 +30,6 @@ namespace NeoModules.RPC.Helpers
             for (var i = 0; i < result.Length; i++)
                 result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
             return result;
-        }
-
-        public static string HexToString(string inputText)
-        {
-            var bb = Enumerable.Range(0, inputText.Length)
-                .Where(x => x % 2 == 0)
-                .Select(x => Convert.ToByte(inputText.Substring(x, 2), 16))
-                .ToArray();
-            return Encoding.ASCII.GetString(bb);
         }
     }
 }
