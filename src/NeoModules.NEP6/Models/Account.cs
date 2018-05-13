@@ -25,14 +25,10 @@ namespace NeoModules.NEP6.Models
             Extra = extra;
         }
 
-        public Account(UInt160 address, KeyPair key, string password = null)
+        public Account(UInt160 address, KeyPair key)
         {
             Key = key;
             Address = address;
-            if (!string.IsNullOrEmpty(password))
-            {
-                Nep2Key = Nep2.Encrypt(key.Export(), password, ScryptParameters.Default).Result;
-            }
         }
 
         /// <summary>

@@ -114,7 +114,7 @@ namespace NeoModules.NEP6
                 },
                 Deployed = false
             };
-            var account = new Account(contract.ScriptHash)
+            var account = new Account(contract.ScriptHash, key)
             {
                 Contract = contract,
                 Label = label
@@ -146,13 +146,14 @@ namespace NeoModules.NEP6
                 Deployed = false
             };
 
-            var account = new Account(contract.ScriptHash, key, password)
+            var account = new Account(contract.ScriptHash, key)
             {
                 Nep2Key = encryptedPrivateKey,
                 Label = label,
                 Contract = contract,
                 IsDefault = false
             };
+            
             AddAccount(account);
             return account;
         }
@@ -193,7 +194,7 @@ namespace NeoModules.NEP6
         ///     Creates an Account, ecrypts it using NEP2 and returns it.
         /// </summary>
         /// <returns></returns>
-        public Account CreateAccount(string label, string password)
+        public async Task<Account> CreateAccount(string label, string password)
         {
             var privateKey = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -212,8 +213,8 @@ namespace NeoModules.NEP6
                 },
                 Deployed = false
             };
-            var encryptedKey = Nep2.Encrypt(key.PrivateKey.ToHexString(), password).Result;
-            var account = new Account(key.PublicKeyHash, key, password)
+            var encryptedKey =await Nep2.Encrypt(key.PrivateKey.ToHexString(), password);
+            var account = new Account(key.PublicKeyHash, key)
             {
                 Nep2Key = encryptedKey,
                 Contract = contract,

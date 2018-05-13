@@ -31,45 +31,42 @@ namespace NeoModules.NEP6
             throw new NotImplementedException();
         }
 
-        //// OLD
-        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, object[] args)
+        public async Task<Models.Transaction> CallContract(KeyPair key, byte[] scriptHash, object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
         {
             var bytes = Utils.GenerateScript(scriptHash, args);
-            return await CallContract(key, scriptHash, bytes);
+            return await CallContract(key, scriptHash, bytes, attachSymbol, attachTargets);
         }
 
-        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args)
+        public async Task<Models.Transaction> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
         {
-            return await CallContract(key, scriptHash, new object[] { operation, args });
+            return await CallContract(key, scriptHash, new object[] { operation, args }, attachSymbol, attachTargets);
         }
 
-        //// OLD FINISH
-
-        //TODO: move this to separate class/service because of SRP
-        //public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation, object[] args = null)
-        //{
-        //    var scriptBuilderResult = Utils.GenerateScript(scriptHash, operation, args);
-        //    return await CallContract(key, scriptHash, scriptBuilderResult);
-        //}
-
-        //public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, string operation,
-        //    object[] args = null)
-        //{
-
-        //}
-
-        public async Task<TransactionInput> CallContract(KeyPair key, byte[] scriptHash, byte[] bytes)
+        public async Task<Models.Transaction> CallContract(KeyPair key, byte[] scriptHash, byte[] bytes, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
         {
-            var gasCost = 0;
-
-            var (inputs, outputs) = await GenerateInputsOutputs(key, scriptHash, new Dictionary<string, decimal> { { "GAS", gasCost } });
-
-            var tx = new TransactionInput
+            if (string.IsNullOrEmpty(attachSymbol))
             {
-                Type = 0xd1,
+                attachSymbol = "GAS";
+            }
+
+            if (attachTargets == null)
+            {
+                attachTargets = new List<TransactionOutput>();
+            }
+
+            var (inputs, outputs) = await GenerateInputsOutputs(key, attachSymbol, attachTargets);
+
+            if (inputs.Count == 0)
+            {
+                throw new WalletException($"Not enough inputs for transaction");
+            }
+
+            Models.Transaction tx = new Models.Transaction()
+            {
+                Type = TransactionType.InvocationTransaction,
                 Version = 0,
                 Script = bytes,
-                Gas = gasCost,
+                Gas = 0,
                 Inputs = inputs.ToArray(),
                 Outputs = outputs.ToArray()
             };
@@ -78,30 +75,23 @@ namespace NeoModules.NEP6
             return result ? tx : null;
         }
 
-        public async Task<TransactionInput> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
+        public async Task<Models.Transaction> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
         {
-            return await SendAsset(fromKey, toAddress, new Dictionary<string, decimal>() { { symbol, amount } });
+            var toScriptHash = toAddress.GetScriptHashFromAddress();
+            var target = new TransactionOutput() { AddressHash = toScriptHash, Amount = amount };
+            var targets = new List<TransactionOutput>() { target };
+            return await SendAsset(fromKey, symbol, targets);
+            //return await SendAsset(fromKey, toAddress, new Dictionary<string, decimal>() { { symbol, amount } });
         }
 
-        public async Task<TransactionInput> SendAsset(KeyPair fromKey, string toAddress, Dictionary<string, decimal> amounts)
+        public async Task<Models.Transaction> SendAsset(KeyPair fromKey, string symbol, IEnumerable<TransactionOutput> targets)
         {
-            if (String.Equals(fromKey.PublicKeyHash.ToString(), toAddress, StringComparison.OrdinalIgnoreCase))
+
+            var (inputs, outputs) = await GenerateInputsOutputs(fromKey, symbol, targets);
+
+            Models.Transaction tx = new Models.Transaction()
             {
-                throw new WalletException("Source and dest addresses are the same");
-            }
-
-            var toScriptHash = toAddress.ToScriptHash().ToArray();
-            return await SendAsset(fromKey, toScriptHash, amounts);
-        }
-
-        public async Task<TransactionInput> SendAsset(KeyPair fromKey, byte[] scriptHash,
-            Dictionary<string, decimal> amounts)
-        {
-            var (inputs, outputs) = await GenerateInputsOutputs(fromKey, scriptHash, amounts);
-
-            var tx = new TransactionInput
-            {
-                Type = 128,
+                Type = TransactionType.ContractTransaction,
                 Version = 0,
                 Script = null,
                 Gas = -1,
@@ -113,17 +103,20 @@ namespace NeoModules.NEP6
             return result ? tx : null;
         }
 
-        private async Task<bool> SignAndSendTransaction(KeyPair key, TransactionInput txInput)
+        private async Task<bool> SignAndSendTransaction(KeyPair key, Models.Transaction txInput)
         {
             if (txInput == null) return false;
             txInput.Sign(key);
             var serializedTx = txInput.Serialize();
-            return await SendTransactionAsync(serializedTx);
+            return await SendTransactionAsync(serializedTx.ToHexString());
         }
 
-        private async Task<(List<TransactionInput.Input> inputs, List<TransactionInput.Output> outputs)> GenerateInputsOutputs(KeyPair key, byte[] outputHash, Dictionary<string, decimal> ammounts)
+        private async Task<(List<Models.Transaction.Input> inputs, List<Models.Transaction.Output> outputs)> GenerateInputsOutputs(KeyPair key, string symbol, IEnumerable<TransactionOutput> targets)
         {
-            if (ammounts == null || ammounts.Count == 0) throw new WalletException("Invalid amounts");
+            if (targets == null)
+            {
+                throw new WalletException("Invalid amount list");
+            }
 
             var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
             var unspent = await GetUnspent(Wallet.ToAddress(address.ToScriptHash())); // todo remove result
@@ -131,69 +124,91 @@ namespace NeoModules.NEP6
             // filter any asset lists with zero unspent inputs
             unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            var inputs = new List<TransactionInput.Input>();
-            var outputs = new List<TransactionInput.Output>();
+            var inputs = new List<Models.Transaction.Input>();
+            var outputs = new List<Models.Transaction.Output>();
 
-            foreach (var entry in ammounts)
+            string assetID;
+
+            var info = GetAssetsInfo();
+            if (info.ContainsKey(symbol))
             {
-                var symbol = entry.Key;
-                if (!unspent.ContainsKey(symbol))
-                    throw new WalletException($"Not enough {symbol} in address {Wallet.ToAddress(key.PublicKeyHash)}");
+                assetID = info[symbol];
+            }
+            else
+            {
+                throw new WalletException($"{symbol} is not a valid blockchain asset.");
+            }
 
-                var cost = entry.Value;
+            if (!unspent.ContainsKey(symbol))
+            {
+                throw new WalletException($"Not enough {symbol} in address {address}");
+            }
 
-                string assetId;
+            decimal cost = 0;
 
-                var info = Utils.GetAssetsInfo();
-                if (info.ContainsKey(symbol))
-                    assetId = info[symbol];
-                else
-                    throw new WalletException($"{symbol} is not a valid blockchain asset.");
-
-                var sources = unspent[symbol];
-
-                decimal selected = 0;
-                foreach (var src in sources)
+            var fromHash = key.PublicKeyHash.ToArray();
+            foreach (var target in targets)
+            {
+                if (target.AddressHash.SequenceEqual(fromHash))
                 {
-                    selected += src.Value;
-
-                    var input = new TransactionInput.Input
-                    {
-                        PrevHash = src.TxId,
-                        PrevIndex = src.N
-                    };
-
-                    inputs.Add(input);
-
-                    if (selected >= cost) break;
+                    throw new WalletException("Target can't be same as input");
                 }
 
-                if (selected < cost) throw new ArgumentOutOfRangeException($"Not enough {symbol}");
+                cost += target.Amount;
+            }
 
-                if (cost > 0)
+            var sources = unspent[symbol];
+            decimal selected = 0;
+
+            foreach (var src in sources)
+            {
+                selected += src.Value;
+
+                var input = new Models.Transaction.Input()
                 {
-                    var output = new TransactionInput.Output
+                    prevHash = Utils.ReverseHex(src.TxId).HexToBytes(),
+                    prevIndex = src.N,
+                };
+
+                inputs.Add(input);
+
+                if (selected >= cost)
+                {
+                    break;
+                }
+            }
+            if (selected < cost)
+            {
+                throw new WalletException($"Not enough {symbol}");
+            }
+
+
+            if (cost > 0)
+            {
+                foreach (var target in targets)
+                {
+                    var output = new Models.Transaction.Output
                     {
-                        AssetId = assetId,
-                        ScriptHash = outputHash.Reverse().ToHexString(),
-                        Value = cost
+                        assetID = Utils.ReverseHex(assetID).HexToBytes(),
+                        scriptHash = Utils.ReverseHex(Utils.GetStringFromScriptHash(target.AddressHash)).HexToBytes(),
+                        value = target.Amount
                     };
                     outputs.Add(output);
                 }
+            }
 
-                if (selected > cost || cost == 0)
+
+            if (selected > cost || cost == 0)
+            {
+                var left = selected - cost;
+                var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
+                var change = new Models.Transaction.Output
                 {
-                    var left = selected - cost;
-
-                    var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                    var change = new TransactionInput.Output
-                    {
-                        AssetId = assetId,
-                        ScriptHash = signatureScript.ToArray().Reverse().ToHexString(),
-                        Value = left
-                    };
-                    outputs.Add(change);
-                }
+                    assetID = Utils.ReverseHex(assetID).HexToBytes(),
+                    scriptHash = signatureScript.ToArray(),
+                    value = left
+                };
+                outputs.Add(change);
             }
 
             return (inputs, outputs);
@@ -231,5 +246,70 @@ namespace NeoModules.NEP6
 
             return result;
         }
+
+
+        private static Dictionary<string, string> _systemAssets = null;
+        internal static Dictionary<string, string> GetAssetsInfo()
+        {
+            if (_systemAssets == null)
+            {
+                _systemAssets = new Dictionary<string, string>();
+                AddAsset("NEO", "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b");
+                AddAsset("GAS", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7");
+            }
+
+            return _systemAssets;
+        }
+
+        private static void AddAsset(string symbol, string hash)
+        {
+            _systemAssets[symbol] = hash;
+        }
+
+        public static IEnumerable<string> AssetSymbols
+        {
+            get
+            {
+                var info = GetAssetsInfo();
+                return info.Keys;
+            }
+        }
+
+        public static string SymbolFromAssetID(byte[] assetID)
+        {
+            var str = assetID.ToHexString();
+            var result = SymbolFromAssetID(str);
+            if (result == null)
+            {
+                result = SymbolFromAssetID(Utils.ReverseHex(str));
+            }
+
+            return result;
+        }
+
+        public static string SymbolFromAssetID(string assetID)
+        {
+            if (assetID == null)
+            {
+                return null;
+            }
+
+            if (assetID.StartsWith("0x"))
+            {
+                assetID = assetID.Substring(2);
+            }
+
+            var info = GetAssetsInfo();
+            foreach (var entry in info)
+            {
+                if (entry.Value == assetID)
+                {
+                    return entry.Key;
+                }
+            }
+
+            return null;
+        }
+
     }
 }
