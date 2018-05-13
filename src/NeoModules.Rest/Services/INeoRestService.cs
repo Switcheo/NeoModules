@@ -16,5 +16,15 @@ namespace NeoModules.Rest.Services
         Task<string> GetHeight();
         Task<string> GetHighestBlock();
         Task<string> GetLastBlocks();
+        Task<string> GetFeesInRange(int range1, int range2);
+        Task<string> GetAddressAbstracts(string address, int page);
+        Task<string> GetNeonAddress(string address);
+        Task<string> GetAddressToAddressAbstract(string addressFrom, string addressTo,int page);
+        Task<string> GetBlock(string blockHash);
+        Task<string> GetBlock(int blockHeight);
+        Task<string> GetLastTransactions(string type = null);
+        Task<string> GetLastTransactionsByAddress(string address, int page);
+        Task<string> GetNodes();
+
     }
 }

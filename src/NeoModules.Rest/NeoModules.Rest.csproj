@@ -13,10 +13,10 @@ All API calls are available.</Description>
     <PackageIconUrl>https://camo.githubusercontent.com/a555bc2ad2e3ebc8f3497e2df53c50ada648d10d/687474703a2f2f7265732e636c6f7564696e6172792e636f6d2f76696473792f696d6167652f75706c6f61642f76313530333136303832302f436f5a5f49636f6e5f4441524b424c55455f3230307831373870785f6f713067786d2e706e67</PackageIconUrl>
     <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
     <PackageTags>Neo REST CityofZion Blockchain Api Neoscan</PackageTags>
-    <PackageReleaseNotes>Ability to add custom ips to neoscan API</PackageReleaseNotes>
+    <PackageReleaseNotes>INeoRestService changes</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.4</Version>
-    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <Version>1.0.5</Version>
+    <AssemblyVersion>1.0.5.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
