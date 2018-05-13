@@ -42,8 +42,14 @@ namespace NeoModules.Rest.Services
         public NeoScanRestService(NeoScanNet net)
         {
             _restClient = net == NeoScanNet.MainNet
-                ? new HttpClient {BaseAddress = new Uri(neoScanMainNetUrl)}
-                : new HttpClient {BaseAddress = new Uri(neoScanTestNetUrl)};
+                ? new HttpClient { BaseAddress = new Uri(neoScanMainNetUrl) }
+                : new HttpClient { BaseAddress = new Uri(neoScanTestNetUrl) };
+        }
+
+        public NeoScanRestService(string url)
+        {
+            if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
+            _restClient = new HttpClient { BaseAddress = new Uri(url) };
         }
 
         // TODO: I can refractor this more, move the 3 lines of each call to a function
