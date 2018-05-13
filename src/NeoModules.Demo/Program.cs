@@ -109,6 +109,8 @@ namespace NeoModules.Demo
             var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
 
             var restService = new NeoScanRestService(NeoScanNet.MainNet); // service creation
+            var token = await restService.GetAllTokens();
+            var tokenList = JsonConvert.DeserializeObject<TokenList>(token);
 
             // api calls
             var getBalance = await restService.GetBalanceAsync(testAddress);

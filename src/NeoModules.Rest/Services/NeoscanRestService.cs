@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -35,6 +36,8 @@ namespace NeoModules.Rest.Services
         private static readonly string getLastTransactions = "get_last_transactions/";
         private static readonly string getLastTransactionsByAddress = "get_last_transactions_by_address/";
         private static readonly string getNodes = "get_nodes/";
+
+        private static readonly string getTokenList = "http://notifications.neeeo.org/v1/tokens";
 
 
         private readonly HttpClient _restClient;
@@ -236,6 +239,14 @@ namespace NeoModules.Rest.Services
         public async Task<string> GetNodes()
         {
             var result = await _restClient.GetAsync(getNodes);
+            var data = await result.Content.ReadAsStringAsync();
+            return data;
+        }
+
+        public async Task<string> GetAllTokens()
+        {
+            var tokenClient = new HttpClient();
+            var result = await tokenClient.GetAsync(getTokenList);
             var data = await result.Content.ReadAsStringAsync();
             return data;
         }
