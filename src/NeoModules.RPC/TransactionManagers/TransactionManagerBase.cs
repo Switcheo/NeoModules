@@ -33,19 +33,12 @@ namespace NeoModules.RPC.TransactionManagers
             return Convert.ToDouble(invokeResult.GasConsumed);
         }
 
-        public abstract Task<bool> SendTransactionAsync(CallInput transactionInput);
-
         public async Task<bool> SendTransactionAsync(string signedTx)
         {
             if (Client == null) throw new NullReferenceException("Client not configured");
             if (signedTx == null) throw new ArgumentNullException(nameof(signedTx));
             var neoSendRawTransaction = new NeoSendRawTransaction(Client);
             return await neoSendRawTransaction.SendRequestAsync(signedTx);
-        }
-
-        public virtual Task<bool> SendTransactionAsync(string from, string to, decimal amount)
-        {
-            return SendTransactionAsync(new CallInput {From = from, To = to, Value = amount});
         }
     }
 }

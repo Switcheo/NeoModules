@@ -1,26 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
-using NeoModules.KeyPairs;
-using NeoModules.NEP6;
-using NeoModules.NEP6.Models;
-using NeoModules.NVM;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
-using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
-using NeoModules.RPC.TransactionManagers;
 using Newtonsoft.Json;
 using Asset = NeoModules.Rest.DTOs.Asset;
 using Block = NeoModules.Rest.DTOs.Block;
 using Node = NeoModules.Rest.DTOs.Node;
 using Transaction = NeoModules.Rest.DTOs.Transaction;
-using TransactionOutput = NeoModules.NEP6.Models.TransactionOutput;
 
 namespace NeoModules.Demo
 {
@@ -33,26 +23,25 @@ namespace NeoModules.Demo
         {
             try
             {
-                //var neoApiCompleteService = SetupCompleteNeoService();
+                var neoApiCompleteService = SetupCompleteNeoService();
 
-                //var neoApiSimpleContractService = SetupSimpleService();
-                //var neoApiSimpleAccountService = SetupAnotherSimpleService();
-                ////// You can also create a custom service with only the stuff that you need by creating a class that implements (":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
-
-                //var nep5ApiService = SetupNep5Service();
-
-                //BlockApiTest(neoApiCompleteService).Wait();
-
-                //TestNep5Service(nep5ApiService).Wait();
+                var neoApiSimpleContractService = SetupSimpleService();
+                var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                //You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
 
-                ////create rest api client
-                //RestClientTest().Wait();
+                var nep5ApiService = SetupNep5Service();
 
-                ////nodes list
+                BlockApiTest(neoApiCompleteService).Wait();
+
+                TestNep5Service(nep5ApiService).Wait();
+
+
+                //create rest api client
+                RestClientTest().Wait();
+
+                //nodes list
                 NodesListTestAsync().Wait();
-                
-               // WalletManagerTestAsync().Wait();
             }
             catch (Exception ex)
             {
@@ -173,42 +162,6 @@ namespace NeoModules.Demo
             var result = await service.GetNodesList(MonitorNet.TestNet);
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
 
-            var wallet = new Wallet();
-            var transactionManager = new TransactionManager(RpcTestNetClient);
-            var restService = new NeoScanRestService(NeoScanNet.TestNet);
-            var walletManager = new WalletManager(wallet, restService,RpcTestNetClient);
-
-            var privateKey = "L1mLVqjnuSHNeeGPpPq2aRv74Pm9TXJcXkhCJAz2K9s1Lrrd5fzH";
-            var keypair = Wallet.GetPrivateKeyFromWif(privateKey);
-            walletManager.ImportAccount(privateKey, "ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
-            var address = walletManager.GetAccount("ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2");
-
-            var scriptHash = UInt160.Parse("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
-            var tests = scriptHash.ToArray();
-            var key = new KeyPair(keypair);
-            var ac = walletManager.GetDefaultAccount();
-            var ss = ac.TransactionManager;
-            var message =
-                "{\"to\":\"testNeoModules\",\"from\":\"ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2\",\"subject\":\"Test subject\",\"content\":\"laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarge \",\"date\":\"2018-05-11T17:43:56.954551Z\"}";
-            if (ac.TransactionManager is AccountSignerTransactionManager signer)
-            {
-               var output= new List<NEP6.Models.TransactionOutput>()
-                {
-                    new TransactionOutput()
-                    {
-                        AddressHash = address.Address.ToArray(),
-                        Amount = 2,
-                    }
-                };
-                //var tx2 = await signer.CallContract(key, tests, "sendMessage", new object[] { key.PublicKey.EncodePoint(true).ToArray(), "testNeoModules", message });
-                //var sa = tx2.Hash.ToString();
-
-                //var testSendAssets1 = await signer.SendAsset(key,
-                    //"AKJ5M7ubn4euScS6zWZ8zXUPNatusgJ72H", "GAS", (decimal) 0.1);
-                var testSendAssets = await signer.SendAsset(key,
-                    "AMNnaqPVWDbDogwQzybtcWPBaLrB1nuZ6y", "GAS", (decimal)0.1);
-            }
-            
             return nodes;
         }
     }

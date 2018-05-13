@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using NeoModules.Core;
 
@@ -76,44 +74,6 @@ namespace NeoModules.NVM
             }
 
             return sb;
-        }
-
-        public static void EmitObject(ScriptBuilder sb, object item)
-        {
-            switch (item)
-            {
-                case IEnumerable<byte> _:
-                {
-                    var arr = ((IEnumerable<byte>) item).ToArray();
-
-                    sb.EmitPush(arr);
-                    break;
-                }
-                case IEnumerable<object> _:
-                {
-                    var arr = ((IEnumerable<object>) item).ToArray();
-
-                    for (var index = arr.Length - 1; index >= 0; index--) EmitObject(sb, arr[index]);
-
-                    sb.EmitPush(arr.Length);
-                    sb.Emit(OpCode.PACK);
-                    break;
-                }
-                case null:
-                    sb.EmitPush("");
-                    break;
-                case string _:
-                    sb.EmitPush((string) item);
-                    break;
-                case bool _:
-                    sb.EmitPush((bool) item);
-                    break;
-                case BigInteger _:
-                    sb.EmitPush((BigInteger) item);
-                    break;
-                default:
-                    throw new Exception("Unsupported contract parameter: " + item);
-            }
         }
     }
 }

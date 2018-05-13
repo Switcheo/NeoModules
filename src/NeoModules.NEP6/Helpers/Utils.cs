@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NVM;
 using Org.BouncyCastle.Asn1.Nist;
@@ -79,38 +77,6 @@ namespace NeoModules.NEP6
             return TranscodeSignatureToConcat(sig, 64);
         }
 
-        internal static byte[] Sign(byte[] message, byte[] prikey, byte[] pubkey)
-        {
-            using (var ecdsa = ECDsa.Create(new ECParameters
-            {
-                Curve = ECCurve.NamedCurves.nistP256,
-                D = prikey,
-                Q = new ECPoint
-                {
-                    X = pubkey.Take(32).ToArray(),
-                    Y = pubkey.Skip(32).ToArray()
-                }
-            }))
-            {
-                return ecdsa.SignData(message, HashAlgorithmName.SHA256);
-            }
-        }
-
-        internal static Dictionary<string, string> GetAssetsInfo() //TODO redo this
-        {
-            if (_systemAssets != null) return _systemAssets;
-            _systemAssets = new Dictionary<string, string>();
-            AddAsset("NEO", "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b");
-            AddAsset("GAS", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7");
-
-            return _systemAssets;
-        }
-
-        private static void AddAsset(string symbol, string hash)
-        {
-            _systemAssets[symbol] = hash;
-        }
-
         public static string ReverseHex(string hex)
         {
             var result = "";
@@ -118,43 +84,9 @@ namespace NeoModules.NEP6
             return result;
         }
 
-        public static string GetStringFromScriptHash(byte[] hash)
-        {
-            return Utils.ReverseHex(hash.ToHexString());
-        }
-
         public static uint ToTimestamp(this DateTime time)
         {
             return (uint) (time.ToUniversalTime() - UnixEpoch).TotalSeconds;
-        }
-
-        public static byte[] GenerateScript(byte[] scriptHash, object[] args)
-        {
-            using (var sb = new ScriptBuilder())
-            {
-                var items = new Stack<object>();
-
-                if (args != null)
-                    foreach (var item in args)
-                        items.Push(item);
-
-                while (items.Count > 0)
-                {
-                    var item = items.Pop();
-                    Helper.EmitObject(sb, item);
-                }
-
-                sb.EmitAppCall(scriptHash, false);
-
-                var timestamp = DateTime.UtcNow.ToTimestamp();
-                var nonce = BitConverter.GetBytes(timestamp);
-
-                sb.Emit(OpCode.RET);
-                sb.EmitPush(nonce);
-
-                var bytes = sb.ToArray();
-                return bytes;
-            }
         }
 
         public static byte[]
@@ -168,8 +100,6 @@ namespace NeoModules.NEP6
                 else
                     sb.EmitAppCall(script, operation);
 
-
-                //TODO: not sure about this
                 var timestamp = DateTime.UtcNow.ToTimestamp();
                 var nonce = BitConverter.GetBytes(timestamp);
 
@@ -255,15 +185,8 @@ namespace NeoModules.NEP6
             var val = reader.ReadInt64();
             long D = 100_000_000;
             decimal r = val;
-            r /= (decimal)D;
+            r /= D;
             return r;
-        }
-
-        public static byte[] GetScriptHashFromAddress(this string address)
-        {
-            var temp = address.Base58CheckDecode();
-            temp = temp.Skip(1).ToArray();
-            return temp;
         }
     }
 

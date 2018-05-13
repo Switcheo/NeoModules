@@ -88,6 +88,13 @@ namespace NeoModules.KeyPairs
             return new UInt160(data.Skip(1).ToArray());
         }
 
+        public static byte[] GetScriptHashFromAddress(this string address)
+        {
+            var temp = address.Base58CheckDecode();
+            temp = temp.Skip(1).ToArray();
+            return temp;
+        }
+
         /// <summary>
         /// Verifies the signature of a message using the public key
         /// </summary>
