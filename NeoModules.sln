@@ -16,13 +16,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.NVM", "src\NeoMo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.Core", "src\NeoModules.Core\NeoModules.Core.csproj", "{AB3F4360-495E-49CC-8153-5AC5FC0221F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.Hex", "src\NeoModules.Hex\NeoModules.Hex.csproj", "{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.KeyPairs", "src\NeoModules.KeyPairs\NeoModules.KeyPairs.csproj", "{20530D6A-9B89-4D4F-97A2-C1A146E0A475}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.NEP6", "src\NeoModules.NEP6\NeoModules.NEP6.csproj", "{B42B6C46-98B4-4FE6-8C59-82159B666C8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoModules.NEP6.Tests", "src\NeoModules.NEP6.Tests\NeoModules.NEP6.Tests.csproj", "{123552C6-578F-4526-9B6C-4A399C939B24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoModules.NEP6.Tests", "src\NeoModules.NEP6.Tests\NeoModules.NEP6.Tests.csproj", "{123552C6-578F-4526-9B6C-4A399C939B24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,14 +86,6 @@ Global
 		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Release|x86.ActiveCfg = Release|Any CPU
 		{AB3F4360-495E-49CC-8153-5AC5FC0221F1}.Release|x86.Build.0 = Release|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Debug|x86.Build.0 = Debug|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Release|x86.ActiveCfg = Release|Any CPU
-		{E7E162AE-4A27-4F21-A5A7-DE7C37B10974}.Release|x86.Build.0 = Release|Any CPU
 		{20530D6A-9B89-4D4F-97A2-C1A146E0A475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{20530D6A-9B89-4D4F-97A2-C1A146E0A475}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20530D6A-9B89-4D4F-97A2-C1A146E0A475}.Debug|x86.ActiveCfg = Debug|Any CPU
