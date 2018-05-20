@@ -100,6 +100,8 @@ Balance: 1457.82
 ## Authors
 
 * **Bruno Freitas** - [BrunoFreitasgit](https://github.com/BrunoFreitasgit)
+* [Neo](https://github.com/neo-project/)
+* [Neo-lux](https://github.com/CityOfZion/neo-lux)
 * Multiple base code is taken/inspired from [Nethereum](https://github.com/Nethereum/Nethereum) project
 
 ## License
