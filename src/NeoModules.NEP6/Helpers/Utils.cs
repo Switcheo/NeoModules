@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NVM;
 using Org.BouncyCastle.Asn1.Nist;
@@ -92,7 +93,7 @@ namespace NeoModules.NEP6
         public static byte[]
             GenerateScript(byte[] scriptHash, string operation, object[] args) // TODO: this does not work correctly
         {
-            var script = scriptHash.ToScriptHash();
+            var script = new UInt160(scriptHash);
             using (var sb = new ScriptBuilder())
             {
                 if (args != null)

@@ -29,7 +29,7 @@ namespace NeoModules.Rest.DTOs
     public class Unspent
     {
         [JsonProperty("value")]
-        public decimal Value { get; set; }
+        public double Value { get; set; }
 
         [JsonProperty("txid")]
         public string TxId { get; set; }

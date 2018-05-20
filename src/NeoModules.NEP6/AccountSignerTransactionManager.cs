@@ -120,7 +120,8 @@ namespace NeoModules.NEP6
             decimal cost = 0;
 
             var fromHash = key.PublicKeyHash.ToArray();
-            foreach (var target in targets)
+            var transactionOutputs = targets.ToList();
+            foreach (var target in transactionOutputs)
             {
                 if (target.AddressHash.SequenceEqual(fromHash))
                     throw new WalletException("Target can't be same as input");
@@ -133,7 +134,7 @@ namespace NeoModules.NEP6
 
             foreach (var src in sources)
             {
-                selected += src.Value;
+                selected += (decimal) src.Value;
 
                 var input = new SignerTransaction.Input
                 {
@@ -150,7 +151,7 @@ namespace NeoModules.NEP6
 
 
             if (cost > 0)
-                foreach (var target in targets)
+                foreach (var target in transactionOutputs)
                 {
                     var output = new SignerTransaction.Output
                     {

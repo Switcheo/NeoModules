@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using NeoModules.Core;
+﻿using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Converters;
 using NeoModules.RPC.Infrastructure;
