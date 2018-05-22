@@ -3,7 +3,9 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NeoModules.JsonRpc.Client.RpcMessages;
 using Newtonsoft.Json;
 
@@ -15,6 +17,7 @@ namespace NeoModules.JsonRpc.Client
         private readonly AuthenticationHeaderValue _authHeaderValue;
         private readonly Uri _baseUrl;
         private readonly HttpClientHandler _httpClientHandler;
+        private readonly ILogger _log;
         private readonly JsonSerializerSettings _jsonSerializerSettings;
         private readonly object _lockObject = new object();
         private volatile bool _firstHttpClient;
@@ -23,7 +26,7 @@ namespace NeoModules.JsonRpc.Client
         private DateTime _httpClientLastCreatedAt;
 
         public RpcClient(Uri baseUrl, AuthenticationHeaderValue authHeaderValue = null,
-            JsonSerializerSettings jsonSerializerSettings = null, HttpClientHandler httpClientHandler = null)
+            JsonSerializerSettings jsonSerializerSettings = null, HttpClientHandler httpClientHandler = null, ILogger log = null)
         {
             _baseUrl = baseUrl;
             _authHeaderValue = authHeaderValue;
@@ -31,6 +34,7 @@ namespace NeoModules.JsonRpc.Client
                 jsonSerializerSettings = DefaultJsonSerializerSettingsFactory.BuildDefaultJsonSerializerSettings();
             _jsonSerializerSettings = jsonSerializerSettings;
             _httpClientHandler = httpClientHandler;
+            _log = log;
             CreateNewHttpClient();
         }
 
@@ -56,7 +60,7 @@ namespace NeoModules.JsonRpc.Client
         private static void HandleRpcError(RpcResponseMessage response)
         {
             if (response.HasError)
-                throw new RpcResponseException(new Client.RpcError(response.Error.Code, response.Error.Message,
+                throw new RpcResponseException(new RpcError(response.Error.Code, response.Error.Message,
                     response.Error.Data));
         }
 
@@ -78,12 +82,18 @@ namespace NeoModules.JsonRpc.Client
 
         private async Task<RpcResponseMessage> SendAsync(RpcRequestMessage request, string route = null)
         {
+            var logger = new RpcLogger(_log);
             try
             {
                 var httpClient = GetOrCreateHttpClient();
                 var rpcRequestJson = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
                 var httpContent = new StringContent(rpcRequestJson, Encoding.UTF8, "application/json");
-                var httpResponseMessage = await httpClient.PostAsync(route, httpContent).ConfigureAwait(false);
+                var cancellationTokenSource = new CancellationTokenSource();
+                cancellationTokenSource.CancelAfter(TimeSpan.FromMilliseconds(ConnectionTimeout));
+
+                logger.LogRequest(rpcRequestJson);
+
+                var httpResponseMessage = await httpClient.PostAsync(route, httpContent, cancellationTokenSource.Token).ConfigureAwait(false);
                 httpResponseMessage.EnsureSuccessStatusCode();
 
                 var stream = await httpResponseMessage.Content.ReadAsStreamAsync();
@@ -91,11 +101,20 @@ namespace NeoModules.JsonRpc.Client
                 using (var reader = new JsonTextReader(streamReader))
                 {
                     var serializer = JsonSerializer.Create(_jsonSerializerSettings);
-                    return serializer.Deserialize<RpcResponseMessage>(reader);
+                    var message = serializer.Deserialize<RpcResponseMessage>(reader);
+
+                    logger.LogResponse(message);
+
+                    return message;
                 }
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new RpcClientTimeoutException($"Rpc timeout afer {ConnectionTimeout} milliseconds", ex);
             }
             catch (Exception ex)
             {
+                logger.LogException(ex);
                 throw new RpcClientUnknownException("Error occurred when trying to send rpc requests(s)", ex);
             }
         }
