@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
 using NeoModules.RPC.DTOs;
@@ -20,7 +21,7 @@ namespace NeoModules.RPC.TransactionManagers
             if (serializedScriptHash == null) throw new ArgumentNullException(nameof(serializedScriptHash));
             var neoEstimateGas = new NeoInvokeScript(Client);
             var invokeResult = await neoEstimateGas.SendRequestAsync(serializedScriptHash);
-            return Convert.ToDouble(invokeResult.GasConsumed);
+            return double.Parse(invokeResult.GasConsumed, CultureInfo.InvariantCulture);
         }
 
         public virtual async Task<double> EstimateGasAsync(string scriptHash, string operation,
@@ -30,7 +31,7 @@ namespace NeoModules.RPC.TransactionManagers
             if (scriptHash == null) throw new ArgumentNullException(nameof(scriptHash));
             var neoEstimateGas = new NeoInvokeFunction(Client);
             var invokeResult = await neoEstimateGas.SendRequestAsync(scriptHash, operation, parameterList);
-            return Convert.ToDouble(invokeResult.GasConsumed);
+            return double.Parse(invokeResult.GasConsumed, CultureInfo.InvariantCulture);
         }
 
         public async Task<bool> SendTransactionAsync(string signedTx)

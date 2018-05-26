@@ -30,7 +30,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 var temp = result.Stack[0].Value.ToString();
-                name = Helper.HexToString(temp);
+                name = temp.HexToString();
             }
             return name;
         }
@@ -42,7 +42,7 @@ namespace NeoModules.RPC.Services
             if (result != null)
             {
                 var temp = result.Stack[0].Value.ToString();
-                name = Helper.HexToString(temp);
+                name = temp.HexToString();
             }
             return name;
         }
@@ -75,11 +75,11 @@ namespace NeoModules.RPC.Services
             return decimals;
         }
 
-        public async Task<string> GetBalance(string scriptHash, string decimals)
+        public async Task<string> GetBalance(string addressScriptHash, string decimals)
         {
             string balance = string.Empty;
 
-            var result = await GetTokenBalance.SendRequestAsync(scriptHash);
+            var result = await GetTokenBalance.SendRequestAsync(addressScriptHash);
             if (result != null)
             {
                 balance = result.Stack[0].Value.ToString();
@@ -114,7 +114,7 @@ namespace NeoModules.RPC.Services
                 remainder = remainder * 10 - div * divisor;
             }
 
-            var retValue = quotient.ToString() + "." + decimalPart.ToString(new string('0', decimalPlaces));
+            var retValue = quotient + "." + decimalPart.ToString(new string('0', decimalPlaces));
             return retValue;
         }
 

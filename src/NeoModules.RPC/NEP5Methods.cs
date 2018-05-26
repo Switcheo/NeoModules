@@ -8,8 +8,5 @@ namespace NeoModules.RPC
         decimals,
         balanceOf,
         transfer,
-        allowance,
-        transferFrom,
-        approve,
     }
 }

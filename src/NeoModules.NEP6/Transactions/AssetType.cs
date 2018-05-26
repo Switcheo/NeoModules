@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NeoModules.NEP6.Transactions
+﻿namespace NeoModules.NEP6.Transactions
 {
     public enum AssetType : byte
     {

@@ -16,8 +16,8 @@
     <PackageReleaseNotes>Refractored TransactionManagers
 
 </PackageReleaseNotes>
-    <Version>1.0.10</Version>
-    <FileVersion>1.0.10.0</FileVersion>
+    <Version>1.0.11</Version>
+    <FileVersion>1.0.11.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

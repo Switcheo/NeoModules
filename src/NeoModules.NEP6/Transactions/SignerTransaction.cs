@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
-using NeoModules.NEP6.Transactions;
+using NeoModules.NEP6.Helpers;
 using Helper = NeoModules.KeyPairs.Helper;
 
-namespace NeoModules.NEP6.Models
+namespace NeoModules.NEP6.Transactions
 {
     public class SignerTransaction
     {
@@ -42,23 +42,23 @@ namespace NeoModules.NEP6.Models
             {
                 using (var writer = new BinaryWriter(stream))
                 {
-                    writer.Write((byte) Type);
+                    writer.Write((byte)Type);
                     writer.Write(Version);
 
                     // exclusive data
                     switch (Type)
                     {
                         case TransactionType.InvocationTransaction:
-                        {
-                            writer.WriteVarInt(Script.Length);
-                            writer.Write(Script);
-                            if (Version >= 1) writer.WriteFixed(Gas);
+                            {
+                                writer.WriteVarInt(Script.Length);
+                                writer.Write(Script);
+                                if (Version >= 1) writer.WriteFixed(Gas);
 
-                            break;
-                        }
+                                break;
+                            }
                     }
                     // Don't need any attributes
-                    writer.Write((byte) 0);
+                    writer.Write((byte)0);
 
                     writer.WriteVarInt(Inputs.Length);
                     foreach (var input in Inputs) SerializationHelper.SerializeTransactionInput(writer, input);
@@ -87,6 +87,18 @@ namespace NeoModules.NEP6.Models
 
             var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
             var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
+            Witnesses = new[]
+                {new Witness {InvocationScript = invocationScript, VerificationScript = verificationScript}};
+        }
+
+        public void Sign(byte[] privateKey)
+        {
+            var txdata = Serialize(false);
+
+            var signature = Utils.Sign(txdata, privateKey);
+
+            var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
+            var verificationScript = Helper.CreateSignatureRedeemScript(new KeyPair(privateKey).PublicKey);
             Witnesses = new[]
                 {new Witness {InvocationScript = invocationScript, VerificationScript = verificationScript}};
         }

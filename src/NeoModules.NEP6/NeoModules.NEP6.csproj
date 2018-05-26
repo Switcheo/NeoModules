@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.16-beta</Version>
+    <Version>0.0.17-beta</Version>
     <Authors>Bruno Freitas</Authors>
     <Description>Neo light wallet implementation, using NEP6 standard.</Description>
     <PackageLicenseUrl>https://github.com/CityOfZion/NeoModules/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -12,8 +12,8 @@
     <PackageTags>Neo KeyPair VM NEP6 Light wallet CityofZion Blockchain</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReleaseNotes>Fixed bug with scriptBuilder</PackageReleaseNotes>
-    <AssemblyVersion>0.0.16.0</AssemblyVersion>
-    <FileVersion>0.0.16.0</FileVersion>
+    <AssemblyVersion>0.0.17.0</AssemblyVersion>
+    <FileVersion>0.0.17.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

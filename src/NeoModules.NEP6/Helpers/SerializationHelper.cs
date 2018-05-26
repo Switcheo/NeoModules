@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
-using NeoModules.KeyPairs.Cryptography.ECC;
-using NeoModules.NEP6.Models;
 using NeoModules.NEP6.Transactions;
 
-namespace NeoModules.NEP6
+namespace NeoModules.NEP6.Helpers
 {
     public static class SerializationHelper
     {
@@ -49,17 +47,13 @@ namespace NeoModules.NEP6
             {
                 case TransactionType.InvocationTransaction:
                 {
-                    var scriptLength = reader.ReadVarInt();
-                    tx.Script = reader.ReadBytes((int) scriptLength);
-
-                    tx.Gas = tx.Version >= 1 ? reader.ReadFixed() : 0;
-
+                    //todo
                     break;
                 }
 
                 case TransactionType.MinerTransaction:
                 {
-                    var Nonce = reader.ReadUInt32();
+                    //todo
                     break;
                 }
 
@@ -79,39 +73,19 @@ namespace NeoModules.NEP6
 
                 case TransactionType.PublishTransaction:
                 {
-                    var script = reader.ReadVarBytes();
-                    var parameterList = reader.ReadVarBytes();
-                    var returnType = reader.ReadByte();
-                    bool NeedStorage;
-                    if (tx.Version >= 1)
-                        NeedStorage = reader.ReadBoolean();
-                    else
-                        NeedStorage = false;
-                    var name = reader.ReadVarString();
-                    var codeVersion = reader.ReadVarString();
-                    var author = reader.ReadVarString();
-                    var email = reader.ReadVarString();
-                    var description = reader.ReadVarString();
+                    //todo
                     break;
                 }
 
                 case TransactionType.EnrollmentTransaction:
                 {
-                    var publicKey = ECPoint.DeserializeFrom(reader, ECCurve.Secp256r1);
+                    //todo
                     break;
                 }
 
                 case TransactionType.RegisterTransaction:
                 {
-                    var assetType = (AssetType) reader.ReadByte();
-                    var name = reader.ReadVarString();
-                    var amount = reader.ReadFixed();
-                    var precision = reader.ReadByte();
-                    var owner = ECPoint.DeserializeFrom(reader, ECCurve.Secp256r1);
-                    if (owner.IsInfinity && assetType != AssetType.GoverningToken &&
-                        assetType != AssetType.UtilityToken)
-                        throw new FormatException();
-                    var admin = reader.ReadBytes(20);
+                    //todo
                     break;
                 }
 

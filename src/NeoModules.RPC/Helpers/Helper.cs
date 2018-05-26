@@ -19,7 +19,7 @@ namespace NeoModules.RPC.Helpers
             return result;
         }
 
-        public static string HexToString(string inputText)
+        public static string HexToString(this string inputText)
         {
             var bb = Enumerable.Range(0, inputText.Length)
                 .Where(x => x % 2 == 0)

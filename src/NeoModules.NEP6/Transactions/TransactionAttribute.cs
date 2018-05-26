@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using NeoModules.NEP6.Models;
 
 namespace NeoModules.NEP6.Transactions
 {
@@ -40,6 +39,19 @@ namespace NeoModules.NEP6.Transactions
             }
 
             return new TransactionAttribute {Usage = usage, Data = data};
+        }
+
+        internal void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)Usage);
+            if (Usage == TransactionAttributeUsage.DescriptionUrl)
+                writer.Write((byte)Data.Length);
+            else if (Usage == TransactionAttributeUsage.Description || Usage >= TransactionAttributeUsage.Remark)
+                writer.WriteVarInt(Data.Length);
+            if (Usage == TransactionAttributeUsage.ECDH02 || Usage == TransactionAttributeUsage.ECDH03)
+                writer.Write(Data, 1, 32);
+            else
+                writer.Write(Data);
         }
     }
 }

@@ -26,71 +26,67 @@ namespace NeoModules.NEP6
             Client = rpcClient;
         }
 
-        public async Task<SignerTransaction> CallContract(KeyPair key, byte[] scriptHash, string operation,
-            object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
+        public async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
         {
-            var bytes = Utils.GenerateScript(scriptHash, operation, args);
-            return await CallContract(key, scriptHash, bytes, attachSymbol, attachTargets);
-        }
+            if (_restService == null) throw new NullReferenceException("REST client not configured");
+            var response = await _restService.GetBalanceAsync(address);
+            var addressBalance = AddressBalance.FromJson(response);
 
-        public async Task<SignerTransaction> CallContract(KeyPair key, byte[] scriptHash, byte[] bytes,
-            string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
-        {
-            if (string.IsNullOrEmpty(attachSymbol)) attachSymbol = "GAS";
-
-            if (attachTargets == null) attachTargets = new List<TransactionOutput>();
-
-            var (inputs, outputs) = await GenerateInputsOutputs(key, attachSymbol, attachTargets);
-
-            if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
-
-            var tx = new SignerTransaction
+            var result = new Dictionary<string, List<Unspent>>();
+            foreach (var balanceEntry in addressBalance.Balance)
             {
-                Type = TransactionType.InvocationTransaction,
-                Version = 0,
-                Script = bytes,
-                Gas = 0,
-                Inputs = inputs.ToArray(),
-                Outputs = outputs.ToArray()
-            };
+                var child = balanceEntry.Unspent;
+                if (!(child?.Count > 0)) continue;
+                List<Unspent> list;
+                if (result.ContainsKey(balanceEntry.Asset))
+                {
+                    list = result[balanceEntry.Asset];
+                }
+                else
+                {
+                    list = new List<Unspent>();
+                    result[balanceEntry.Asset] = list;
+                }
 
-            var result = await SignAndSendTransaction(key, tx);
-            return result ? tx : null;
+                list.AddRange(balanceEntry.Unspent.Select(data => new Unspent
+                {
+                    TxId = data.TxId,
+                    N = data.N,
+                    Value = data.Value
+                }));
+            }
+
+            return result;
         }
 
-        public async Task<SignerTransaction> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
+
+        public static string SymbolFromAssetId(string assetId)
         {
-            var toScriptHash = toAddress.GetScriptHashFromAddress();
-            var target = new TransactionOutput { AddressHash = toScriptHash, Amount = amount };
-            var targets = new List<TransactionOutput> { target };
-            return await SendAsset(fromKey, symbol, targets);
+            if (assetId == null) return null;
+
+            if (assetId.StartsWith("0x")) assetId = assetId.Substring(2);
+
+            var info = GetAssetsInfo();
+            foreach (var entry in info)
+                if (entry.Value == assetId)
+                    return entry.Key;
+
+            return null;
         }
 
-        public async Task<SignerTransaction> SendAsset(KeyPair fromKey, string symbol,
-            IEnumerable<TransactionOutput> targets)
+        #region Private 
+
+        private static byte[] SignTransaction(KeyPair key, SignerTransaction txInput)
         {
-            var (inputs, outputs) = await GenerateInputsOutputs(fromKey, symbol, targets);
-
-            var tx = new SignerTransaction
-            {
-                Type = TransactionType.ContractTransaction,
-                Version = 0,
-                Script = null,
-                Gas = -1,
-                Inputs = inputs.ToArray(),
-                Outputs = outputs.ToArray()
-            };
-
-            var result = await SignAndSendTransaction(fromKey, tx);
-            return result ? tx : null;
+            txInput.Sign(key);
+            return txInput.Serialize();
         }
 
         private async Task<bool> SignAndSendTransaction(KeyPair key, SignerTransaction txInput)
         {
             if (txInput == null) return false;
-            txInput.Sign(key);
-            var serializedTx = txInput.Serialize();
-            return await SendTransactionAsync(serializedTx.ToHexString());
+            var signedTransaction = SignTransaction(key, txInput);
+            return await SendTransactionAsync(signedTransaction.ToHexString());
         }
 
         private async Task<(List<SignerTransaction.Input> inputs, List<SignerTransaction.Output> outputs)>
@@ -155,7 +151,6 @@ namespace NeoModules.NEP6
                 {
                     var output = new SignerTransaction.Output
                     {
-
                         AssetId = assetId.HexToBytes().Reverse().ToArray(),
                         ScriptHash = target.AddressHash.ToArray(),
                         Value = target.Amount
@@ -180,39 +175,6 @@ namespace NeoModules.NEP6
             return (inputs, outputs);
         }
 
-        public async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
-        {
-            if (_restService == null) throw new NullReferenceException("REST client not configured");
-            var response = await _restService.GetBalanceAsync(address);
-            var addressBalance = AddressBalance.FromJson(response);
-
-            var result = new Dictionary<string, List<Unspent>>();
-            foreach (var balanceEntry in addressBalance.Balance)
-            {
-                var child = balanceEntry.Unspent;
-                if (!(child?.Count > 0)) continue;
-                List<Unspent> list;
-                if (result.ContainsKey(balanceEntry.Asset))
-                {
-                    list = result[balanceEntry.Asset];
-                }
-                else
-                {
-                    list = new List<Unspent>();
-                    result[balanceEntry.Asset] = list;
-                }
-
-                list.AddRange(balanceEntry.Unspent.Select(data => new Unspent
-                {
-                    TxId = data.TxId,
-                    N = data.N,
-                    Value = data.Value
-                }));
-            }
-
-            return result;
-        }
-
         internal static Dictionary<string, string> GetAssetsInfo()
         {
             if (_systemAssets == null)
@@ -230,18 +192,101 @@ namespace NeoModules.NEP6
             _systemAssets[symbol] = hash;
         }
 
-        public static string SymbolFromAssetID(string assetID)
+        #endregion
+
+        #region Contracts
+
+        public async Task<double> EstimateGasContractCall(KeyPair key, byte[] scriptHash, string operation,
+            object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
         {
-            if (assetID == null) return null;
+            var bytes = Utils.GenerateScript(scriptHash, operation, args);
 
-            if (assetID.StartsWith("0x")) assetID = assetID.Substring(2);
+            if (string.IsNullOrEmpty(attachSymbol)) attachSymbol = "GAS";
 
-            var info = GetAssetsInfo();
-            foreach (var entry in info)
-                if (entry.Value == assetID)
-                    return entry.Key;
+            if (attachTargets == null) attachTargets = new List<TransactionOutput>();
 
-            return null;
+            var (inputs, outputs) = await GenerateInputsOutputs(key, attachSymbol, attachTargets);
+
+            if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
+
+            var tx = new SignerTransaction
+            {
+                Type = TransactionType.InvocationTransaction,
+                Version = 0,
+                Script = bytes,
+                Gas = 0,
+                Inputs = inputs.ToArray(),
+                Outputs = outputs.ToArray()
+            };
+
+            var serializedScriptHash = SignTransaction(key, tx);
+
+            return await EstimateGasAsync(serializedScriptHash.ToHexString());
         }
+
+        public async Task<SignerTransaction> CallContract(KeyPair key, byte[] scriptHash, string operation,
+            object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
+        {
+            var bytes = Utils.GenerateScript(scriptHash, operation, args);
+            return await CallContract(key, scriptHash, bytes, attachSymbol, attachTargets);
+        }
+
+        public async Task<SignerTransaction> CallContract(KeyPair key, byte[] scriptHash, byte[] bytes,
+            string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
+        {
+            if (string.IsNullOrEmpty(attachSymbol)) attachSymbol = "GAS";
+
+            if (attachTargets == null) attachTargets = new List<TransactionOutput>();
+
+            var (inputs, outputs) = await GenerateInputsOutputs(key, attachSymbol, attachTargets);
+
+            if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
+
+            var tx = new SignerTransaction
+            {
+                Type = TransactionType.InvocationTransaction,
+                Version = 0,
+                Script = bytes,
+                Gas = 0,
+                Inputs = inputs.ToArray(),
+                Outputs = outputs.ToArray()
+            };
+
+            var result = await SignAndSendTransaction(key, tx);
+            return result ? tx : null;
+        }
+
+        #endregion
+
+        #region Assets
+
+        public async Task<SignerTransaction> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
+        {
+            var toScriptHash = toAddress.GetScriptHashFromAddress();
+            var target = new TransactionOutput {AddressHash = toScriptHash, Amount = amount};
+            var targets = new List<TransactionOutput> {target};
+            return await SendAsset(fromKey, symbol, targets);
+        }
+
+        public async Task<SignerTransaction> SendAsset(KeyPair fromKey, string symbol,
+            IEnumerable<TransactionOutput> targets)
+        {
+            var (inputs, outputs) = await GenerateInputsOutputs(fromKey, symbol, targets);
+
+            var tx = new SignerTransaction
+            {
+                Type = TransactionType.ContractTransaction,
+                Version = 0,
+                Script = null,
+                Gas = -1,
+                Inputs = inputs.ToArray(),
+                Outputs = outputs.ToArray()
+            };
+
+            var result = await SignAndSendTransaction(fromKey, tx);
+            return result ? tx : null;
+        }
+
+        #endregion
     }
 }
