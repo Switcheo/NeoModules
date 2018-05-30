@@ -7,11 +7,16 @@ namespace NeoModules.RPC.Services.Nep5
 {
     public class TokenBalanceOf : RpcRequestResponseHandler<DTOs.Invoke>
     {
-        private readonly string _tokenScriptHash;
+        private string _tokenScriptHash;
 
         public TokenBalanceOf(IClient client, string tokenScriptHash) : base(client, ApiMethods.invokefunction.ToString())
         {
             _tokenScriptHash = tokenScriptHash;
+        }
+
+        public void ChangeScriptHash(string tokenScripHash)
+        {
+            _tokenScriptHash = tokenScripHash;
         }
 
         public Task<DTOs.Invoke> SendRequestAsync(string account, object id = null)

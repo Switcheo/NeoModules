@@ -5,11 +5,16 @@ namespace NeoModules.RPC.Services.Nep5
 {
     public class TokenDecimals : RpcRequestResponseHandler<DTOs.Invoke>
     {
-        private readonly string _tokenScriptHash;
+        private string _tokenScriptHash;
 
         public TokenDecimals(IClient client, string tokenScriptHash) : base(client, ApiMethods.invokefunction.ToString())
         {
             _tokenScriptHash = tokenScriptHash;
+        }
+
+        public void ChangeScriptHash(string tokenScripHash)
+        {
+            _tokenScriptHash = tokenScripHash;
         }
 
         public Task<DTOs.Invoke> SendRequestAsync(object id = null)

@@ -13,11 +13,11 @@
     <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT</Copyright>
-    <PackageReleaseNotes>Refractored TransactionManagers
+    <PackageReleaseNotes>Added ability to switch NeoNep5Service token scriptHash on runtime
 
 </PackageReleaseNotes>
-    <Version>1.0.11</Version>
-    <FileVersion>1.0.11.0</FileVersion>
+    <Version>1.0.12</Version>
+    <FileVersion>1.0.12.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

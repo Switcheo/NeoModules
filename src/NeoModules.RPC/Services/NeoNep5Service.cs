@@ -23,6 +23,18 @@ namespace NeoModules.RPC.Services
             GetTokenSymbol = new TokenSymbol(client, tokenScriptHash);
         }
 
+        //TODO: can refractor this more
+        public void ChangeTokenScripHash(string tokenScriptHash)
+        {
+            if (string.IsNullOrEmpty(tokenScriptHash)) throw new ArgumentNullException(nameof(tokenScriptHash));
+
+            GetTokenBalance.ChangeScriptHash(tokenScriptHash);
+            GetTokenDecimals.ChangeScriptHash(tokenScriptHash);
+            GetTokenName.ChangeScriptHash(tokenScriptHash);
+            GetTokenTotalSupply.ChangeScriptHash(tokenScriptHash);
+            GetTokenSymbol.ChangeScriptHash(tokenScriptHash);
+        }
+
         public async Task<string> GetName()
         {
             string name = string.Empty;
@@ -86,16 +98,16 @@ namespace NeoModules.RPC.Services
                 if (string.IsNullOrEmpty(balance)) return "0";
                 var supplyValueArray = balance.HexToBytes().Reverse().ToArray();
                 balance = BitConverter.ToString(supplyValueArray).Replace("-", "");
-                balance = GetDecimal(HexToBigInteger(balance), (int)DecimalStringToBigInteger(decimals));              
+                balance = GetDecimal(HexToBigInteger(balance), (int)DecimalStringToBigInteger(decimals));
             }
             return balance;
         }
 
-        private TokenBalanceOf GetTokenBalance { get; }
-        private TokenDecimals GetTokenDecimals { get; }
-        private TokenName GetTokenName { get; }
-        private TokenTotalSupply GetTokenTotalSupply { get; }
-        private TokenSymbol GetTokenSymbol { get; }
+        private TokenBalanceOf GetTokenBalance { get; set; }
+        private TokenDecimals GetTokenDecimals { get; set; }
+        private TokenName GetTokenName { get; set; }
+        private TokenTotalSupply GetTokenTotalSupply { get; set; }
+        private TokenSymbol GetTokenSymbol { get; set; }
 
 
         private string GetDecimal(BigInteger bigInteger, int divisor)
