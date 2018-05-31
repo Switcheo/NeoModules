@@ -2,8 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
-using NeoModules.NEP6;
-using NeoModules.NEP6.Models;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.Services;
@@ -165,7 +163,6 @@ namespace NeoModules.Demo
             var service = new NeoNodesListService();
             var result = await service.GetNodesList(MonitorNet.TestNet);
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
-
             return nodes;
         }
     }
