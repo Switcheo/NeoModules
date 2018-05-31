@@ -34,17 +34,16 @@ namespace NeoModules.Demo
 
                 var nep5ApiService = SetupNep5Service();
 
-                //BlockApiTest(neoApiCompleteService).Wait();
+                BlockApiTest(neoApiCompleteService).Wait();
 
-                //TestNep5Service(nep5ApiService).Wait();
+                TestNep5Service(nep5ApiService).Wait();
 
 
                 //create rest api client
-                //RestClientTest().Wait();
+                RestClientTest().Wait();
 
                 //nodes list
-                //NodesListTestAsync().Wait();
-                TestNewNep5().Wait();
+                NodesListTestAsync().Wait();
             }
             catch (Exception ex)
             {
@@ -168,23 +167,6 @@ namespace NeoModules.Demo
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
 
             return nodes;
-        }
-
-        private static async Task TestNewNep5()
-        {
-            var localWallet = new Wallet(""); //todo make this persistent
-            var WalletManager = new WalletManager(localWallet, new NeoScanRestService(NeoScanNet.MainNet), RpcClient);
-            var account = WalletManager.ImportAccount("L4VwcUXYmeqiBHwdXM42XCT8pTusS2Rucwmr9XwWRiXPnan1krHB", "teste");
-
-            if ((account.TransactionManager is AccountSignerTransactionManager accountsigner))
-            {
-                accountsigner.InitializeNep5Service("0x08e8c4400f1af2c20c28e0018f29535eb85d15b6");
-                var symbol = await accountsigner.GetNep5Symbol();
-                var totalsupply = await accountsigner.GetNep5TotalSupply(8);
-                var name = await accountsigner.GetNep5Name();
-                var decimals = await accountsigner.GetNep5Decimals();
-                var balance = await accountsigner.GetNep5BalanceOf(8);
-            }
         }
     }
 }
