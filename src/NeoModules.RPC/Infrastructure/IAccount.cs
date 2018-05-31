@@ -6,5 +6,6 @@ namespace NeoModules.RPC.Infrastructure
     {
         string Address { get; }
         ITransactionManager TransactionManager { get; }
+        byte[] PrivateKey { get; }
     }
 }

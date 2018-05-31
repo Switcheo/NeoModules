@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
@@ -9,6 +10,9 @@ using NeoModules.NEP6.Models;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
+using NeoModules.RPC;
+using NeoModules.RPC.Infrastructure;
+using NeoModules.RPC.Services;
 using NeoModules.RPC.TransactionManagers;
 using Helper = NeoModules.KeyPairs.Helper;
 
@@ -17,16 +21,25 @@ namespace NeoModules.NEP6
     public class AccountSignerTransactionManager : TransactionManagerBase
     {
         private static Dictionary<string, string> _systemAssets;
+        private readonly KeyPair _accountKey;
         private readonly INeoRestService _restService;
+        private NeoNep5Service _nep5Service;
 
-        public AccountSignerTransactionManager(IClient rpcClient, INeoRestService restService, Account account)
+        public AccountSignerTransactionManager(IClient rpcClient, INeoRestService restService, IAccount account)
         {
             Account = account ?? throw new ArgumentNullException(nameof(account));
-            _restService = restService;
             Client = rpcClient;
+            _restService = restService;
+            if (account.PrivateKey != null) _accountKey = new KeyPair(account.PrivateKey); //if account is watch only, it does not have private key
         }
 
-        public async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
+        //if you want to use nep5 tranfer method, you need to init this
+        public void InitializeNep5Service(string tokenScriptHash)
+        {
+            _nep5Service = tokenScriptHash.StartsWith("0x") ? new NeoNep5Service(Client, tokenScriptHash.Substring(2)) : new NeoNep5Service(Client, tokenScriptHash);
+        }
+
+        private async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
         {
             if (_restService == null) throw new NullReferenceException("REST client not configured");
             var response = await _restService.GetBalanceAsync(address);
@@ -59,37 +72,20 @@ namespace NeoModules.NEP6
             return result;
         }
 
-
-        public static string SymbolFromAssetId(string assetId)
-        {
-            if (assetId == null) return null;
-
-            if (assetId.StartsWith("0x")) assetId = assetId.Substring(2);
-
-            var info = GetAssetsInfo();
-            foreach (var entry in info)
-                if (entry.Value == assetId)
-                    return entry.Key;
-
-            return null;
-        }
-
-        #region Private 
-
-        private static byte[] SignTransaction(KeyPair key, SignerTransaction txInput)
+        private static byte[] SignTransaction(KeyPair key, SignedTransaction txInput)
         {
             txInput.Sign(key);
             return txInput.Serialize();
         }
 
-        private async Task<bool> SignAndSendTransaction(KeyPair key, SignerTransaction txInput)
+        private async Task<bool> SignAndSendTransaction(SignedTransaction txInput)
         {
             if (txInput == null) return false;
-            var signedTransaction = SignTransaction(key, txInput);
+            var signedTransaction = SignTransaction(_accountKey, txInput);
             return await SendTransactionAsync(signedTransaction.ToHexString());
         }
 
-        private async Task<(List<SignerTransaction.Input> inputs, List<SignerTransaction.Output> outputs)>
+        private async Task<(List<SignedTransaction.Input> inputs, List<SignedTransaction.Output> outputs)>
             GenerateInputsOutputs(KeyPair key, string symbol, IEnumerable<TransactionOutput> targets)
         {
             if (targets == null) throw new WalletException("Invalid amount list");
@@ -100,8 +96,8 @@ namespace NeoModules.NEP6
             // filter any asset lists with zero unspent inputs
             unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            var inputs = new List<SignerTransaction.Input>();
-            var outputs = new List<SignerTransaction.Output>();
+            var inputs = new List<SignedTransaction.Input>();
+            var outputs = new List<SignedTransaction.Output>();
 
             string assetId;
 
@@ -130,9 +126,9 @@ namespace NeoModules.NEP6
 
             foreach (var src in sources)
             {
-                selected += (decimal) src.Value;
+                selected += (decimal)src.Value;
 
-                var input = new SignerTransaction.Input
+                var input = new SignedTransaction.Input
                 {
                     PrevHash = src.TxId.HexToBytes().Reverse().ToArray(),
                     PrevIndex = src.N
@@ -149,7 +145,7 @@ namespace NeoModules.NEP6
             if (cost > 0)
                 foreach (var target in transactionOutputs)
                 {
-                    var output = new SignerTransaction.Output
+                    var output = new SignedTransaction.Output
                     {
                         AssetId = assetId.HexToBytes().Reverse().ToArray(),
                         ScriptHash = target.AddressHash.ToArray(),
@@ -163,7 +159,7 @@ namespace NeoModules.NEP6
             {
                 var left = selected - cost;
                 var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                var change = new SignerTransaction.Output
+                var change = new SignedTransaction.Output
                 {
                     AssetId = assetId.HexToBytes().Reverse().ToArray(),
                     ScriptHash = signatureScript.ToArray(),
@@ -192,11 +188,9 @@ namespace NeoModules.NEP6
             _systemAssets[symbol] = hash;
         }
 
-        #endregion
-
         #region Contracts
 
-        public async Task<double> EstimateGasContractCall(KeyPair key, byte[] scriptHash, string operation,
+        public async Task<double> EstimateGasContractCall(byte[] scriptHash, string operation,
             object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
         {
             var bytes = Utils.GenerateScript(scriptHash, operation, args);
@@ -205,11 +199,11 @@ namespace NeoModules.NEP6
 
             if (attachTargets == null) attachTargets = new List<TransactionOutput>();
 
-            var (inputs, outputs) = await GenerateInputsOutputs(key, attachSymbol, attachTargets);
+            var (inputs, outputs) = await GenerateInputsOutputs(_accountKey, attachSymbol, attachTargets);
 
             if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
 
-            var tx = new SignerTransaction
+            var tx = new SignedTransaction
             {
                 Type = TransactionType.InvocationTransaction,
                 Version = 0,
@@ -219,19 +213,19 @@ namespace NeoModules.NEP6
                 Outputs = outputs.ToArray()
             };
 
-            var serializedScriptHash = SignTransaction(key, tx);
+            var serializedScriptHash = SignTransaction(_accountKey, tx);
 
             return await EstimateGasAsync(serializedScriptHash.ToHexString());
         }
 
-        public async Task<SignerTransaction> CallContract(KeyPair key, byte[] scriptHash, string operation,
+        public async Task<SignedTransaction> CallContract(byte[] scriptHash, string operation,
             object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
         {
             var bytes = Utils.GenerateScript(scriptHash, operation, args);
-            return await CallContract(key, scriptHash, bytes, attachSymbol, attachTargets);
+            return await CallContract(_accountKey, scriptHash, bytes, attachSymbol, attachTargets);
         }
 
-        public async Task<SignerTransaction> CallContract(KeyPair key, byte[] scriptHash, byte[] bytes,
+        public async Task<SignedTransaction> CallContract(KeyPair key, byte[] scriptHash, byte[] bytes,
             string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
         {
             if (string.IsNullOrEmpty(attachSymbol)) attachSymbol = "GAS";
@@ -242,7 +236,7 @@ namespace NeoModules.NEP6
 
             if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
 
-            var tx = new SignerTransaction
+            var tx = new SignedTransaction
             {
                 Type = TransactionType.InvocationTransaction,
                 Version = 0,
@@ -252,7 +246,7 @@ namespace NeoModules.NEP6
                 Outputs = outputs.ToArray()
             };
 
-            var result = await SignAndSendTransaction(key, tx);
+            var result = await SignAndSendTransaction(tx);
             return result ? tx : null;
         }
 
@@ -260,20 +254,20 @@ namespace NeoModules.NEP6
 
         #region Assets
 
-        public async Task<SignerTransaction> SendAsset(KeyPair fromKey, string toAddress, string symbol, decimal amount)
+        public async Task<SignedTransaction> SendAsset(string toAddress, string symbol, decimal amount)
         {
             var toScriptHash = toAddress.GetScriptHashFromAddress();
-            var target = new TransactionOutput {AddressHash = toScriptHash, Amount = amount};
-            var targets = new List<TransactionOutput> {target};
-            return await SendAsset(fromKey, symbol, targets);
+            var target = new TransactionOutput { AddressHash = toScriptHash, Amount = amount };
+            var targets = new List<TransactionOutput> { target };
+            return await SendAsset(_accountKey, symbol, targets);
         }
 
-        public async Task<SignerTransaction> SendAsset(KeyPair fromKey, string symbol,
+        public async Task<SignedTransaction> SendAsset(KeyPair fromKey, string symbol,
             IEnumerable<TransactionOutput> targets)
         {
             var (inputs, outputs) = await GenerateInputsOutputs(fromKey, symbol, targets);
 
-            var tx = new SignerTransaction
+            var tx = new SignedTransaction
             {
                 Type = TransactionType.ContractTransaction,
                 Version = 0,
@@ -283,8 +277,96 @@ namespace NeoModules.NEP6
                 Outputs = outputs.ToArray()
             };
 
-            var result = await SignAndSendTransaction(fromKey, tx);
+            var result = await SignAndSendTransaction(tx);
             return result ? tx : null;
+        }
+
+        #endregion
+
+
+        //TODO move this to another class
+
+        #region NEP5
+
+        public void ChangeNep5ServiceToken(string tokenScriptHash)
+        {
+            _nep5Service.ChangeTokenScripHash(tokenScriptHash);
+        }
+
+        public async Task<string> GetNep5Name(string tokenScriptHash = null)
+        {
+            if (_nep5Service == null) throw new ArgumentNullException($"NEP5 service not configured");
+            if (!string.IsNullOrEmpty(tokenScriptHash)) ChangeNep5ServiceToken(tokenScriptHash);
+
+            var result = await _nep5Service.GetName();
+            if (string.IsNullOrEmpty(result)) return string.Empty;
+
+            return result.HexToString();
+        }
+
+        public async Task<string> GetNep5Symbol(string tokenScriptHash = null)
+        {
+            if (_nep5Service == null) throw new ArgumentNullException($"NEP5 service not configured");
+            if (!string.IsNullOrEmpty(tokenScriptHash)) ChangeNep5ServiceToken(tokenScriptHash);
+
+            var result = await _nep5Service.GetSymbol();
+            if (string.IsNullOrEmpty(result)) return string.Empty;
+
+            return result.HexToString();
+        }
+
+        public async Task<int> GetNep5Decimals(string tokenScriptHash = null)
+        {
+            if (_nep5Service == null) throw new ArgumentNullException($"NEP5 service not configured");
+            if (!string.IsNullOrEmpty(tokenScriptHash)) ChangeNep5ServiceToken(tokenScriptHash);
+
+            var result = await _nep5Service.GetDecimals();
+            if (string.IsNullOrEmpty(result) || string.Equals(result, "[]")) return 0;
+
+            return int.Parse(result);
+        }
+
+        public async Task<double> GetNep5TotalSupply(int decimals, string tokenScriptHash = null) //todo support decimal points
+        {
+            if (_nep5Service == null) throw new ArgumentNullException($"NEP5 service not configured");
+            if (!string.IsNullOrEmpty(tokenScriptHash)) ChangeNep5ServiceToken(tokenScriptHash);
+
+            var result = await _nep5Service.GetTotalSupply();
+            if (string.IsNullOrEmpty(result)) return 0;
+
+            var supplyBigInteger = new BigInteger(result.HexToBytes());
+
+            var totalSupply = supplyBigInteger / Utils.DecimalToBigInteger(decimals);
+            return (double)totalSupply;
+        }
+
+        public async Task<decimal> GetNep5BalanceOf(int decimals, string tokenScriptHash = null) //todo support decimal points
+        {
+            if (_nep5Service == null) throw new ArgumentNullException($"NEP5 service not configured");
+            if (!string.IsNullOrEmpty(tokenScriptHash)) ChangeNep5ServiceToken(tokenScriptHash);
+
+            var result = await _nep5Service.GetBalance(Account.Address);
+            if (string.IsNullOrEmpty(result)) return 0;
+
+            var balanceBigInteger = new BigInteger(result.HexToBytes());
+            var balance = balanceBigInteger / Utils.DecimalToBigInteger(decimals);
+
+            return (decimal)balance;
+        }
+
+        public async Task<string> TransferNep5(byte[] toAddress, decimal amount, byte[] tokenScriptHash = null)
+        {
+            if (toAddress.Length != 20) throw new ArgumentException(nameof(toAddress));
+            if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
+
+            var fromAddress = _accountKey.PublicKeyHash.ToArray();
+
+            var result = await CallContract(tokenScriptHash,
+                Nep5Methods.transfer.ToString(),
+                new object[] { fromAddress, toAddress, amount });
+
+            if (result == null) return string.Empty;
+            return result.Hash.ToString();
         }
 
         #endregion

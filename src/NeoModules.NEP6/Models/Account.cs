@@ -25,7 +25,7 @@ namespace NeoModules.NEP6.Models
 
         public Account(UInt160 address, KeyPair key)
         {
-            Key = key;
+            _key = key;
             Address = address;
         }
 
@@ -79,16 +79,19 @@ namespace NeoModules.NEP6.Models
         public object Extra { get; set; }
 
         [JsonIgnore]
-        public bool Decrypted => Nep2Key == null || Key != null;
+        public bool Decrypted => Nep2Key == null || _key != null;
 
         public static Account FromJson(string json) => JsonConvert.DeserializeObject<Account>(json);
 
         public static string ToJson(Account self) => JsonConvert.SerializeObject(self);
 
         [JsonIgnore]
-        string IAccount.Address => Wallet.ToAddress(Address);
+        private readonly KeyPair _key;
 
         [JsonIgnore]
-        public readonly KeyPair Key;
+        string IAccount.Address => Address.ToString();
+
+        [JsonIgnore]
+        byte[] IAccount.PrivateKey => _key?.PrivateKey;
     }
 }

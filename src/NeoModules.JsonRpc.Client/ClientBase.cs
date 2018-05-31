@@ -4,7 +4,7 @@ namespace NeoModules.JsonRpc.Client
 {
     public abstract class ClientBase : IClient
     {
-        public static int ConnectionTimeout { get; set; } = 10000;
+        public static int ConnectionTimeout { get; set; } = 20000;
 
         public async Task<T> SendRequestAsync<T>(RpcRequest request, string route = null)
         {            

@@ -19,29 +19,43 @@ namespace NeoModules.RPC.Services.Nep5
             _tokenScriptHash = tokenScripHash;
         }
 
-        public Task<DTOs.Invoke> SendRequestAsync(string account, object id = null)
+        public Task<DTOs.Invoke> SendRequestAsync(string address, object id = null)
         {
-            if (string.IsNullOrEmpty(account)) throw new ArgumentNullException(nameof(account));
+            if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
             var param = new List<DTOs.Stack>
             {
                 new DTOs.Stack
                 {
                     Type = "Hash160",
-                    Value = account
+                    Value = address
                 }
             };
             return base.SendRequestAsync(id, _tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
         }
 
-        public RpcRequest BuildRequest(string account, object id = null)
+        public Task<DTOs.Invoke> SendRequestAsync(byte[] address, object id = null)
         {
-            if (string.IsNullOrEmpty(account)) throw new ArgumentNullException(nameof(account));
+            if (address.Length != 20) throw new ArgumentNullException(nameof(address));
             var param = new List<DTOs.Stack>
             {
                 new DTOs.Stack
                 {
                     Type = "Hash160",
-                    Value = account
+                    Value = address
+                }
+            };
+            return base.SendRequestAsync(id, _tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
+        }
+
+        public RpcRequest BuildRequest(string address, object id = null)
+        {
+            if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
+            var param = new List<DTOs.Stack>
+            {
+                new DTOs.Stack
+                {
+                    Type = "Hash160",
+                    Value = address
                 }
             };
             return base.BuildRequest(id, _tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);

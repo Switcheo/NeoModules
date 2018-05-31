@@ -6,7 +6,7 @@ using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6.Transactions
 {
-    public class SignerTransaction
+    public class SignedTransaction
     {
         private UInt256 _hash;
         public TransactionAttribute[] Attributes;

@@ -89,7 +89,7 @@ namespace NeoModules.NEP6
         /// <returns></returns>
         public Account GetDefaultAccount()
         {
-            if (_wallet.Accounts.Count == 0) throw new ArgumentNullException("No accounts available in this Wallet");
+            if (_wallet.Accounts.Count == 0) throw new ArgumentNullException($"No accounts available in this Wallet");
             var defaultAccount = _wallet.Accounts.FirstOrDefault(a => a.IsDefault);
             if (defaultAccount != null) return defaultAccount;
             defaultAccount = _wallet.Accounts.FirstOrDefault(a => !string.IsNullOrEmpty(a.Nep2Key));

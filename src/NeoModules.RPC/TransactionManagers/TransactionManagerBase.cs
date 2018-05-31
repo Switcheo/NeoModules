@@ -32,7 +32,7 @@ namespace NeoModules.RPC.TransactionManagers
             var neoEstimateGas = new NeoInvokeFunction(Client);
             var invokeResult = await neoEstimateGas.SendRequestAsync(scriptHash, operation, parameterList);
             return double.Parse(invokeResult.GasConsumed, CultureInfo.InvariantCulture);
-        }
+        } 
 
         public async Task<bool> SendTransactionAsync(string signedTx)
         {

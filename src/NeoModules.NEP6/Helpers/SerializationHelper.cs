@@ -6,37 +6,37 @@ namespace NeoModules.NEP6.Helpers
 {
     public static class SerializationHelper
     {
-        public static void SerializeTransactionInput(BinaryWriter writer, SignerTransaction.Input input)
+        public static void SerializeTransactionInput(BinaryWriter writer, SignedTransaction.Input input)
         {
             writer.Write(input.PrevHash);
             writer.Write((ushort) input.PrevIndex);
         }
 
-        public static void SerializeTransactionOutput(BinaryWriter writer, SignerTransaction.Output output)
+        public static void SerializeTransactionOutput(BinaryWriter writer, SignedTransaction.Output output)
         {
             writer.Write(output.AssetId);
             writer.WriteFixed(output.Value);
             writer.Write(output.ScriptHash);
         }
 
-        public static SignerTransaction.Input UnserializeTransactionInput(BinaryReader reader)
+        public static SignedTransaction.Input UnserializeTransactionInput(BinaryReader reader)
         {
             var prevHash = reader.ReadBytes(32);
             var prevIndex = reader.ReadUInt16();
-            return new SignerTransaction.Input {PrevHash = prevHash, PrevIndex = prevIndex};
+            return new SignedTransaction.Input {PrevHash = prevHash, PrevIndex = prevIndex};
         }
 
-        public static SignerTransaction.Output UnserializeTransactionOutput(BinaryReader reader)
+        public static SignedTransaction.Output UnserializeTransactionOutput(BinaryReader reader)
         {
             var assetId = reader.ReadBytes(32);
             var value = reader.ReadFixed();
             var scriptHash = reader.ReadBytes(20);
-            return new SignerTransaction.Output {AssetId = assetId, Value = value, ScriptHash = scriptHash};
+            return new SignedTransaction.Output {AssetId = assetId, Value = value, ScriptHash = scriptHash};
         }
 
-        public static SignerTransaction Unserialize(BinaryReader reader)
+        public static SignedTransaction Unserialize(BinaryReader reader)
         {
-            var tx = new SignerTransaction
+            var tx = new SignedTransaction
             {
                 Type = (TransactionType) reader.ReadByte(),
                 Version = reader.ReadByte()
@@ -60,7 +60,7 @@ namespace NeoModules.NEP6.Helpers
                 case TransactionType.ClaimTransaction:
                 {
                     var len = (int) reader.ReadVarInt(0x10000000);
-                    tx.References = new SignerTransaction.Input[len];
+                    tx.References = new SignedTransaction.Input[len];
                     for (var i = 0; i < len; i++) tx.References[i] = UnserializeTransactionInput(reader);
 
                     break;
@@ -110,11 +110,11 @@ namespace NeoModules.NEP6.Helpers
             }
 
             var inputCount = (int) reader.ReadVarInt();
-            tx.Inputs = new SignerTransaction.Input[inputCount];
+            tx.Inputs = new SignedTransaction.Input[inputCount];
             for (var i = 0; i < inputCount; i++) tx.Inputs[i] = UnserializeTransactionInput(reader);
 
             var outputCount = (int) reader.ReadVarInt();
-            tx.Outputs = new SignerTransaction.Output[outputCount];
+            tx.Outputs = new SignedTransaction.Output[outputCount];
             for (var i = 0; i < outputCount; i++) tx.Outputs[i] = UnserializeTransactionOutput(reader);
 
             var witnessCount = (int) reader.ReadVarInt();
@@ -124,7 +124,7 @@ namespace NeoModules.NEP6.Helpers
             return tx;
         }
 
-        public static SignerTransaction Unserialize(byte[] bytes)
+        public static SignedTransaction Unserialize(byte[] bytes)
         {
             using (var stream = new MemoryStream(bytes))
             {

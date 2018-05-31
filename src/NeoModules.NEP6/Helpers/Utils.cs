@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using NeoModules.Core;
-using NeoModules.KeyPairs;
 using NeoModules.NVM;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
-using Helper = NeoModules.NVM.Helper;
 
 namespace NeoModules.NEP6
 {
@@ -85,6 +84,16 @@ namespace NeoModules.NEP6
             return result;
         }
 
+
+        public static string HexToString(this string inputText)
+        {
+            var bb = Enumerable.Range(0, inputText.Length)
+                .Where(x => x % 2 == 0)
+                .Select(x => Convert.ToByte(inputText.Substring(x, 2), 16))
+                .ToArray();
+            return Encoding.ASCII.GetString(bb);
+        }
+
         public static uint ToTimestamp(this DateTime time)
         {
             return (uint) (time.ToUniversalTime() - UnixEpoch).TotalSeconds;
@@ -114,12 +123,12 @@ namespace NeoModules.NEP6
 
         public static byte[] ReadVarBytes(this BinaryReader reader, int max = 0X7fffffc7)
         {
-            return reader.ReadBytes((int)reader.ReadVarInt((ulong)max));
+            return reader.ReadBytes((int) reader.ReadVarInt((ulong) max));
         }
 
         public static ulong ReadVarInt(this BinaryReader reader, ulong max = ulong.MaxValue)
         {
-            byte fb = reader.ReadByte();
+            var fb = reader.ReadByte();
             ulong value;
             if (fb == 0xFD)
                 value = reader.ReadUInt16();
@@ -150,21 +159,21 @@ namespace NeoModules.NEP6
                 throw new ArgumentOutOfRangeException();
             if (value < 0xFD)
             {
-                writer.Write((byte)value);
+                writer.Write((byte) value);
             }
             else if (value <= 0xFFFF)
             {
-                writer.Write((byte)0xFD);
-                writer.Write((ushort)value);
+                writer.Write((byte) 0xFD);
+                writer.Write((ushort) value);
             }
             else if (value <= 0xFFFFFFFF)
             {
-                writer.Write((byte)0xFE);
-                writer.Write((uint)value);
+                writer.Write((byte) 0xFE);
+                writer.Write((uint) value);
             }
             else
             {
-                writer.Write((byte)0xFF);
+                writer.Write((byte) 0xFF);
                 writer.Write(value);
             }
         }
@@ -178,7 +187,7 @@ namespace NeoModules.NEP6
         {
             long D = 100_000_000;
             value *= D;
-            writer.Write((long)value);
+            writer.Write((long) value);
         }
 
         public static decimal ReadFixed(this BinaryReader reader)
@@ -188,6 +197,11 @@ namespace NeoModules.NEP6
             decimal r = val;
             r /= D;
             return r;
+        }
+
+        public static System.Numerics.BigInteger DecimalToBigInteger(int decimals)
+        {
+            return System.Numerics.BigInteger.Parse(Math.Pow(10, Convert.ToDouble(decimals)).ToString(CultureInfo.InvariantCulture));
         }
     }
 
