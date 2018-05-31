@@ -11,11 +11,10 @@
     <PackageTags>Neo JsonRpc RpcClient CityofZion Blockchain</PackageTags>
     <Copyright>MIT</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Added ILogger for logging errors and traces.
-Added CancelationToken to RPC requests.</PackageReleaseNotes>
+    <PackageReleaseNotes>Increase Cancellation timeout</PackageReleaseNotes>
     <Authors>Bruno Freitas</Authors>
     <Company>Bruno Freitas</Company>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
