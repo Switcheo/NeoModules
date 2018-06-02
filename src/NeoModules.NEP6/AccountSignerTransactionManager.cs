@@ -367,7 +367,8 @@ namespace NeoModules.NEP6
             if (toAddress.Length != 20) throw new ArgumentException(nameof(toAddress));
             if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
 
-            var fromAddress = _accountKey.PublicKeyHash.ToArray();
+            var keyAddress = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey);
+            var fromAddress = keyAddress.ToScriptHash().ToArray();
             BigInteger amountBigInteger = ConvertToBigInt(amount, decimals);
 
             var result = await CallContract(tokenScriptHash,
