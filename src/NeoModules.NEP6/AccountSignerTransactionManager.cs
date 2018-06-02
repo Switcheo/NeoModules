@@ -256,7 +256,15 @@ namespace NeoModules.NEP6
 
         public async Task<SignedTransaction> SendAsset(string toAddress, string symbol, decimal amount)
         {
-            var toScriptHash = toAddress.GetScriptHashFromAddress();
+            var toScriptHash = toAddress.GetScriptHashFromAddress(); //TODO test this
+            var target = new TransactionOutput { AddressHash = toScriptHash, Amount = amount };
+            var targets = new List<TransactionOutput> { target };
+            return await SendAsset(_accountKey, symbol, targets);
+        }
+
+        public async Task<SignedTransaction> SendAsset(byte[] toAddress, string symbol, decimal amount)
+        {
+            var toScriptHash = toAddress.ToScriptHash().ToArray(); //TODO test this
             var target = new TransactionOutput { AddressHash = toScriptHash, Amount = amount };
             var targets = new List<TransactionOutput> { target };
             return await SendAsset(_accountKey, symbol, targets);
@@ -354,21 +362,31 @@ namespace NeoModules.NEP6
             return (decimal)balance;
         }
 
-        public async Task<string> TransferNep5(byte[] toAddress, decimal amount, byte[] tokenScriptHash = null)
+        public async Task<string> TransferNep5(byte[] toAddress, decimal amount, byte[] tokenScriptHash, int decimals = 8)
         {
             if (toAddress.Length != 20) throw new ArgumentException(nameof(toAddress));
             if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
 
             var fromAddress = _accountKey.PublicKeyHash.ToArray();
+            BigInteger amountBigInteger = ConvertToBigInt(amount, decimals);
 
             var result = await CallContract(tokenScriptHash,
-                Nep5Methods.transfer.ToString(),
-                new object[] { fromAddress, toAddress, amount });
+                "transfer",
+                new object[] { fromAddress, toAddress, amountBigInteger });
 
             if (result == null) return string.Empty;
             return result.Hash.ToString();
         }
 
+        private BigInteger ConvertToBigInt(decimal value, int decimals)
+        {
+            while (decimals > 0)
+            {
+                value *= 10;
+                decimals--;
+            }
+            return new BigInteger((ulong)value);
+        }
         #endregion
     }
 }
