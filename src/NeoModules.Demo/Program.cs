@@ -16,7 +16,7 @@ namespace NeoModules.Demo
 {
     public class Program
     {
-        private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed3.neo.org:10332"));
+        private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed2.aphelion-neo.com:10332"));
         private static readonly RpcClient RpcTestNetClient = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
 
         public static void Main(string[] args)
@@ -70,7 +70,7 @@ namespace NeoModules.Demo
         // Returns an instance of NeoNep5Service with the api calls that concern nep5 tokens.
         private static NeoNep5Service SetupNep5Service()
         {
-            return new NeoNep5Service(RpcClient, "08e8c4400f1af2c20c28e0018f29535eb85d15b6"); //TNC token script hash
+            return new NeoNep5Service(RpcClient); //TNC token script hash
         }
 
         // Block api demonstration
@@ -93,11 +93,11 @@ namespace NeoModules.Demo
         // Nep5 api demonstration
         private static async Task TestNep5Service(NeoNep5Service nep5Service)
         {
-            var name = await nep5Service.GetName();
-            var decimals = await nep5Service.GetDecimals();
-            var totalsupply = await nep5Service.GetTotalSupply();
-            var symbol = await nep5Service.GetSymbol();
-            var balance = await nep5Service.GetBalance("0x0ff9070d64d19076d08947ba4a82b72709f30baf");
+            var name = await nep5Service.GetName("ed07cffad18f1308db51920d99a2af60ac66a7b3", true);
+            var decimals = await nep5Service.GetDecimals("ed07cffad18f1308db51920d99a2af60ac66a7b3");
+            var totalsupply = await nep5Service.GetTotalSupply("ed07cffad18f1308db51920d99a2af60ac66a7b3", 8);
+            var symbol = await nep5Service.GetSymbol("ed07cffad18f1308db51920d99a2af60ac66a7b3",true);
+            var balance = await nep5Service.GetBalance("ed07cffad18f1308db51920d99a2af60ac66a7b3", "0x3640b023405b4b9c818e8387bd01f67bba04dad2", 8);
 
             Debug.WriteLine(
                 $"Token info: \nName: {name} \nSymbol: {symbol} \nDecimals: {decimals} \nTotalSupply: {totalsupply} \nBalance: {balance}");

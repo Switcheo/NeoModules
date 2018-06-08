@@ -11,5 +11,10 @@ namespace NeoModules.RPC
         }
 
         protected IClient Client { get; set; }
+
+        public void SwitchClient(IClient client)
+        {
+            Client = client;
+        }
     }
 }

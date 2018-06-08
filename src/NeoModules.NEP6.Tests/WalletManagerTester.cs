@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
+using NeoModules.Rest.Services;
 using Xunit;
 
 namespace NeoModules.NEP6.Tests
@@ -125,31 +128,21 @@ namespace NeoModules.NEP6.Tests
             Assert.False(incorrect);
         }
 
-        //[Fact]
-        //public static async Task TestContractBuildAndCall()
-        //{
-        //    var restService = new NeoScanRestService(NeoScanNet.TestNet);
-        //    var client = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
-        //    var rpcService = new NeoApiService(client);
-        //    var transactionManager = new TransactionManager(client);
-        //    Wallet wallet = Wallet.FromJson(walletJson);
-        //    WalletManager walletManager = new WalletManager(wallet, transactionManager, restService);
+        [Fact]
+        public static void ChangeApiEndPoints()
+        {
+            Wallet wallet = Wallet.FromJson(walletJson);
+            WalletManager walletManager = new WalletManager(wallet, 
+                new NeoScanRestService(NeoScanNet.TestNet), 
+                new RpcClient(new Uri("http://seed4.travala.com:10332")));
 
-        //    var wif = "L1mLVqjnuSHNeeGPpPq2aRv74Pm9TXJcXkhCJAz2K9s1Lrrd5fzH";
-        //    var scriptHash = UInt160.Parse("de1a53be359e8be9f3d11627bcca40548a2d5bc1");
-        //    var keypairBytes = Wallet.GetPrivateKeyFromWif(wif);
-        //    var keypair = new KeyPair(keypairBytes);
-        //    var call = await walletManager.CallContract(keypair, scriptHash.ToArray(), new object[] { "sendMessage", keypair.PublicKey.EncodePoint(true).ToArray(), "testNeoModules", "newmessage" });
-        //    var parametersList = new List<InvokeParameter>
-        //    {
-        //        new InvokeParameter
-        //        {
-        //            Type = "ByteArray",
-        //            Value = System.Text.Encoding.ASCII.GetBytes("testNeoModules").ToHexString()
-        //        }
-        //    };
+            var beforeChanging = walletManager.GetDefaultAccount().TransactionManager.Client;
+            var secondClient = new RpcClient(new Uri("https://pyrpc1.narrative.network:443"));
+            var secondRest = new NeoScanRestService("http://86.715.152.211");
+            walletManager.ChangeApiEndPoints(secondClient, secondRest);
+            var afterChanging = walletManager.GetDefaultAccount().TransactionManager.Client;
 
-        //    var test = await rpcService.Contracts.InvokeFunction.SendRequestAsync(scriptHash.ToString(), "getMailCount", parametersList);
-        //}
+            Assert.NotEqual(beforeChanging, afterChanging);
+        }
     }
 }

@@ -18,8 +18,8 @@ namespace NeoModules.RPC.Tests.Testers.Nep5
 
         public override async Task<Invoke> ExecuteAsync(IClient client)
         {
-            var totalSupply = new TokenTotalSupply(client, Settings.GetNep5TokenHash());
-            return await totalSupply.SendRequestAsync();
+            var totalSupply = new TokenTotalSupply(client);
+            return await totalSupply.SendRequestAsync(Settings.GetNep5TokenHash());
         }
 
         public override Type GetRequestType()

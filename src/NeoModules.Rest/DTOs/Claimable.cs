@@ -32,7 +32,7 @@ namespace NeoModules.Rest.DTOs
         public int StartHeight { get; set; }
 
         [JsonProperty("n")]
-        public int N { get; set; }
+        public uint N { get; set; }
 
         [JsonProperty("end_height")]
         public int EndHeight { get; set; }

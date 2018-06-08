@@ -15,8 +15,8 @@ namespace NeoModules.NEP6
 {
     public static class Utils
     {
-        private static readonly string NeoToken = "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
-        private static readonly string GasToken = "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
+        public static readonly string NeoToken = "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
+        public static readonly string GasToken = "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
         public static Dictionary<string, string> _systemAssets;
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -197,11 +197,6 @@ namespace NeoModules.NEP6
             decimal r = val;
             r /= D;
             return r;
-        }
-
-        public static System.Numerics.BigInteger DecimalToBigInteger(int decimals)
-        {
-            return System.Numerics.BigInteger.Parse(Math.Pow(10, Convert.ToDouble(decimals)).ToString(CultureInfo.InvariantCulture));
         }
     }
 

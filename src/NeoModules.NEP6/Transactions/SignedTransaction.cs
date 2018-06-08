@@ -56,9 +56,30 @@ namespace NeoModules.NEP6.Transactions
 
                                 break;
                             }
+                        case TransactionType.ClaimTransaction:
+                            {
+                                writer.WriteVarInt(References.Length);
+                                foreach (var entry in References)
+                                {
+                                    SerializationHelper.SerializeTransactionInput(writer, entry);
+                                }
+
+                                break;
+                            }
                     }
                     // Don't need any attributes
-                    writer.Write((byte)0);
+                    if (Attributes != null)
+                    {
+                        writer.WriteVarInt(Attributes.Length);
+                        foreach (var attr in Attributes)
+                        {
+                            attr.Serialize(writer);
+                        }
+                    }
+                    else
+                    {
+                        writer.Write((byte)0);
+                    }
 
                     writer.WriteVarInt(Inputs.Length);
                     foreach (var input in Inputs) SerializationHelper.SerializeTransactionInput(writer, input);
@@ -72,7 +93,6 @@ namespace NeoModules.NEP6.Transactions
                         foreach (var witness in Witnesses) witness.Serialize(writer);
                     }
                 }
-
                 return stream.ToArray();
             }
         }
@@ -88,7 +108,13 @@ namespace NeoModules.NEP6.Transactions
             var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
             var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
             Witnesses = new[]
-                {new Witness {InvocationScript = invocationScript, VerificationScript = verificationScript}};
+            {
+                new Witness
+                {
+                    InvocationScript = invocationScript,
+                    VerificationScript = verificationScript
+                }
+            };
         }
 
         public void Sign(byte[] privateKey)

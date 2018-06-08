@@ -13,15 +13,17 @@ namespace NeoModules.RPC
             Assets = new NeoApiAssetService(client);
             Blocks = new NeoApiBlockService(client);
             Contracts = new NeoApiContractService(client);
+            TokenStandard = new NeoNep5Service(client);
             Nodes = new NeoApiNodeService(client);
             Transactions = new NeoApiTransactionService(client);
         }
 
-        public NeoApiAccountService Accounts { get; private set; }
-        public NeoApiAssetService Assets { get; private set; }
-        public NeoApiBlockService Blocks { get; private set; }
-        public NeoApiContractService Contracts { get; private set; }
-        public NeoApiNodeService Nodes { get; private set; }
-        public NeoApiTransactionService Transactions { get; private set; }
+        public NeoApiAccountService Accounts { get; }
+        public NeoApiAssetService Assets { get; }
+        public NeoApiBlockService Blocks { get; }
+        public NeoApiContractService Contracts { get; }
+        public NeoNep5Service TokenStandard { get; }
+        public NeoApiNodeService Nodes { get; }
+        public NeoApiTransactionService Transactions { get; }
     }
 }

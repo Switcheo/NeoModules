@@ -2,63 +2,59 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
+using NeoModules.RPC.DTOs;
 
 namespace NeoModules.RPC.Services.Nep5
 {
-    public class TokenBalanceOf : RpcRequestResponseHandler<DTOs.Invoke>
+    public class TokenBalanceOf : RpcRequestResponseHandler<Invoke>
     {
-        private string _tokenScriptHash;
-
-        public TokenBalanceOf(IClient client, string tokenScriptHash) : base(client, ApiMethods.invokefunction.ToString())
+        public TokenBalanceOf(IClient client) : base(client, ApiMethods.invokefunction.ToString())
         {
-            _tokenScriptHash = tokenScriptHash;
         }
 
-        public void ChangeScriptHash(string tokenScripHash)
-        {
-            _tokenScriptHash = tokenScripHash;
-        }
-
-        public Task<DTOs.Invoke> SendRequestAsync(string address, object id = null)
+        public Task<Invoke> SendRequestAsync(string address, string tokenScriptHash, object id = null)
         {
             if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
-            var param = new List<DTOs.Stack>
+            if (string.IsNullOrEmpty(tokenScriptHash)) throw new ArgumentNullException(nameof(tokenScriptHash));
+            var param = new List<Stack>
             {
-                new DTOs.Stack
+                new Stack
                 {
                     Type = "Hash160",
                     Value = address
                 }
             };
-            return base.SendRequestAsync(id, _tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
+            return base.SendRequestAsync(id, tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
         }
 
-        public Task<DTOs.Invoke> SendRequestAsync(byte[] address, object id = null)
+        public Task<Invoke> SendRequestAsync(byte[] address, string tokenScriptHash, object id = null)
         {
             if (address.Length != 20) throw new ArgumentNullException(nameof(address));
-            var param = new List<DTOs.Stack>
+            if (string.IsNullOrEmpty(tokenScriptHash)) throw new ArgumentNullException(nameof(tokenScriptHash));
+            var param = new List<Stack>
             {
-                new DTOs.Stack
+                new Stack
                 {
                     Type = "Hash160",
                     Value = address
                 }
             };
-            return base.SendRequestAsync(id, _tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
+            return base.SendRequestAsync(id, tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
         }
 
-        public RpcRequest BuildRequest(string address, object id = null)
+        public RpcRequest BuildRequest(string address, string tokenScriptHash, object id = null)
         {
             if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
-            var param = new List<DTOs.Stack>
+            if (string.IsNullOrEmpty(tokenScriptHash)) throw new ArgumentNullException(nameof(tokenScriptHash));
+            var param = new List<Stack>
             {
-                new DTOs.Stack
+                new Stack
                 {
                     Type = "Hash160",
                     Value = address
                 }
             };
-            return base.BuildRequest(id, _tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
+            return base.BuildRequest(id, tokenScriptHash, Nep5Methods.balanceOf.ToString(), param);
         }
     }
 }

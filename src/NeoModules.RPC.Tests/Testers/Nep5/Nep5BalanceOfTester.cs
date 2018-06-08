@@ -18,8 +18,8 @@ namespace NeoModules.RPC.Tests.Testers.Nep5
 
         public override async Task<Invoke> ExecuteAsync(IClient client)
         {
-            var balanceOf = new TokenBalanceOf(client, Settings.GetNep5TokenHash());
-            return await balanceOf.SendRequestAsync("0x0ff9070d64d19076d08947ba4a82b72709f30baf");
+            var balanceOf = new TokenBalanceOf(client);
+            return await balanceOf.SendRequestAsync("0x0ff9070d64d19076d08947ba4a82b72709f30baf", Settings.GetNep5TokenHash());
         }
 
         public override Type GetRequestType()

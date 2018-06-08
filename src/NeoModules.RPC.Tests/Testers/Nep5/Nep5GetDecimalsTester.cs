@@ -18,8 +18,8 @@ namespace NeoModules.RPC.Tests.Testers.Nep5
 
         public override async Task<Invoke> ExecuteAsync(IClient client)
         {
-            var decimals = new TokenDecimals(client, Settings.GetNep5TokenHash());
-            return await decimals.SendRequestAsync();
+            var decimals = new TokenDecimals(client);
+            return await decimals.SendRequestAsync(Settings.GetNep5TokenHash());
         }
 
         public override Type GetRequestType()

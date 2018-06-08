@@ -18,8 +18,8 @@ namespace NeoModules.RPC.Tests.Testers.Nep5
 
         public override async Task<Invoke> ExecuteAsync(IClient client)
         {
-            var symbol = new TokenSymbol(client, Settings.GetNep5TokenHash());
-            return await symbol.SendRequestAsync();
+            var symbol = new TokenSymbol(client);
+            return await symbol.SendRequestAsync(Settings.GetNep5TokenHash());
         }
 
         public override Type GetRequestType()

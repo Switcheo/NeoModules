@@ -18,9 +18,9 @@ namespace NeoModules.NEP6
     /// </summary>
     public class WalletManager
     {
+        private readonly Wallet _wallet;
         private IClient _client;
         private INeoRestService _restService;
-        private readonly Wallet _wallet;
 
         public WalletManager(Wallet wallet, INeoRestService restService = null, IClient client = null)
         {
@@ -33,6 +33,14 @@ namespace NeoModules.NEP6
             {
                 _restService = restService;
                 _client = client;
+            }
+
+            if (_wallet.Accounts.Any())
+            {
+                foreach (var walletAccount in _wallet.Accounts)
+                {
+                    walletAccount.TransactionManager= new AccountSignerTransactionManager(_client, _restService, walletAccount);
+                }
             }
         }
 
@@ -72,7 +80,9 @@ namespace NeoModules.NEP6
                             contract.Deployed = oldContract.Deployed;
                         }
                     }
-                    oldAccount.TransactionManager = new AccountSignerTransactionManager(_client, _restService, oldAccount);
+
+                    oldAccount.TransactionManager =
+                        new AccountSignerTransactionManager(_client, _restService, oldAccount);
                 }
                 else // add new account to list
                 {
@@ -153,7 +163,7 @@ namespace NeoModules.NEP6
                 Contract = contract,
                 IsDefault = false
             };
-            
+
             AddAccount(account);
             return account;
         }
@@ -213,7 +223,7 @@ namespace NeoModules.NEP6
                 },
                 Deployed = false
             };
-            var encryptedKey =await Nep2.Encrypt(key.PrivateKey.ToHexString(), password);
+            var encryptedKey = await Nep2.Encrypt(key.PrivateKey.ToHexString(), password);
             var account = new Account(key.PublicKeyHash, key)
             {
                 Nep2Key = encryptedKey,
@@ -309,12 +319,42 @@ namespace NeoModules.NEP6
             }
         }
 
+
+        /// <summary>
+        ///     Load wallet from file path
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns>Wallet object</returns>
         public static Wallet LoadFromFile(string filePath)
         {
             using (var file = File.OpenText(filePath))
             {
                 var json = file.ReadToEnd();
                 return Wallet.FromJson(json);
+            }
+        }
+
+
+        //TODO: this client and rest stuff must be refractored
+        public void ChangeApiEndPoints(IClient client, INeoRestService restService )
+        {
+            _client = client;
+            _restService = restService;
+            ChangeAccountsClient();
+        }
+
+        public void ChangeApiEndPoints(IClient client, string restUrl)
+        {
+            _client = client;
+            _restService = new NeoScanRestService(restUrl);
+            ChangeAccountsClient();
+        }
+
+        private void ChangeAccountsClient()
+        {
+            foreach (var walletAccount in _wallet.Accounts)
+            {
+                walletAccount.TransactionManager = new AccountSignerTransactionManager(_client, _restService, walletAccount);
             }
         }
 

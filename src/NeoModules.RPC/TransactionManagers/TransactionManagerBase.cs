@@ -15,6 +15,8 @@ namespace NeoModules.RPC.TransactionManagers
         public IClient Client { get; set; }
         public IAccount Account { get; set; }
 
+        public abstract Task<string> SignTransactionAsync(byte[] transactionData);
+
         public virtual async Task<double> EstimateGasAsync(string serializedScriptHash)
         {
             if (Client == null) throw new NullReferenceException("Client not configured");
