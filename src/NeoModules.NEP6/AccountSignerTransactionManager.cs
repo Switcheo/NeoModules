@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
@@ -71,18 +70,18 @@ namespace NeoModules.NEP6
             var claimable = Claimable.FromJson(claimableJson);
             var amount = claimable.Unclaimed;
 
-            return (claimable.ClaimableList.ToList(), (decimal) amount);
+            return (claimable.ClaimableList.ToList(), (decimal)amount);
         }
 
-        private static void SignTransaction(KeyPair key, SignedTransaction txInput)
+        private void SignTransaction(SignedTransaction txInput)
         {
-            txInput.Sign(key);
+            txInput.Sign(_accountKey);
         }
 
         private async Task<bool> SignAndSendTransaction(SignedTransaction txInput)
         {
             if (txInput == null) return false;
-            SignTransaction(_accountKey, txInput);
+            SignTransaction(txInput);
             var serializedTransaction = txInput.Serialize();
             return await SendTransactionAsync(serializedTransaction.ToHexString());
         }
@@ -125,13 +124,12 @@ namespace NeoModules.NEP6
                 }
             }
 
-
             var sources = unspent[symbol];
             decimal selected = 0;
 
             foreach (var src in sources)
             {
-                selected += (decimal) src.Value;
+                selected += (decimal)src.Value;
 
                 var input = new SignedTransaction.Input
                 {
@@ -146,7 +144,6 @@ namespace NeoModules.NEP6
 
             if (selected < cost) throw new WalletException($"Not enough {symbol}");
 
-
             if (cost > 0 && targets != null)
                 foreach (var target in transactionOutputs)
                 {
@@ -158,7 +155,6 @@ namespace NeoModules.NEP6
                     };
                     outputs.Add(output);
                 }
-
 
             if (selected > cost || cost == 0)
             {
@@ -224,7 +220,7 @@ namespace NeoModules.NEP6
                 Outputs = outputs.ToArray()
             };
 
-            SignTransaction(_accountKey, tx);
+            SignTransaction(tx);
             var serializedScriptHash = tx.Serialize();
             return await EstimateGasAsync(serializedScriptHash.ToHexString());
         }
@@ -267,17 +263,16 @@ namespace NeoModules.NEP6
 
         public async Task<SignedTransaction> SendAsset(string toAddress, string symbol, decimal amount)
         {
-            var toScriptHash = toAddress.GetScriptHashFromAddress(); //TODO test this
-            var target = new TransactionOutput {AddressHash = toScriptHash, Amount = amount};
-            var targets = new List<TransactionOutput> {target};
+            var toScriptHash = toAddress.ToScriptHash().ToArray();
+            var target = new TransactionOutput { AddressHash = toScriptHash, Amount = amount };
+            var targets = new List<TransactionOutput> { target };
             return await SendAsset(_accountKey, symbol, targets);
         }
 
         public async Task<SignedTransaction> SendAsset(byte[] toAddress, string symbol, decimal amount)
         {
-            var toScriptHash = toAddress.ToScriptHash().ToArray(); //TODO test this
-            var target = new TransactionOutput {AddressHash = toScriptHash, Amount = amount};
-            var targets = new List<TransactionOutput> {target};
+            var target = new TransactionOutput { AddressHash = toAddress, Amount = amount };
+            var targets = new List<TransactionOutput> { target };
             return await SendAsset(_accountKey, symbol, targets);
         }
 
@@ -345,9 +340,15 @@ namespace NeoModules.NEP6
 
         #endregion
 
-        #region NEP5 transfer
+        #region NEP5 Transfer
 
-        //TODO move this to another class and add nep5 aditional methods
+        public async Task<SignedTransaction> TransferNep5(string toAddress, decimal amount, byte[] tokenScriptHash,
+            int decimals = 8)
+        {
+            var toScriptHash = toAddress.ToScriptHash().ToArray();
+            return await TransferNep5(toScriptHash, amount, tokenScriptHash, decimals);
+        }
+
         public async Task<SignedTransaction> TransferNep5(byte[] toAddress, decimal amount, byte[] tokenScriptHash,
             int decimals = 8)
         {
@@ -356,24 +357,13 @@ namespace NeoModules.NEP6
 
             var keyAddress = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey);
             var fromAddress = keyAddress.ToScriptHash().ToArray();
-            var amountBigInteger = ConvertToBigInt(amount, decimals);
+            var amountBigInteger = Utils.ConvertToBigInt(amount, decimals);
 
             var result = await CallContract(tokenScriptHash,
                 Nep5Methods.transfer.ToString(),
-                new object[] {fromAddress, toAddress, amountBigInteger});
+                new object[] { fromAddress, toAddress, amountBigInteger });
 
             return result;
-        }
-
-        private BigInteger ConvertToBigInt(decimal value, int decimals)
-        {
-            while (decimals > 0)
-            {
-                value *= 10;
-                decimals--;
-            }
-
-            return new BigInteger((ulong) value);
         }
 
         #endregion

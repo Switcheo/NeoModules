@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -82,6 +81,17 @@ namespace NeoModules.NEP6
             var result = "";
             for (var i = hex.Length - 2; i >= 0; i -= 2) result += hex.Substring(i, 2);
             return result;
+        }
+
+        public static System.Numerics.BigInteger ConvertToBigInt(decimal value, int decimals)
+        {
+            while (decimals > 0)
+            {
+                value *= 10;
+                decimals--;
+            }
+
+            return new System.Numerics.BigInteger((ulong)value);
         }
 
 

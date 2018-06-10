@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
+using NeoModules.KeyPairs;
+using NeoModules.NEP6;
+using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.Services;
@@ -28,7 +32,6 @@ namespace NeoModules.Demo
                 var neoApiSimpleContractService = SetupSimpleService();
                 var neoApiSimpleAccountService = SetupAnotherSimpleService();
                 //You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
-
 
                 var nep5ApiService = SetupNep5Service();
 
@@ -96,7 +99,7 @@ namespace NeoModules.Demo
             var name = await nep5Service.GetName("ed07cffad18f1308db51920d99a2af60ac66a7b3", true);
             var decimals = await nep5Service.GetDecimals("ed07cffad18f1308db51920d99a2af60ac66a7b3");
             var totalsupply = await nep5Service.GetTotalSupply("ed07cffad18f1308db51920d99a2af60ac66a7b3", 8);
-            var symbol = await nep5Service.GetSymbol("ed07cffad18f1308db51920d99a2af60ac66a7b3",true);
+            var symbol = await nep5Service.GetSymbol("ed07cffad18f1308db51920d99a2af60ac66a7b3", true);
             var balance = await nep5Service.GetBalance("ed07cffad18f1308db51920d99a2af60ac66a7b3", "0x3640b023405b4b9c818e8387bd01f67bba04dad2", 8);
 
             Debug.WriteLine(
@@ -164,6 +167,51 @@ namespace NeoModules.Demo
             var result = await service.GetNodesList(MonitorNet.TestNet);
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
             return nodes;
+        }
+
+        private static async void WalletAndTransactionsTest()
+        {
+            // Create online wallet and import account
+            var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.MainNet), RpcClient);
+            var importedAccount = walletManager.ImportAccount("** INSERT WIF HERE **", "Test");
+
+            // Get account signer for transactions
+            if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
+            {
+                // Send native assets
+                var sendGasTx = await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 323.032m);
+                var sendNeoTx = await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 13m);
+
+                // Call contract
+                var scriptHash = "**INSERT CONTRACT SCRIPTHASH (string format)**".ToScriptHash().ToArray();
+                var operation = "balanceOf";
+                var arguments = new object[] { "arg1" };
+
+                var contractCallTx =
+                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments);
+
+                // Estimate Gas consumed from contract call
+                var estimateContractGasCall = await accountSignerTransactionManager.EstimateGasContractCall(scriptHash, operation, arguments);
+
+                // Call contract with attached assets
+                var assetToAttach = "GAS";
+                var output = new List<TransactionOutput>()
+                {
+                    new TransactionOutput()
+                    {
+                        AddressHash = "** INSERT TO ADDRESS HERE**".ToScriptHash().ToArray(),
+                        Amount = 2,
+                    }
+                };
+                var contractCallWithAttachedTx =
+                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments, assetToAttach, output);
+
+                // Claim gas
+                var callGasTx = await accountSignerTransactionManager.ClaimGas();
+
+                // Transfer NEP5 tokens
+                var transferNepTx = await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m, scriptHash);
+            }
         }
     }
 }

@@ -13,10 +13,10 @@
     <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT</Copyright>
-    <PackageReleaseNotes>Changes to NeoNep5Service
+    <PackageReleaseNotes>More changes to Nep5Service and bugs fixed
 </PackageReleaseNotes>
-    <Version>1.0.13</Version>
-    <FileVersion>1.0.13.0</FileVersion>
+    <Version>1.0.14</Version>
+    <FileVersion>1.0.14.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

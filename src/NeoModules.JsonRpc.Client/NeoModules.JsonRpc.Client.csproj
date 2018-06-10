@@ -11,10 +11,10 @@
     <PackageTags>Neo JsonRpc RpcClient CityofZion Blockchain</PackageTags>
     <Copyright>MIT</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Increase Cancellation timeout</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated dependencies</PackageReleaseNotes>
     <Authors>Bruno Freitas</Authors>
     <Company>Bruno Freitas</Company>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
   </PropertyGroup>
 
   <ItemGroup>

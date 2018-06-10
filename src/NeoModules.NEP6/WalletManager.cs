@@ -22,32 +22,47 @@ namespace NeoModules.NEP6
         private IClient _client;
         private INeoRestService _restService;
 
-        public WalletManager(Wallet wallet, INeoRestService restService = null, IClient client = null)
+        /// <summary>
+        ///     Online Wallet Manager construtor
+        /// </summary>
+        /// <param name="wallet"></param>
+        /// <param name="restService"></param>
+        /// <param name="client"></param>
+        public WalletManager(INeoRestService restService, IClient client, Wallet wallet = null)
         {
-            _wallet = wallet;
-            if (restService == null || client == null)
-            {
-                InitializeDefaultServices();
-            }
-            else
-            {
-                _restService = restService;
-                _client = client;
-            }
+            _restService = restService;
+            _client = client;
 
-            if (_wallet.Accounts.Any())
+            if (wallet == null)
+            {
+                _wallet = new Wallet();
+            }
+            else if (_wallet.Accounts.Any())
             {
                 foreach (var walletAccount in _wallet.Accounts)
-                {
-                    walletAccount.TransactionManager= new AccountSignerTransactionManager(_client, _restService, walletAccount);
-                }
+                    walletAccount.TransactionManager =
+                        new AccountSignerTransactionManager(_client, _restService, walletAccount);
             }
         }
 
+        /// <summary>
+        ///     Offline Wallet Manager construtor
+        /// </summary>
+        /// <param name="wallet"></param>
+        public WalletManager(Wallet wallet)
+        {
+            _wallet = wallet;
+            _client = null;
+            _restService = null;
+        }
+
+        /// <summary>
+        ///     Offline Wallet Manager construtor with empty wallet
+        /// </summary>
+        /// <param name="walletLabel"></param>
         public WalletManager(string walletLabel)
         {
             _wallet = new Wallet(walletLabel);
-            InitializeDefaultServices();
         }
 
         /// <summary>
@@ -319,7 +334,6 @@ namespace NeoModules.NEP6
             }
         }
 
-
         /// <summary>
         ///     Load wallet from file path
         /// </summary>
@@ -334,9 +348,8 @@ namespace NeoModules.NEP6
             }
         }
 
-
         //TODO: this client and rest stuff must be refractored
-        public void ChangeApiEndPoints(IClient client, INeoRestService restService )
+        public void ChangeApiEndPoints(IClient client, INeoRestService restService)
         {
             _client = client;
             _restService = restService;
@@ -353,15 +366,8 @@ namespace NeoModules.NEP6
         private void ChangeAccountsClient()
         {
             foreach (var walletAccount in _wallet.Accounts)
-            {
-                walletAccount.TransactionManager = new AccountSignerTransactionManager(_client, _restService, walletAccount);
-            }
-        }
-
-        private void InitializeDefaultServices()
-        {
-            _restService = new NeoScanRestService(NeoScanNet.MainNet);
-            _client = new RpcClient(new Uri("http://seed2.neo.org:10332")); //todo change this logic
+                walletAccount.TransactionManager =
+                    new AccountSignerTransactionManager(_client, _restService, walletAccount);
         }
     }
 }

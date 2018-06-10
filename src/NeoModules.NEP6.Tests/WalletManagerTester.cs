@@ -132,9 +132,8 @@ namespace NeoModules.NEP6.Tests
         public static void ChangeApiEndPoints()
         {
             Wallet wallet = Wallet.FromJson(walletJson);
-            WalletManager walletManager = new WalletManager(wallet, 
-                new NeoScanRestService(NeoScanNet.TestNet), 
-                new RpcClient(new Uri("http://seed4.travala.com:10332")));
+            WalletManager walletManager = new WalletManager(
+                new NeoScanRestService(NeoScanNet.TestNet),new RpcClient(new Uri("http://seed4.travala.com:10332")),wallet);
 
             var beforeChanging = walletManager.GetDefaultAccount().TransactionManager.Client;
             var secondClient = new RpcClient(new Uri("https://pyrpc1.narrative.network:443"));
