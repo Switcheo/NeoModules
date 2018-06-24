@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using NeoModules.Core;
 using NeoModules.NVM;
@@ -94,23 +93,13 @@ namespace NeoModules.NEP6
             return new System.Numerics.BigInteger((ulong)value);
         }
 
-
-        public static string HexToString(this string inputText)
-        {
-            var bb = Enumerable.Range(0, inputText.Length)
-                .Where(x => x % 2 == 0)
-                .Select(x => Convert.ToByte(inputText.Substring(x, 2), 16))
-                .ToArray();
-            return Encoding.ASCII.GetString(bb);
-        }
-
         public static uint ToTimestamp(this DateTime time)
         {
             return (uint) (time.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
 
         public static byte[]
-            GenerateScript(byte[] scriptHash, string operation, object[] args) // TODO: this does not work correctly
+            GenerateScript(byte[] scriptHash, string operation, object[] args, bool addNonce = true)
         {
             var script = new UInt160(scriptHash);
             using (var sb = new ScriptBuilder())
@@ -120,11 +109,14 @@ namespace NeoModules.NEP6
                 else
                     sb.EmitAppCall(script, operation);
 
-                var timestamp = DateTime.UtcNow.ToTimestamp();
-                var nonce = BitConverter.GetBytes(timestamp);
+                if (addNonce)
+                {
+                    var timestamp = DateTime.UtcNow.ToTimestamp();
+                    var nonce = BitConverter.GetBytes(timestamp);
 
-                sb.Emit(OpCode.RET);
-                sb.EmitPush(nonce);
+                    sb.Emit(OpCode.RET);
+                    sb.EmitPush(nonce);
+                }
 
                 var bytes = sb.ToArray();
                 return bytes;

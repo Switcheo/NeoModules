@@ -38,29 +38,31 @@ namespace NeoModules.NEP6
             var addressBalance = AddressBalance.FromJson(response);
 
             var result = new Dictionary<string, List<Unspent>>();
-            foreach (var balanceEntry in addressBalance.Balance)
+            if (addressBalance.Balance != null)
             {
-                var child = balanceEntry.Unspent;
-                if (!(child?.Count > 0)) continue;
-                List<Unspent> list;
-                if (result.ContainsKey(balanceEntry.Asset))
+                foreach (var balanceEntry in addressBalance.Balance)
                 {
-                    list = result[balanceEntry.Asset];
-                }
-                else
-                {
-                    list = new List<Unspent>();
-                    result[balanceEntry.Asset] = list;
-                }
+                    var child = balanceEntry.Unspent;
+                    if (!(child?.Count > 0)) continue;
+                    List<Unspent> list;
+                    if (result.ContainsKey(balanceEntry.Asset))
+                    {
+                        list = result[balanceEntry.Asset];
+                    }
+                    else
+                    {
+                        list = new List<Unspent>();
+                        result[balanceEntry.Asset] = list;
+                    }
 
-                list.AddRange(balanceEntry.Unspent.Select(data => new Unspent
-                {
-                    TxId = data.TxId,
-                    N = data.N,
-                    Value = data.Value
-                }));
+                    list.AddRange(balanceEntry.Unspent.Select(data => new Unspent
+                    {
+                        TxId = data.TxId,
+                        N = data.N,
+                        Value = data.Value
+                    }));
+                }
             }
-
             return result;
         }
 
@@ -106,7 +108,7 @@ namespace NeoModules.NEP6
             else
                 throw new WalletException($"{symbol} is not a valid blockchain asset.");
 
-            if (!unspent.ContainsKey(symbol)) throw new WalletException($"Not enough {symbol} in address {address}");
+            //if (!unspent.ContainsKey(symbol)) throw new WalletException($"Not enough {symbol} in address {address}");
 
             decimal cost = 0;
 
@@ -124,51 +126,53 @@ namespace NeoModules.NEP6
                 }
             }
 
-            var sources = unspent[symbol];
-            decimal selected = 0;
-
-            foreach (var src in sources)
+            if (unspent.Count > 0)
             {
-                selected += (decimal)src.Value;
+                var sources = unspent[symbol];
+                decimal selected = 0;
 
-                var input = new SignedTransaction.Input
+                foreach (var src in sources)
                 {
-                    PrevHash = src.TxId.HexToBytes().Reverse().ToArray(),
-                    PrevIndex = src.N
-                };
+                    selected += (decimal)src.Value;
 
-                inputs.Add(input);
-
-                if (selected >= cost) break;
-            }
-
-            if (selected < cost) throw new WalletException($"Not enough {symbol}");
-
-            if (cost > 0 && targets != null)
-                foreach (var target in transactionOutputs)
-                {
-                    var output = new SignedTransaction.Output
+                    var input = new SignedTransaction.Input
                     {
-                        AssetId = assetId.HexToBytes().Reverse().ToArray(),
-                        ScriptHash = target.AddressHash.ToArray(),
-                        Value = target.Amount
+                        PrevHash = src.TxId.HexToBytes().Reverse().ToArray(),
+                        PrevIndex = src.N
                     };
-                    outputs.Add(output);
+
+                    inputs.Add(input);
+
+                    if (selected >= cost) break;
                 }
 
-            if (selected > cost || cost == 0)
-            {
-                var left = selected - cost;
-                var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                var change = new SignedTransaction.Output
-                {
-                    AssetId = assetId.HexToBytes().Reverse().ToArray(),
-                    ScriptHash = signatureScript.ToArray(),
-                    Value = left
-                };
-                outputs.Add(change);
-            }
+                if (selected < cost) throw new WalletException($"Not enough {symbol}");
 
+                if (cost > 0 && targets != null)
+                    foreach (var target in transactionOutputs)
+                    {
+                        var output = new SignedTransaction.Output
+                        {
+                            AssetId = assetId.HexToBytes().Reverse().ToArray(),
+                            ScriptHash = target.AddressHash.ToArray(),
+                            Value = target.Amount
+                        };
+                        outputs.Add(output);
+                    }
+
+                if (selected > cost || cost == 0)
+                {
+                    var left = selected - cost;
+                    var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
+                    var change = new SignedTransaction.Output
+                    {
+                        AssetId = assetId.HexToBytes().Reverse().ToArray(),
+                        ScriptHash = signatureScript.ToArray(),
+                        Value = left
+                    };
+                    outputs.Add(change);
+                }
+            }
             return (inputs, outputs);
         }
 
@@ -177,8 +181,8 @@ namespace NeoModules.NEP6
             if (_systemAssets == null)
             {
                 _systemAssets = new Dictionary<string, string>();
-                AddAsset("NEO", "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b");
-                AddAsset("GAS", "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7");
+                AddAsset("NEO", Utils.NeoToken);
+                AddAsset("GAS", Utils.GasToken);
             }
 
             return _systemAssets;
@@ -241,17 +245,48 @@ namespace NeoModules.NEP6
 
             var (inputs, outputs) = await GenerateInputsOutputs(key, attachSymbol, attachTargets);
 
-            if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
-
-            var tx = new SignedTransaction
+            SignedTransaction tx;
+            //Assetless contract call
+            if (inputs.Count == 0 && outputs.Count == 0) 
             {
-                Type = TransactionType.InvocationTransaction,
-                Version = 0,
-                Script = bytes,
-                Gas = 0,
-                Inputs = inputs.ToArray(),
-                Outputs = outputs.ToArray()
-            };
+                var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
+                var nonce = BitConverter.GetBytes(DateTime.UtcNow.ToTimestamp());
+
+                tx = new SignedTransaction
+                {
+                    Type = TransactionType.InvocationTransaction,
+                    Version = 0,
+                    Script = bytes,
+                    Gas = 0,
+                    Inputs = new SignedTransaction.Input[0],
+                    Outputs = new SignedTransaction.Output[0],
+                    Attributes = new[]
+                    {
+                        new TransactionAttribute
+                        {
+                            Data = signatureScript.ToArray(),
+                            Usage = TransactionAttributeUsage.Script
+                        },
+                        new TransactionAttribute
+                        {
+                            Data = nonce,
+                            Usage = TransactionAttributeUsage.Remark
+                        }
+                    }
+                };
+            }
+            else
+            {
+                tx = new SignedTransaction
+                {
+                    Type = TransactionType.InvocationTransaction,
+                    Version = 0,
+                    Script = bytes,
+                    Gas = 0,
+                    Inputs = inputs.ToArray(),
+                    Outputs = outputs.ToArray()
+                };
+            }
 
             var result = await SignAndSendTransaction(tx);
             return result ? tx : null;

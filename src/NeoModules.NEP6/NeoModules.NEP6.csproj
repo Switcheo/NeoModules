@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.20-beta</Version>
+    <Version>0.0.23-beta</Version>
     <Authors>Bruno Freitas</Authors>
     <Description>Neo light wallet implementation, using NEP6 standard.</Description>
     <PackageLicenseUrl>https://github.com/CityOfZion/NeoModules/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -11,9 +11,10 @@
     <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
     <PackageTags>Neo KeyPair VM NEP6 Light wallet CityofZion Blockchain</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Big refractor</PackageReleaseNotes>
-    <AssemblyVersion>0.0.20.0</AssemblyVersion>
-    <FileVersion>0.0.20.0</FileVersion>
+    <PackageReleaseNotes>Added feature: Execute assetless transactions
+Fixed several bugs</PackageReleaseNotes>
+    <AssemblyVersion>0.0.23.0</AssemblyVersion>
+    <FileVersion>0.0.23.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

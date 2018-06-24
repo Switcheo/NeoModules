@@ -97,7 +97,6 @@ namespace NeoModules.NEP6.Transactions
             }
         }
 
-
         public void Sign(KeyPair key)
         {
             var txdata = Serialize(false);

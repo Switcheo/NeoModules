@@ -33,11 +33,8 @@ namespace NeoModules.NEP6
             _restService = restService;
             _client = client;
 
-            if (wallet == null)
-            {
-                _wallet = new Wallet();
-            }
-            else if (_wallet.Accounts.Any())
+            _wallet = wallet ?? new Wallet();
+            if (_wallet.Accounts.Any())
             {
                 foreach (var walletAccount in _wallet.Accounts)
                     walletAccount.TransactionManager =
@@ -149,6 +146,33 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
+        ///     Decrypts and add the account to the Wallet Account List, using WIF.
+        /// </summary>
+        /// <param name="privateKey"></param>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public Account ImportAccount(byte[] privateKey, string label)
+        {
+            var key = new KeyPair(privateKey);
+            var contract = new Contract
+            {
+                Script = Helper.CreateSignatureRedeemScript(key.PublicKey),
+                Parameters = new List<Parameter>
+                {
+                    new Parameter("signature", ParameterType.Signature)
+                },
+                Deployed = false
+            };
+            var account = new Account(contract.ScriptHash, key)
+            {
+                Contract = contract,
+                Label = label
+            };
+            AddAccount(account);
+            return account;
+        }
+
+        /// <summary>
         ///     Decrypts and add the account to the Wallet Account List, using NEP2.
         /// </summary>
         /// <param name="label"></param>
@@ -206,7 +230,7 @@ namespace NeoModules.NEP6
                 },
                 Deployed = false
             };
-            var account = new Account(key.PublicKeyHash)
+            var account = new Account(contract.ScriptHash, key)
             {
                 Contract = contract,
                 Label = label

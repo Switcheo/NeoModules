@@ -129,11 +129,19 @@ namespace NeoModules.NEP6.Tests
         }
 
         [Fact]
+        public static void WalletManagerConstructor()
+        {
+            Wallet wallet = new Wallet("test");
+            var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.TestNet), new RpcClient(new Uri("http://seed4.travala.com:10332")), wallet);
+            Assert.NotNull(walletManager);
+        }
+
+        [Fact]
         public static void ChangeApiEndPoints()
         {
             Wallet wallet = Wallet.FromJson(walletJson);
             WalletManager walletManager = new WalletManager(
-                new NeoScanRestService(NeoScanNet.TestNet),new RpcClient(new Uri("http://seed4.travala.com:10332")),wallet);
+                new NeoScanRestService(NeoScanNet.TestNet), new RpcClient(new Uri("http://seed4.travala.com:10332")), wallet);
 
             var beforeChanging = walletManager.GetDefaultAccount().TransactionManager.Client;
             var secondClient = new RpcClient(new Uri("https://pyrpc1.narrative.network:443"));

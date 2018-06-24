@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6;
-using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.Services;
@@ -15,6 +14,7 @@ using Asset = NeoModules.Rest.DTOs.Asset;
 using Block = NeoModules.Rest.DTOs.Block;
 using Node = NeoModules.Rest.DTOs.Node;
 using Transaction = NeoModules.Rest.DTOs.Transaction;
+using TransactionOutput = NeoModules.NEP6.Transactions.TransactionOutput;
 
 namespace NeoModules.Demo
 {
@@ -100,7 +100,8 @@ namespace NeoModules.Demo
             var decimals = await nep5Service.GetDecimals("ed07cffad18f1308db51920d99a2af60ac66a7b3");
             var totalsupply = await nep5Service.GetTotalSupply("ed07cffad18f1308db51920d99a2af60ac66a7b3", 8);
             var symbol = await nep5Service.GetSymbol("ed07cffad18f1308db51920d99a2af60ac66a7b3", true);
-            var balance = await nep5Service.GetBalance("ed07cffad18f1308db51920d99a2af60ac66a7b3", "0x3640b023405b4b9c818e8387bd01f67bba04dad2", 8);
+            var balance = await nep5Service.GetBalance("ed07cffad18f1308db51920d99a2af60ac66a7b3",
+                "0x3640b023405b4b9c818e8387bd01f67bba04dad2", 8);
 
             Debug.WriteLine(
                 $"Token info: \nName: {name} \nSymbol: {symbol} \nDecimals: {decimals} \nTotalSupply: {totalsupply} \nBalance: {balance}");
@@ -122,16 +123,20 @@ namespace NeoModules.Demo
             var getUnclaimed = await restService.GetUnclaimedAsync(testAddress);
             var getAddress = await restService.GetAddressAsync(testAddress);
             var nodes = await restService.GetAllNodesAsync();
-            var transaction = await restService.GetTransactionAsync("599dec5897d416e9a668e7a34c073832fe69ad01d885577ed841eec52c1c52cf");
+            var transaction =
+                await restService.GetTransactionAsync(
+                    "599dec5897d416e9a668e7a34c073832fe69ad01d885577ed841eec52c1c52cf");
             var assets = await restService.GetAssetsAsync();
-            var asset = await restService.GetAssetAsync("089cd37714d43511e304dc559e05a5a965274685dc21686bdcd05a45e17aab7a");
+            var asset = await restService.GetAssetAsync(
+                "089cd37714d43511e304dc559e05a5a965274685dc21686bdcd05a45e17aab7a");
             var height = await restService.GetHeight();
             var highestBlock = await restService.GetHighestBlock();
             var lastBlocks = await restService.GetLastBlocks();
             var feesInRange = await restService.GetFeesInRange(4, 6);
             var abstractAddress = await restService.GetAddressAbstracts("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn", 0);
             var neonAddress = await restService.GetNeonAddress("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn");
-            var addressToAddressAbstract = await restService.GetAddressToAddressAbstract("AJ5UVvBoz3Nc371Zq11UV6C2maMtRBvTJK",
+            var addressToAddressAbstract = await restService.GetAddressToAddressAbstract(
+                "AJ5UVvBoz3Nc371Zq11UV6C2maMtRBvTJK",
                 "AZCcft1uYtmZXxzHPr5tY7L6M85zG7Dsrv", 0);
             var block = await restService.GetBlock("54ffd56d6a052567c5d9abae43cc0504ccb8c1efe817c2843d154590f0b572f7");
             var lastTransactions = await restService.GetLastTransactions();
@@ -179,8 +184,10 @@ namespace NeoModules.Demo
             if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
             {
                 // Send native assets
-                var sendGasTx = await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 323.032m);
-                var sendNeoTx = await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 13m);
+                var sendGasTx =
+                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 323.032m);
+                var sendNeoTx =
+                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 13m);
 
                 // Call contract
                 var scriptHash = "**INSERT CONTRACT SCRIPTHASH (string format)**".ToScriptHash().ToArray();
@@ -191,7 +198,8 @@ namespace NeoModules.Demo
                     await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments);
 
                 // Estimate Gas consumed from contract call
-                var estimateContractGasCall = await accountSignerTransactionManager.EstimateGasContractCall(scriptHash, operation, arguments);
+                var estimateContractGasCall =
+                    await accountSignerTransactionManager.EstimateGasContractCall(scriptHash, operation, arguments);
 
                 // Call contract with attached assets
                 var assetToAttach = "GAS";
@@ -204,13 +212,16 @@ namespace NeoModules.Demo
                     }
                 };
                 var contractCallWithAttachedTx =
-                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments, assetToAttach, output);
+                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments, assetToAttach,
+                        output);
 
                 // Claim gas
                 var callGasTx = await accountSignerTransactionManager.ClaimGas();
 
                 // Transfer NEP5 tokens
-                var transferNepTx = await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m, scriptHash);
+                var transferNepTx =
+                    await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m,
+                        scriptHash);
             }
         }
     }
