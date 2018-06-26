@@ -17,6 +17,7 @@ namespace NeoModules.RPC
 		getrawtransaction,
 		getstorage,
 		gettxout,
+	    getvalidators,
 		getversion,
 		invoke,
 		invokefunction,
