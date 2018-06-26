@@ -66,7 +66,7 @@ namespace NeoModules.NEP6.Models
         public static string ToAddress(UInt160 scriptHash)
         {
             byte[] data = new byte[21];
-            data[0] = Helper.AddressVersion; // TODO: Move Address Version 
+            data[0] = Helper.AddressVersion;
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return data.Base58CheckEncode();
         }

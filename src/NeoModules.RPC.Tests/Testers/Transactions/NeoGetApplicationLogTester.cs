@@ -7,7 +7,6 @@ using Xunit;
 
 namespace NeoModules.RPC.Tests.Testers.Transactions
 {
-    // todo add a node that has applicationlog enabled
     public class NeoGetApplicationLogTester : RpcRequestTester<ApplicationLog>
     {
         [Fact]
