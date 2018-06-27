@@ -5,20 +5,22 @@ using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
+using NeoModules.NEP6.Helpers;
+using NeoModules.NEP6.Interfaces;
 using NeoModules.NEP6.Models;
 using NeoModules.NEP6.Transactions;
-using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;
 using NeoModules.RPC;
 using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.TransactionManagers;
+using Org.BouncyCastle.Security;
 using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6
 {
-    public class AccountSignerTransactionManager : TransactionManagerBase
+    public class AccountSignerTransactionManager : TransactionManagerBase, IRandomNumberGenerator
     {
-        private static Dictionary<string, string> _systemAssets;
+        private static readonly SecureRandom Random = new SecureRandom();
         private readonly KeyPair _accountKey;
         private readonly INeoRestService _restService;
 
@@ -31,48 +33,11 @@ namespace NeoModules.NEP6
                 _accountKey = new KeyPair(account.PrivateKey); //if account is watch only, it does not have private key
         }
 
-        private async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address)
+        public byte[] GenerateRandomBytes(int size)
         {
-            if (_restService == null) throw new NullReferenceException("REST client not configured");
-            var response = await _restService.GetBalanceAsync(address);
-            var addressBalance = AddressBalance.FromJson(response);
-
-            var result = new Dictionary<string, List<Unspent>>();
-            if (addressBalance.Balance != null)
-            {
-                foreach (var balanceEntry in addressBalance.Balance)
-                {
-                    var child = balanceEntry.Unspent;
-                    if (!(child?.Count > 0)) continue;
-                    List<Unspent> list;
-                    if (result.ContainsKey(balanceEntry.Asset))
-                    {
-                        list = result[balanceEntry.Asset];
-                    }
-                    else
-                    {
-                        list = new List<Unspent>();
-                        result[balanceEntry.Asset] = list;
-                    }
-
-                    list.AddRange(balanceEntry.Unspent.Select(data => new Unspent
-                    {
-                        TxId = data.TxId,
-                        N = data.N,
-                        Value = data.Value
-                    }));
-                }
-            }
-            return result;
-        }
-
-        private async Task<(List<ClaimableElement>, decimal amount)> GetClaimable(string address)
-        {
-            var claimableJson = await _restService.GetClaimableAsync(address);
-            var claimable = Claimable.FromJson(claimableJson);
-            var amount = claimable.Unclaimed;
-
-            return (claimable.ClaimableList.ToList(), (decimal)amount);
+            var bytes = new byte[size];
+            Random.NextBytes(bytes);
+            return bytes;
         }
 
         private void SignTransaction(SignedTransaction txInput)
@@ -86,111 +51,6 @@ namespace NeoModules.NEP6
             SignTransaction(txInput);
             var serializedTransaction = txInput.Serialize();
             return await SendTransactionAsync(serializedTransaction.ToHexString());
-        }
-
-        private async Task<(List<SignedTransaction.Input> inputs, List<SignedTransaction.Output> outputs)>
-            GenerateInputsOutputs(KeyPair key, string symbol, IEnumerable<TransactionOutput> targets)
-        {
-            var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
-            var unspent = await GetUnspent(Wallet.ToAddress(address.ToScriptHash()));
-
-            // filter any asset lists with zero unspent inputs
-            unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
-
-            var inputs = new List<SignedTransaction.Input>();
-            var outputs = new List<SignedTransaction.Output>();
-
-            string assetId;
-
-            var info = GetAssetsInfo();
-            if (info.ContainsKey(symbol))
-                assetId = info[symbol];
-            else
-                throw new WalletException($"{symbol} is not a valid blockchain asset.");
-
-            //if (!unspent.ContainsKey(symbol)) throw new WalletException($"Not enough {symbol} in address {address}");
-
-            decimal cost = 0;
-
-            var fromHash = key.PublicKeyHash.ToArray();
-            List<TransactionOutput> transactionOutputs = null;
-            if (targets != null)
-            {
-                transactionOutputs = targets.ToList();
-                foreach (var target in transactionOutputs)
-                {
-                    if (target.AddressHash.SequenceEqual(fromHash))
-                        throw new WalletException("Target can't be same as input");
-
-                    cost += target.Amount;
-                }
-            }
-
-            if (unspent.Count > 0)
-            {
-                var sources = unspent[symbol];
-                decimal selected = 0;
-
-                foreach (var src in sources)
-                {
-                    selected += (decimal)src.Value;
-
-                    var input = new SignedTransaction.Input
-                    {
-                        PrevHash = src.TxId.HexToBytes().Reverse().ToArray(),
-                        PrevIndex = src.N
-                    };
-
-                    inputs.Add(input);
-
-                    if (selected >= cost) break;
-                }
-
-                if (selected < cost) throw new WalletException($"Not enough {symbol}");
-
-                if (cost > 0 && targets != null)
-                    foreach (var target in transactionOutputs)
-                    {
-                        var output = new SignedTransaction.Output
-                        {
-                            AssetId = assetId.HexToBytes().Reverse().ToArray(),
-                            ScriptHash = target.AddressHash.ToArray(),
-                            Value = target.Amount
-                        };
-                        outputs.Add(output);
-                    }
-
-                if (selected > cost || cost == 0)
-                {
-                    var left = selected - cost;
-                    var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                    var change = new SignedTransaction.Output
-                    {
-                        AssetId = assetId.HexToBytes().Reverse().ToArray(),
-                        ScriptHash = signatureScript.ToArray(),
-                        Value = left
-                    };
-                    outputs.Add(change);
-                }
-            }
-            return (inputs, outputs);
-        }
-
-        internal static Dictionary<string, string> GetAssetsInfo()
-        {
-            if (_systemAssets == null)
-            {
-                _systemAssets = new Dictionary<string, string>();
-                AddAsset("NEO", Utils.NeoToken);
-                AddAsset("GAS", Utils.GasToken);
-            }
-
-            return _systemAssets;
-        }
-
-        private static void AddAsset(string symbol, string hash)
-        {
-            _systemAssets[symbol] = hash;
         }
 
         public override Task<string> SignTransactionAsync(byte[] transactionData) //todo refractor this to have more use
@@ -210,7 +70,8 @@ namespace NeoModules.NEP6
 
             if (attachTargets == null) attachTargets = new List<TransactionOutput>();
 
-            var (inputs, outputs) = await GenerateInputsOutputs(_accountKey, attachSymbol, attachTargets);
+            var (inputs, outputs) =
+                await TransactionBuilderHelper.GenerateInputsOutputs(_accountKey, attachSymbol, attachTargets, _restService);
 
             if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
 
@@ -243,15 +104,14 @@ namespace NeoModules.NEP6
 
             if (attachTargets == null) attachTargets = new List<TransactionOutput>();
 
-            var (inputs, outputs) = await GenerateInputsOutputs(key, attachSymbol, attachTargets);
+            var (inputs, outputs) =
+                await TransactionBuilderHelper.GenerateInputsOutputs(key, attachSymbol, attachTargets, _restService);
 
             SignedTransaction tx;
-            //Assetless contract call
-            if (inputs.Count == 0 && outputs.Count == 0) 
+            //Asset less contract call
+            if (inputs.Count == 0 && outputs.Count == 0)
             {
                 var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                var nonce = BitConverter.GetBytes(DateTime.UtcNow.ToTimestamp());
-
                 tx = new SignedTransaction
                 {
                     Type = TransactionType.InvocationTransaction,
@@ -269,7 +129,7 @@ namespace NeoModules.NEP6
                         },
                         new TransactionAttribute
                         {
-                            Data = nonce,
+                            Data = GenerateRandomBytes(4),
                             Usage = TransactionAttributeUsage.Remark
                         }
                     }
@@ -299,22 +159,23 @@ namespace NeoModules.NEP6
         public async Task<SignedTransaction> SendAsset(string toAddress, string symbol, decimal amount)
         {
             var toScriptHash = toAddress.ToScriptHash().ToArray();
-            var target = new TransactionOutput { AddressHash = toScriptHash, Amount = amount };
-            var targets = new List<TransactionOutput> { target };
+            var target = new TransactionOutput {AddressHash = toScriptHash, Amount = amount};
+            var targets = new List<TransactionOutput> {target};
             return await SendAsset(_accountKey, symbol, targets);
         }
 
         public async Task<SignedTransaction> SendAsset(byte[] toAddress, string symbol, decimal amount)
         {
-            var target = new TransactionOutput { AddressHash = toAddress, Amount = amount };
-            var targets = new List<TransactionOutput> { target };
+            var target = new TransactionOutput {AddressHash = toAddress, Amount = amount};
+            var targets = new List<TransactionOutput> {target};
             return await SendAsset(_accountKey, symbol, targets);
         }
 
         public async Task<SignedTransaction> SendAsset(KeyPair fromKey, string symbol,
             IEnumerable<TransactionOutput> targets)
         {
-            var (inputs, outputs) = await GenerateInputsOutputs(fromKey, symbol, targets);
+            var (inputs, outputs) =
+                await TransactionBuilderHelper.GenerateInputsOutputs(fromKey, symbol, targets, _restService);
 
             var tx = new SignedTransaction
             {
@@ -334,7 +195,8 @@ namespace NeoModules.NEP6
         {
             var address = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey);
             var targetScriptHash = address.ToScriptHash();
-            var (claimable, amount) = await GetClaimable(Wallet.ToAddress(address.ToScriptHash()));
+            var (claimable, amount) =
+                await TransactionBuilderHelper.GetClaimable(Wallet.ToAddress(address.ToScriptHash()), _restService);
 
             var references = new List<SignedTransaction.Input>();
             foreach (var entry in claimable)
@@ -396,7 +258,7 @@ namespace NeoModules.NEP6
 
             var result = await CallContract(tokenScriptHash,
                 Nep5Methods.transfer.ToString(),
-                new object[] { fromAddress, toAddress, amountBigInteger });
+                new object[] {fromAddress, toAddress, amountBigInteger});
 
             return result;
         }

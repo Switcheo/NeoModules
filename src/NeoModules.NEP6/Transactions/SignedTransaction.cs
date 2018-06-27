@@ -125,7 +125,13 @@ namespace NeoModules.NEP6.Transactions
             var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
             var verificationScript = Helper.CreateSignatureRedeemScript(new KeyPair(privateKey).PublicKey);
             Witnesses = new[]
-                {new Witness {InvocationScript = invocationScript, VerificationScript = verificationScript}};
+            {
+                new Witness
+                {
+                    InvocationScript = invocationScript,
+                    VerificationScript = verificationScript
+                }
+            };
         }
 
         public struct Input
