@@ -25,7 +25,7 @@ namespace NeoModulesXF.ViewModels
         public ICommand ImportWifAccountCommand => new Command(ImportWifAccountExecute);
         public ICommand GetBalanceCommand => new Command(async () => await GetBalanceExecute());
 
-        public string Wif { get; set; } = "L4qi4yPRNU2m6RtrWPeponmXm1fD12vThQefursdFkSVFASBudUV";//do not use this account on main net!
+        public string Wif { get; set; } = "L4qi4yPsNU2m6RtrWPeponmXm1fD12vThQefursdFkSVFASBudUV";//do not use this account on main net!
 
         public string EncryptedKey { get; set; } =
             "6PYN6mjwYfjPUuYT3Exajvx25UddFVLpCw4bMsmtLdnKwZ9t1Mi3CfKe8S"; //do not use this account on main net!
