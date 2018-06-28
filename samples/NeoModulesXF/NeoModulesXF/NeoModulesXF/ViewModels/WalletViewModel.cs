@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NeoModules.NEP6;
 using NeoModules.NEP6.Models;
+using NeoModules.Rest.DTOs;
 using PropertyChanged;
 using Xamarin.Forms;
 
@@ -23,8 +23,9 @@ namespace NeoModulesXF.ViewModels
         public ICommand ImportEncryptedAccountCommand => new Command(async () => await ImportEncryptedAccountExecute());
 
         public ICommand ImportWifAccountCommand => new Command(ImportWifAccountExecute);
+        public ICommand GetBalanceCommand => new Command(async () => await GetBalanceExecute());
 
-        public string Wif { get; set; } = "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7";//do not use this account on main net!
+        public string Wif { get; set; } = "L4qi4yPRNU2m6RtrWPeponmXm1fD12vThQefursdFkSVFASBudUV";//do not use this account on main net!
 
         public string EncryptedKey { get; set; } =
             "6PYN6mjwYfjPUuYT3Exajvx25UddFVLpCw4bMsmtLdnKwZ9t1Mi3CfKe8S"; //do not use this account on main net!
@@ -66,9 +67,36 @@ namespace NeoModulesXF.ViewModels
         private void ImportWifAccountExecute()
         {
             if (string.IsNullOrEmpty(Wif)) return;
-            var account = TestWalletManager.ImportAccount(Wif,"demo");
+            var account = TestWalletManager.ImportAccount(Wif, "demo");
             count++;
             Accounts.Add(account);
+        }
+
+        private async Task GetBalanceExecute()
+        {
+            foreach (var account in Accounts)
+            {
+                var address = Wallet.ToAddress(account.Address);
+
+                //use this for native assets if you don't want NEP5 balance
+                var naviteAssetsBalance = await NeoService.Accounts.GetAccountState.SendRequestAsync(address);
+
+                //use this for all assets
+                var json = await NeoScanService.GetBalanceAsync(address);
+                var jsonBalance = AddressBalance.FromJson(json);
+
+                if (jsonBalance.Balance.Count != 0) //just on value for DEMO
+                {
+                    account.Extra = new[]
+                    {
+                        new
+                        {
+                            jsonBalance.Balance[0].Asset,
+                            jsonBalance.Balance[0].Amount,
+                        }
+                    };
+                }
+            }
         }
     }
 }

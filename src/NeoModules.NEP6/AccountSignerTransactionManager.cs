@@ -242,8 +242,8 @@ namespace NeoModules.NEP6
         public async Task<SignedTransaction> TransferNep5(string toAddress, decimal amount, byte[] tokenScriptHash,
             int decimals = 8)
         {
-            var toScriptHash = toAddress.ToScriptHash().ToArray();
-            return await TransferNep5(toScriptHash, amount, tokenScriptHash, decimals);
+            var toAddressScriptHash = toAddress.ToScriptHash().ToArray();
+            return await TransferNep5(toAddressScriptHash, amount, tokenScriptHash, decimals);
         }
 
         public async Task<SignedTransaction> TransferNep5(byte[] toAddress, decimal amount, byte[] tokenScriptHash,

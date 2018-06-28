@@ -20,6 +20,11 @@
                 <BoxView HeightRequest="1" Color="Red" HorizontalOptions="FillAndExpand" />
                 <Label Text="List" FontSize="20" />
                 <ListView ItemsSource="{Binding Accounts}" HasUnevenRows="True" x:Name="AccountsList">
+                    <ListView.Header>
+                        <Grid>
+                            <Button Command="{Binding GetBalanceCommand}" Text="Refresh Balance"/>
+                        </Grid>
+                    </ListView.Header>
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
@@ -30,8 +35,10 @@
                                     <Label Text="Label" />
                                     <Label Text="{Binding Label}" />
                                     <Button Text="Delete Account"
-                                            Command="{Binding Path=BindingContext.DeleteAccountCommand, Source={x:Reference Name=AccountsList}}"
+                                            Command="{Binding Path=BindingContext.DeleteAccountCommand, 
+                                            Source={x:Reference Name=AccountsList}}"
                                             CommandParameter="{Binding}" />
+                                    <Label Text="{Binding Extra.Amount}"/>
                                 </StackLayout>
                             </ViewCell>
                         </DataTemplate>
