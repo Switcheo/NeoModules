@@ -196,7 +196,7 @@ namespace NeoModules.NEP6
             var address = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey);
             var targetScriptHash = address.ToScriptHash();
             var (claimable, amount) =
-                await TransactionBuilderHelper.GetClaimable(Wallet.ToAddress(address.ToScriptHash()), _restService);
+                await TransactionBuilderHelper.GetClaimable(address.ToScriptHash().ToAddress(), _restService);
 
             var references = new List<SignedTransaction.Input>();
             foreach (var entry in claimable)

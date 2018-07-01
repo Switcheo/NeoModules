@@ -19,7 +19,7 @@ namespace NeoModules.NEP6.Converters
 
             UInt160 data = (UInt160)value;
 
-            var stringData = Wallet.ToAddress(data);
+            var stringData = data.ToAddress();
 
             writer.WriteValue(stringData);
         }

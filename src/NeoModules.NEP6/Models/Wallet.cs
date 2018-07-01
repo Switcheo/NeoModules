@@ -63,14 +63,6 @@ namespace NeoModules.NEP6.Models
 
         public static string ToJson(Wallet self) => JsonConvert.SerializeObject(self);
 
-        public static string ToAddress(UInt160 scriptHash)
-        {
-            byte[] data = new byte[21];
-            data[0] = Helper.AddressVersion;
-            Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
-            return data.Base58CheckEncode();
-        }
-
         public static byte[] GetPrivateKeyFromWif(string wif)
         {
             if (wif == null) throw new ArgumentNullException();

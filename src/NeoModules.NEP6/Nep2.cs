@@ -34,7 +34,7 @@ namespace NeoModules.NEP6
                 var keyPair = new KeyPair(Wallet.GetPrivateKeyFromWif(wif));
                 var scriptHash =
                     Helper.CreateSignatureRedeemScript(keyPair.PublicKey).ToScriptHash();
-                var address = Wallet.ToAddress(scriptHash);
+                var address = scriptHash.ToAddress();
 
                 var addresshash = Encoding.ASCII.GetBytes(address).Sha256().Sha256().Take(4).ToArray();
                 return await Task.Run(() =>
@@ -88,7 +88,7 @@ namespace NeoModules.NEP6
                 var prikey = XOR(encryptedkey.AES256Decrypt(derivedhalf2), derivedhalf1);
                 var pubkey = ECCurve.Secp256r1.G * prikey;
                 var scriptHash = Helper.CreateSignatureRedeemScript(pubkey).ToScriptHash();
-                var address = Wallet.ToAddress(scriptHash);
+                var address = scriptHash.ToAddress();
                 if (!Encoding.ASCII.GetBytes(address).Sha256().Sha256().Take(4).SequenceEqual(addresshash))
                     throw new FormatException();
 

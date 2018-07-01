@@ -74,6 +74,19 @@ namespace NeoModules.KeyPairs
         }
 
         /// <summary>
+        /// Converts the script hash to a Neo Address
+        /// </summary>
+        /// <param name="scriptHash"></param>
+        /// <returns></returns>
+        public static string ToAddress(this UInt160 scriptHash)
+        {
+            byte[] data = new byte[21];
+            data[0] = Helper.AddressVersion;
+            Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
+            return data.Base58CheckEncode();
+        }
+
+        /// <summary>
         ///     Converts the address in string format to a ScriptHash of type UInt160
         /// </summary>
         /// <param name="address"></param>

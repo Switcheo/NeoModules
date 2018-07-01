@@ -57,7 +57,7 @@ namespace NeoModules.NEP6.Helpers
                 INeoRestService restService)
         {
             var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
-            var unspent = await GetUnspent(Wallet.ToAddress(address.ToScriptHash()), restService);
+            var unspent = await GetUnspent(address.ToScriptHash().ToAddress(), restService);
 
             // filter any asset lists with zero unspent inputs
             unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
