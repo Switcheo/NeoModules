@@ -151,5 +151,23 @@ namespace NeoModules.NEP6.Tests
 
             Assert.NotEqual(beforeChanging, afterChanging);
         }
+
+        [Fact]
+        public static async void ChangeDefaultAccount()
+        {
+            Wallet wallet = Wallet.FromJson(walletJson);
+            WalletManager walletManager = new WalletManager(
+                new NeoScanRestService(NeoScanNet.MainNet), 
+                new RpcClient(new Uri("http://seed4.travala.com:10332")), 
+                wallet);
+
+            var account = await walletManager.CreateAccount("test1", "test123455");
+            await walletManager.CreateAccount("test2", "test123455");
+            walletManager.ChangeDefaultAccount(2);
+            var defaultAccount = walletManager.GetDefaultAccount();
+            var accountToCompare = walletManager.GetAccount(account.Address.ToAddress());
+
+            Assert.Equal(defaultAccount, accountToCompare);
+        }
     }
 }

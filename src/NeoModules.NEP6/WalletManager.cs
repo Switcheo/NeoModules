@@ -35,11 +35,9 @@ namespace NeoModules.NEP6
 
             _wallet = wallet ?? new Wallet();
             if (_wallet.Accounts.Any())
-            {
                 foreach (var walletAccount in _wallet.Accounts)
                     walletAccount.TransactionManager =
                         new AccountSignerTransactionManager(_client, _restService, walletAccount);
-            }
         }
 
         /// <summary>
@@ -111,13 +109,44 @@ namespace NeoModules.NEP6
         /// <returns></returns>
         public Account GetDefaultAccount()
         {
-            if (_wallet.Accounts.Count == 0) throw new ArgumentNullException($"No accounts available in this Wallet");
+            if (_wallet.Accounts.Count == 0) throw new WalletException($"No accounts available in this Wallet");
             var defaultAccount = _wallet.Accounts.FirstOrDefault(a => a.IsDefault);
             if (defaultAccount != null) return defaultAccount;
             defaultAccount = _wallet.Accounts.FirstOrDefault(a => !string.IsNullOrEmpty(a.Nep2Key));
             return defaultAccount ?? _wallet.Accounts[0];
         }
 
+        /// <summary>
+        ///     Change the Default account on the current open wallet
+        /// </summary>
+        /// <param name="account"></param>
+        public void ChangeDefaultAccount(Account account)
+        {
+            if (_wallet.Accounts.Count == 0) throw new WalletException($"No accounts available in this Wallet");
+            if (account == null) throw new WalletException($"Address cannot be null");
+
+            var newDefaultAccounAddress = account.Address.ToAddress();
+
+            if (_wallet.Accounts.All(acc => acc.Address.ToAddress() != newDefaultAccounAddress))
+                throw new WalletException($"No account with the specified address found");
+            foreach (var walletAccount in _wallet.Accounts) walletAccount.IsDefault = false;
+
+            var newDefaultAccount = _wallet.Accounts.SingleOrDefault(acc => acc.Address.ToAddress() == newDefaultAccounAddress);
+            if (newDefaultAccount != null) newDefaultAccount.IsDefault = true;
+        }
+
+        public void ChangeDefaultAccount(int index)
+        {
+            var account = _wallet.Accounts[index];
+            ChangeDefaultAccount(account);
+        }
+
+        public void ChangeDefaultAccount(string address)
+        {
+            var account = _wallet.Accounts.SingleOrDefault(acc => acc.Address.ToAddress() == address);
+            ChangeDefaultAccount(account);
+        }
+        
         /// <summary>
         ///     Decrypts and add the account to the Wallet Account List, using WIF.
         /// </summary>
@@ -262,7 +291,7 @@ namespace NeoModules.NEP6
                 },
                 Deployed = false
             };
-            var encryptedKey = await Nep2.Encrypt(key.PrivateKey.ToHexString(), password);
+            var encryptedKey = await Nep2.Encrypt(key.Export(), password);
             var account = new Account(key.PublicKeyHash, key)
             {
                 Nep2Key = encryptedKey,

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
-using NeoModules.NEP6.Models;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.DTOs;
 using NeoModules.Rest.Services;

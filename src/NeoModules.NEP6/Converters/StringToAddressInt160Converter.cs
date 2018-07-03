@@ -1,9 +1,7 @@
 ﻿using System;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
-using NeoModules.NEP6.Models;
 using Newtonsoft.Json;
-using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6.Converters
 {

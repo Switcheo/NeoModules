@@ -7,7 +7,6 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Interfaces;
-using NeoModules.NEP6.Models;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.Services;
 using NeoModules.RPC;
