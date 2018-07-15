@@ -189,6 +189,9 @@ SOFTWARE.
     /// </summary>
     public class RpcParametersJsonConverter : JsonConverter
     {
+
+        public RpcParametersJsonConverter() : base() { }
+
         /// <summary>
         ///     Writes the value of the parameters to json format
         /// </summary>

@@ -48,6 +48,24 @@ project.fragment.lock.json
 artifacts/
 **/Properties/launchSettings.json
 
+# Unity3D generated meta files
+*.pidb.meta
+*.pdb.meta
+
+# Unity3D Generated File On Crash Reports
+sysinfo.txt
+
+# Builds
+*.apk
+*.unitypackage
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+Assets/AssetStoreTools*
+
 *_i.c
 *_p.c
 *_i.h
