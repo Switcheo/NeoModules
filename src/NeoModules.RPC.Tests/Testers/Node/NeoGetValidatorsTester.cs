@@ -26,6 +26,7 @@ namespace NeoModules.RPC.Tests.Testers.Node
         {
             var result = await ExecuteAsync();
             Assert.NotNull(result);
+            Assert.NotEmpty(result);
         }
     }
 }
