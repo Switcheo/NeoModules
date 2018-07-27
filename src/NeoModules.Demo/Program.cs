@@ -6,14 +6,16 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6;
 using NeoModules.Rest.DTOs;
+using NeoModules.Rest.DTOs.NeoNotifications;
+using NeoModules.Rest.DTOs.NeoScan;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
 using Newtonsoft.Json;
-using Asset = NeoModules.Rest.DTOs.Asset;
-using Block = NeoModules.Rest.DTOs.Block;
-using Node = NeoModules.Rest.DTOs.Node;
-using Transaction = NeoModules.Rest.DTOs.Transaction;
+using Asset = NeoModules.Rest.DTOs.NeoScan.Asset;
+using Block = NeoModules.Rest.DTOs.NeoScan.Block;
+using Node = NeoModules.Rest.DTOs.NeoScan.Node;
+using Transaction = NeoModules.Rest.DTOs.NeoScan.Transaction;
 using TransactionOutput = NeoModules.NEP6.Transactions.TransactionOutput;
 
 namespace NeoModules.Demo
@@ -45,6 +47,9 @@ namespace NeoModules.Demo
 
                 //nodes list
                 NodesListTestAsync().Wait();
+
+                //http://notifications.neeeo.org/ service
+                NotificationsService().Wait();
             }
             catch (Exception ex)
             {
@@ -113,8 +118,6 @@ namespace NeoModules.Demo
             var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
 
             var restService = new NeoScanRestService(NeoScanNet.MainNet); // service creation
-            var token = await restService.GetAllTokens();
-            var tokenList = JsonConvert.DeserializeObject<TokenList>(token);
 
             // api calls
             var getBalance = await restService.GetBalanceAsync(testAddress);
@@ -154,7 +157,7 @@ namespace NeoModules.Demo
             var assetsDto = Asset.FromJsonList(assets);
             var assetDto = Asset.FromJson(asset);
             long chainHeight = Convert.ToInt64(height);
-            var highestBlockDto = Rest.DTOs.Block.FromJson(highestBlock);
+            var highestBlockDto = Block.FromJson(highestBlock);
             var lastBlocksDto = Blocks.FromJson(lastBlocks);
             var feesInRangeDto = FeesInRange.FromJson(feesInRange);
             var abstractAddressDto = AbstractAddress.FromJson(abstractAddress);
@@ -185,12 +188,12 @@ namespace NeoModules.Demo
             {
                 // Send native assets
                 var sendGasTx =
-                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 323.032m);
+                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", "GAS", 323.032m);
                 var sendNeoTx =
-                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE**", "GAS", 13m);
+                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", "NEO", 13m);
 
                 // Call contract
-                var scriptHash = "**INSERT CONTRACT SCRIPTHASH (string format)**".ToScriptHash().ToArray();
+                var scriptHash = "** INSERT CONTRACT SCRIPTHASH **".ToScriptHash().ToArray();
                 var operation = "balanceOf";
                 var arguments = new object[] { "arg1" };
 
@@ -224,5 +227,16 @@ namespace NeoModules.Demo
                         scriptHash);
             }
         }
+        
+        private static async Task NotificationsService()
+        {
+            var notificationService = new NotificationsService();
+            var addressNotifications = await notificationService.GetAddressNotifications("AGfGWQeM6md6RtEsTUivQNXhp8p4ytkDMR", 1, "", 13, 200);
+            var blockNotifications = await notificationService.GetBlockNotifications(10);
+            var contractNotifications =
+                await notificationService.GetContractNotifications("0x67a5086bac196b67d5fd20745b0dc9db4d2930ed");
+            var tokenList = await notificationService.GetTokens();
+        }
+
     }
 }

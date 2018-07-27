@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-namespace NeoModules.Rest.DTOs
+
+namespace NeoModules.Rest.DTOs.NeoScan
 {
 
     public class Asset

@@ -1,30 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using NeoModules.Rest.DTOs.NeoScan;
 using Newtonsoft.Json;
 
-namespace NeoModules.Rest.DTOs
+namespace NeoModules.Rest.DTOs.NeoNotifications
 {
-    public class TokenList
-    {
-        [JsonProperty("current_height")]
-        public long CurrentHeight { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; }
-
-        [JsonProperty("page")]
-        public long Page { get; set; }
-
-        [JsonProperty("page_len")]
-        public long PageLen { get; set; }
-
-        [JsonProperty("results")]
-        public List<Result> Results { get; set; }
-
-        [JsonProperty("total")]
-        public long Total { get; set; }
-    }
-
-    public class Result
+    public class TokenResult : NotificationResult
     {
         [JsonProperty("block")]
         public long Block { get; set; }

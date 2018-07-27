@@ -107,7 +107,7 @@ namespace NeoModules.NEP6
                 await TransactionBuilderHelper.GenerateInputsOutputs(key, attachSymbol, attachTargets, _restService);
 
             SignedTransaction tx;
-            //Asset less contract call
+            //Assetless contract call
             if (inputs.Count == 0 && outputs.Count == 0)
             {
                 var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();

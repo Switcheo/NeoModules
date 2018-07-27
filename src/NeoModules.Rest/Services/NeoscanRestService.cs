@@ -168,7 +168,7 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetAddressAbstracts(string address, int page)
+        public async Task<string> GetAddressAbstracts(string address, int page = 0)
         {
             var composedUrl = ComposeUrl(getAddressAbstracts, string.Concat(address, "/", page));
             var result = await _restClient.GetAsync(composedUrl);
@@ -184,7 +184,7 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetAddressToAddressAbstract(string addressfrom, string addressTo, int page)
+        public async Task<string> GetAddressToAddressAbstract(string addressfrom, string addressTo, int page = 0)
         {
             var composedUrl = ComposeUrl(getAddressToAddressAbstracts,
                 string.Concat(addressfrom, "/", addressTo, "/", page));
@@ -226,7 +226,7 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetLastTransactionsByAddress(string address, int page)
+        public async Task<string> GetLastTransactionsByAddress(string address, int page = 0)
         {
             var composedUrl = ComposeUrl(getLastTransactionsByAddress,
                 string.Concat(address, "/", page));
@@ -242,17 +242,9 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        public async Task<string> GetAllTokens()
-        {
-            var tokenClient = new HttpClient();
-            var result = await tokenClient.GetAsync(getTokenList);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
         private string ComposeUrl(string url, object pathToAdd)
         {
-            return string.Format("{0}{1}", url, pathToAdd);
+            return $"{url}{pathToAdd}";
         }
     }
 }

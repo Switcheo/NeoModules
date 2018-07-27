@@ -25,9 +25,5 @@ namespace NeoModules.Rest.Services
         Task<string> GetLastTransactions(string type = null);
         Task<string> GetLastTransactionsByAddress(string address, int page);
         Task<string> GetNodes();
-
-        //TODO move this call
-        Task<string> GetAllTokens();
-
     }
 }

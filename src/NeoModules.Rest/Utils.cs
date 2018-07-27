@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace NeoModules.Rest.DTOs
+namespace NeoModules.Rest
 {
     public static class Utils
     {
