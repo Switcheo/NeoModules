@@ -1,10 +1,36 @@
 ﻿using NeoModules.Rest.DTOs.NeoScan;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace NeoModules.Rest.DTOs.NeoNotifications
 {
-    public class TokenResult : NotificationResult
+    public class TokenResult
     {
+        [JsonProperty("current_height")]
+        public long CurrentHeight { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("results")]
+        public List<NotificationsToken> Results { get; set; }
+
+        [JsonProperty("page")]
+        public long Page { get; set; }
+
+        [JsonProperty("page_len")]
+        public long PageLen { get; set; }
+
+        [JsonProperty("total")]
+        public long Total { get; set; }
+
+        [JsonProperty("total_pages")]
+        public long TotalPages { get; set; }
+    }
+
+    public class NotificationsToken
+    {
+
         [JsonProperty("block")]
         public long Block { get; set; }
 
@@ -16,9 +42,6 @@ namespace NeoModules.Rest.DTOs.NeoNotifications
 
         [JsonProperty("tx")]
         public string Tx { get; set; }
-
-        [JsonProperty("type")]
-        public string Type { get; set; }
     }
 
     public class TokenContract

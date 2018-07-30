@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Bruno Freitas</Authors>
-    <Version>0.0.3-beta</Version>
+    <Version>0.0.3</Version>
     <Description>Important: Not a full Neo VM, just has the necessary functions to support Neo NEP6</Description>
     <Copyright>MIT</Copyright>
     <PackageLicenseUrl>https://github.com/CityOfZion/NeoModules/blob/master/LICENSE.md</PackageLicenseUrl>

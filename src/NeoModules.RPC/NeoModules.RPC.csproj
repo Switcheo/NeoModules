@@ -13,10 +13,9 @@
     <RepositoryUrl>https://github.com/CityOfZion/NeoModules/</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT</Copyright>
-    <PackageReleaseNotes>More changes to Nep5Service and bugs fixed
-</PackageReleaseNotes>
-    <Version>1.0.14</Version>
-    <FileVersion>1.0.14.0</FileVersion>
+    <PackageReleaseNotes>Small improvements</PackageReleaseNotes>
+    <Version>1.0.15</Version>
+    <FileVersion>1.0.15.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

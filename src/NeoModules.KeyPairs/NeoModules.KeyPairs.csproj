@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.6-beta</Version>
+    <Version>0.0.6</Version>
     <Authors>Bruno Freitas</Authors>
     <Company>Bruno Freitas</Company>
     <Description>Base dependency of NeoModules.NEP6project. It has the necessary original code from neo-project to support a light wallet.</Description>
