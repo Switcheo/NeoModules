@@ -16,11 +16,10 @@ namespace NeoModules.NEP6.Helpers
         private static Dictionary<string, string> _systemAssets;
 
         public static async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address,
-            INeoRestService restService)
+            INeoscanService restService)
         {
             if (restService == null) throw new NullReferenceException("REST client not configured");
-            var response = await restService.GetBalanceAsync(address);
-            var addressBalance = AddressBalance.FromJson(response);
+            var addressBalance = await restService.GetBalanceAsync(address);            
 
             var result = new Dictionary<string, List<Unspent>>();
             if (addressBalance.Balance != null)
@@ -53,7 +52,7 @@ namespace NeoModules.NEP6.Helpers
 
         public static async Task<(List<SignedTransaction.Input> inputs, List<SignedTransaction.Output> outputs)>
             GenerateInputsOutputs(KeyPair key, string symbol, IEnumerable<TransactionOutput> targets,
-                INeoRestService restService)
+                INeoscanService restService)
         {
             var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
             var unspent = await GetUnspent(address.ToScriptHash().ToAddress(), restService);
@@ -139,10 +138,9 @@ namespace NeoModules.NEP6.Helpers
             return (inputs, outputs);
         }
 
-        public static async Task<(List<ClaimableElement>, decimal amount)> GetClaimable(string address, INeoRestService restService)
+        public static async Task<(List<ClaimableElement>, decimal amount)> GetClaimable(string address, INeoscanService restService)
         {
-            var claimableJson = await restService.GetClaimableAsync(address);
-            var claimable = Claimable.FromJson(claimableJson);
+            var claimable = await restService.GetClaimableAsync(address);
             var amount = claimable.Unclaimed;
 
             return (claimable.ClaimableList.ToList(), (decimal)amount);

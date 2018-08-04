@@ -10,9 +10,6 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("time")]
         public long Time { get; set; }
 
-        [JsonProperty("id")]
-        public long Id { get; set; }
-
         [JsonProperty("block_height")]
         public long BlockHeight { get; set; }
 

@@ -21,9 +21,9 @@ namespace NeoModules.NEP6
     {
         private static readonly SecureRandom Random = new SecureRandom();
         private readonly KeyPair _accountKey;
-        private readonly INeoRestService _restService;
+        private readonly INeoscanService _restService;
 
-        public AccountSignerTransactionManager(IClient rpcClient, INeoRestService restService, IAccount account)
+        public AccountSignerTransactionManager(IClient rpcClient, INeoscanService restService, IAccount account)
         {
             Account = account ?? throw new ArgumentNullException(nameof(account));
             Client = rpcClient;

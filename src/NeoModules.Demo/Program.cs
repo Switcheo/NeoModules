@@ -5,17 +5,10 @@ using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6;
-using NeoModules.Rest.DTOs;
-using NeoModules.Rest.DTOs.NeoNotifications;
-using NeoModules.Rest.DTOs.NeoScan;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
 using Newtonsoft.Json;
-using Asset = NeoModules.Rest.DTOs.NeoScan.Asset;
-using Block = NeoModules.Rest.DTOs.NeoScan.Block;
-using Node = NeoModules.Rest.DTOs.NeoScan.Node;
-using Transaction = NeoModules.Rest.DTOs.NeoScan.Transaction;
 using TransactionOutput = NeoModules.NEP6.Transactions.TransactionOutput;
 
 namespace NeoModules.Demo
@@ -115,7 +108,7 @@ namespace NeoModules.Demo
 
         private static async Task RestClientTest()
         {
-            var testAddress = "ANrL4vPnQCCi5Mro4fqKK1rxrkxEHqmp2E";
+            var testAddress = "AJN2SZJuF7j4mvKaMYAY9N8KsyD4j1fNdf";
 
             var restService = new NeoScanRestService(NeoScanNet.MainNet); // service creation
 
@@ -124,48 +117,19 @@ namespace NeoModules.Demo
             var getClaimed = await restService.GetClaimedAsync(testAddress);
             var getClaimable = await restService.GetClaimableAsync(testAddress);
             var getUnclaimed = await restService.GetUnclaimedAsync(testAddress);
-            var getAddress = await restService.GetAddressAsync(testAddress);
+           // var getAddress = await restService.GetAddressAsync(testAddress);
             var nodes = await restService.GetAllNodesAsync();
             var transaction =
                 await restService.GetTransactionAsync(
-                    "599dec5897d416e9a668e7a34c073832fe69ad01d885577ed841eec52c1c52cf");
-            var assets = await restService.GetAssetsAsync();
-            var asset = await restService.GetAssetAsync(
-                "089cd37714d43511e304dc559e05a5a965274685dc21686bdcd05a45e17aab7a");
+                    "610e2a4c7cdc4f311be65cee48e076871b685e13cc750397f4ee5f800da3309a");
             var height = await restService.GetHeight();
-            var highestBlock = await restService.GetHighestBlock();
-            var lastBlocks = await restService.GetLastBlocks();
-            var feesInRange = await restService.GetFeesInRange(4, 6);
             var abstractAddress = await restService.GetAddressAbstracts("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn", 0);
-            var neonAddress = await restService.GetNeonAddress("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn");
             var addressToAddressAbstract = await restService.GetAddressToAddressAbstract(
                 "AJ5UVvBoz3Nc371Zq11UV6C2maMtRBvTJK",
                 "AZCcft1uYtmZXxzHPr5tY7L6M85zG7Dsrv", 0);
             var block = await restService.GetBlock("54ffd56d6a052567c5d9abae43cc0504ccb8c1efe817c2843d154590f0b572f7");
-            var lastTransactions = await restService.GetLastTransactions();
             var lastTransactionsByAddress =
-                await restService.GetLastTransactionsByAddress("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn", 0);
-
-            //Deserialization
-            var balanceDto = AddressBalance.FromJson(getBalance);
-            var claimedDto = Claimed.FromJson(getClaimed);
-            var claimableDto = Claimable.FromJson(getClaimable);
-            var unclaimedDto = Unclaimed.FromJson(getUnclaimed);
-            var addressDto = AddressHistory.FromJson(getAddress);
-            var nodesDto = Node.FromJson(nodes);
-            var transactionDto = Transaction.FromJson(transaction);
-            var assetsDto = Asset.FromJsonList(assets);
-            var assetDto = Asset.FromJson(asset);
-            long chainHeight = Convert.ToInt64(height);
-            var highestBlockDto = Block.FromJson(highestBlock);
-            var lastBlocksDto = Blocks.FromJson(lastBlocks);
-            var feesInRangeDto = FeesInRange.FromJson(feesInRange);
-            var abstractAddressDto = AbstractAddress.FromJson(abstractAddress);
-            var neonAddressDto = NeonAddress.FromJson(neonAddress);
-            var addressToAddressAbstractDto = AbstractAddress.FromJson(addressToAddressAbstract);
-            var blockDto = Block.FromJson(block);
-            var lastTransactionsDto = Transactions.FromJson(lastTransactions);
-            var lastTransactionsByAddressDto = Transactions.FromJson(lastTransactionsByAddress);
+                await restService.GetLastTransactionsByAddress("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn", 0);       
         }
 
         // Test getting the nodes list registered on http://monitor.cityofzion.io

@@ -20,7 +20,7 @@ namespace NeoModules.NEP6
     {
         private readonly Wallet _wallet;
         private IClient _client;
-        private INeoRestService _restService;
+        private INeoscanService _restService;
 
         /// <summary>
         ///     Online Wallet Manager construtor
@@ -28,7 +28,7 @@ namespace NeoModules.NEP6
         /// <param name="wallet"></param>
         /// <param name="restService"></param>
         /// <param name="client"></param>
-        public WalletManager(INeoRestService restService, IClient client, Wallet wallet = null)
+        public WalletManager(INeoscanService restService, IClient client, Wallet wallet = null)
         {
             _restService = restService;
             _client = client;
@@ -402,7 +402,7 @@ namespace NeoModules.NEP6
         }
 
         //TODO: this client and rest stuff must be refractored
-        public void ChangeApiEndPoints(IClient client, INeoRestService restService)
+        public void ChangeApiEndPoints(IClient client, INeoscanService restService)
         {
             _client = client;
             _restService = restService;

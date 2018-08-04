@@ -20,23 +20,17 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("txid")]
         public string Txid { get; set; }
 
-        [JsonProperty("transfers")]
-        public IList<Transfer> Transfers { get; set; }
-
         [JsonProperty("time")]
         public long Time { get; set; }
 
         [JsonProperty("sys_fee")]
-        public string SysFee { get; set; }
+        public long SysFee { get; set; }
 
         [JsonProperty("size")]
         public long Size { get; set; }
 
         [JsonProperty("scripts")]
         public IList<Script> Scripts { get; set; }
-
-        [JsonProperty("script")]
-        public string Script { get; set; }
 
         [JsonProperty("pubkey")]
         public string Pubkey { get; set; }
@@ -45,10 +39,7 @@ namespace NeoModules.Rest.DTOs.NeoScan
         public long? Nonce { get; set; }
 
         [JsonProperty("net_fee")]
-        public string NetFee { get; set; }
-
-        [JsonProperty("descriptors")]
-        public object Descriptors { get; set; }
+        public long NetFee { get; set; }
 
         [JsonProperty("description")]
         public string Description { get; set; }
@@ -67,9 +58,6 @@ namespace NeoModules.Rest.DTOs.NeoScan
 
         [JsonProperty("attributes")]
         public IList<Atribute> Attributes { get; set; }
-
-        [JsonProperty("asset_moved")]
-        public string AssetMoved { get; set; }
 
         [JsonProperty("asset")]
         public object Asset { get; set; }
@@ -90,13 +78,13 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("n")]
         public long N { get; set; }
 
-        [JsonProperty("transaction_id")]
-        public long TransactionId { get; set; }
+        [JsonProperty("txid")]
+        public string Txid { get; set; }
 
         [JsonProperty("asset")]
         public string Asset { get; set; }
 
-        [JsonProperty("address")]
+        [JsonProperty("address_hash")]
         public string Address { get; set; }
     }
 
@@ -126,29 +114,4 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("data")]
         public string Data { get; set; }
     }
-
-    public class Transfer
-    {
-        [JsonProperty("txid")]
-        public string Txid { get; set; }
-
-        [JsonProperty("time")]
-        public long Time { get; set; }
-
-        [JsonProperty("contract")]
-        public string Contract { get; set; }
-
-        [JsonProperty("block_height")]
-        public long BlockHeight { get; set; }
-
-        [JsonProperty("amount")]
-        public long Amount { get; set; }
-
-        [JsonProperty("address_to")]
-        public string AddressTo { get; set; }
-
-        [JsonProperty("address_from")]
-        public string AddressFrom { get; set; }
-    }
-
 }

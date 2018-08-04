@@ -17,12 +17,6 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("transactions")]
         public IList<string> Transactions { get; set; }
 
-        [JsonProperty("total_sys_fee")]
-        public long TotalSysFee { get; set; }
-
-        [JsonProperty("total_net_fee")]
-        public long TotalNetFee { get; set; }
-
         [JsonProperty("time")]
         public long Time { get; set; }
 
@@ -53,9 +47,6 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("hash")]
         public string Hash { get; set; }
 
-        [JsonProperty("gas_generated")]
-        public long GasGenerated { get; set; }
-
         [JsonProperty("confirmations")]
         public long Confirmations { get; set; }
 
@@ -64,14 +55,6 @@ namespace NeoModules.Rest.DTOs.NeoScan
 
     public class Blocks
     {
-        public static IList<Block> FromJson(string json)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<IList<Block>>(json, settings);
-        }
+        public static IList<Block> FromJson(string json) => JsonConvert.DeserializeObject<IList<Block>>(json, Utils.Settings);
     }
 }

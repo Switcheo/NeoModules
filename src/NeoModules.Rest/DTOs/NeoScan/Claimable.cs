@@ -28,13 +28,19 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("txid")]
         public string Txid { get; set; }
 
+        [JsonProperty("sys_fee")]
+        public double SysFee { get; set; }
+
         [JsonProperty("start_height")]
         public int StartHeight { get; set; }
 
         [JsonProperty("n")]
         public uint N { get; set; }
 
+        [JsonProperty("generated")]
+        public double Generated { get; set; }
+
         [JsonProperty("end_height")]
-        public int EndHeight { get; set; }
+        public long EndHeight { get; set; }
     }
 }

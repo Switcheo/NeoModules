@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using NeoModules.Rest.DTOs.NeoScan;
 using Newtonsoft.Json.Linq;
 
 namespace NeoModules.Rest.Services
@@ -11,7 +14,7 @@ namespace NeoModules.Rest.Services
         TestNet
     }
 
-    public class NeoScanRestService : INeoRestService
+    public class NeoScanRestService : INeoscanService
     {
         private static readonly string neoScanTestNetUrl = "https://neoscan-testnet.io/api/test_net/v1/";
         private static readonly string neoScanMainNetUrl = "https://neoscan.io/api/main_net/v1/";
@@ -19,7 +22,6 @@ namespace NeoModules.Rest.Services
         private static readonly string getClaimedUrl = "get_claimed/";
         private static readonly string getClaimableUrl = "get_claimable/";
         private static readonly string getUnclaimedUrl = "get_unclaimed/";
-        private static readonly string getAddressUrl = "get_address/";
         private static readonly string getAllNodes = "get_all_nodes/";
         private static readonly string getTransaction = "get_transaction/";
         private static readonly string getAddressAbstracts = "get_address_abstracts/";
@@ -35,9 +37,6 @@ namespace NeoModules.Rest.Services
         private static readonly string getLastTransactions = "get_last_transactions/";
         private static readonly string getLastTransactionsByAddress = "get_last_transactions_by_address/";
         private static readonly string getNodes = "get_nodes/";
-
-        private static readonly string getTokenList = "http://notifications.neeeo.org/v1/tokens";
-
 
         private readonly HttpClient _restClient;
 
@@ -55,95 +54,58 @@ namespace NeoModules.Rest.Services
         }
 
         // TODO: I can refractor this more, move the 3 lines of each call to a function
-        public async Task<string> GetBalanceAsync(string address)
+        public async Task<AddressBalance> GetBalanceAsync(string address)
         {
             var composedUrl = ComposeUrl(getBalanceUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return AddressBalance.FromJson(data);
         }
 
-        public async Task<string> GetClaimableAsync(string address)
+        public async Task<Claimable> GetClaimableAsync(string address)
         {
             var composedUrl = ComposeUrl(getClaimableUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Claimable.FromJson(data);
         }
 
-        public async Task<string> GetClaimedAsync(string address)
+        public async Task<Claimed> GetClaimedAsync(string address)
         {
             var composedUrl = ComposeUrl(getClaimedUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Claimed.FromJson(data);
         }
 
-        public async Task<string> GetUnclaimedAsync(string address)
+        public async Task<Unclaimed> GetUnclaimedAsync(string address)
         {
             var composedUrl = ComposeUrl(getUnclaimedUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Unclaimed.FromJson(data);
         }
 
-        public async Task<string> GetAddressAsync(string address)
-        {
-            var composedUrl = ComposeUrl(getAddressUrl, address);
-            var result = await _restClient.GetAsync(composedUrl);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
-        public async Task<string> GetTransactionAsync(string hash)
+        public async Task<Transaction> GetTransactionAsync(string hash)
         {
             var composedUrl = ComposeUrl(getTransaction, hash);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Transaction.FromJson(data);
         }
 
-        public async Task<string> GetAllNodesAsync()
+        public async Task<List<Node>> GetAllNodesAsync()
         {
             var result = await _restClient.GetAsync(getAllNodes);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Node.FromJson(data).ToList();
         }
 
-        public async Task<string> GetAssetsAsync()
-        {
-            var result = await _restClient.GetAsync(getAssets);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
-        public async Task<string> GetAssetAsync(string assetHash)
-        {
-            var composedUrl = ComposeUrl(getAsset, assetHash);
-            var result = await _restClient.GetAsync(composedUrl);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
-        public async Task<string> GetHeight()
+        public async Task<long> GetHeight()
         {
             var result = await _restClient.GetAsync(getHeight);
             var data = await result.Content.ReadAsStringAsync();
-            return JObject.Parse(data)["height"].ToString();
-        }
-
-        public async Task<string> GetHighestBlock()
-        {
-            var result = await _restClient.GetAsync(getHighestBlock);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
-        public async Task<string> GetLastBlocks()
-        {
-            var result = await _restClient.GetAsync(getLastBlocks);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Convert.ToInt64(JObject.Parse(data)["height"].ToString());
         }
 
         public void ChangeNet(NeoScanNet net)
@@ -160,79 +122,46 @@ namespace NeoModules.Rest.Services
             }
         }
 
-        public async Task<string> GetFeesInRange(int range1, int range2)
-        {
-            var composedUrl = ComposeUrl(getFeesInRange, string.Concat(range1, "-", range2));
-            var result = await _restClient.GetAsync(composedUrl);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
-        public async Task<string> GetAddressAbstracts(string address, int page = 0)
+        public async Task<AbstractAddress> GetAddressAbstracts(string address, int page = 0)
         {
             var composedUrl = ComposeUrl(getAddressAbstracts, string.Concat(address, "/", page));
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return AbstractAddress.FromJson(data);
         }
 
-        public async Task<string> GetNeonAddress(string address)
-        {
-            var composedUrl = ComposeUrl(getAddressNeon, address);
-            var result = await _restClient.GetAsync(composedUrl);
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
-        public async Task<string> GetAddressToAddressAbstract(string addressfrom, string addressTo, int page = 0)
+        public async Task<AbstractAddress> GetAddressToAddressAbstract(string addressfrom, string addressTo, int page = 0)
         {
             var composedUrl = ComposeUrl(getAddressToAddressAbstracts,
                 string.Concat(addressfrom, "/", addressTo, "/", page));
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return AbstractAddress.FromJson(data);
         }
 
-        public async Task<string> GetBlock(string blockHash)
+        public async Task<Block> GetBlock(string blockHash)
         {
             var composedUrl = ComposeUrl(getBlock, blockHash);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Block.FromJson(data);
         }
 
-        public async Task<string> GetBlock(int blockHeight)
+        public async Task<Block> GetBlock(int blockHeight)
         {
             var composedUrl = ComposeUrl(getBlock, blockHeight);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Block.FromJson(data);
         }
 
-        public async Task<string> GetLastTransactions(string type = null)
-        {
-            HttpResponseMessage result;
-            if (!string.IsNullOrEmpty(type))
-            {
-                var composedUrl = ComposeUrl(getLastTransactions, type);
-                result = await _restClient.GetAsync(composedUrl);
-            }
-            else
-            {
-                result = await _restClient.GetAsync(getLastTransactions);
-            }
-
-            var data = await result.Content.ReadAsStringAsync();
-            return data;
-        }
-
-        public async Task<string> GetLastTransactionsByAddress(string address, int page = 0)
+        public async Task<List<Transaction>> GetLastTransactionsByAddress(string address, int page = 0)
         {
             var composedUrl = ComposeUrl(getLastTransactionsByAddress,
                 string.Concat(address, "/", page));
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
-            return data;
+            return Transactions.FromJson(data).ToList();
         }
 
         public async Task<string> GetNodes()
