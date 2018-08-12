@@ -63,6 +63,23 @@ namespace NeoModules.KeyPairs
             }
         }
 
+        public static byte[] CreateMultiSigRedeemScript(int m, params ECPoint[] publicKeys)
+        {
+            if (!(1 <= m && m <= publicKeys.Length && publicKeys.Length <= 1024))
+                throw new ArgumentException();
+            using (ScriptBuilder sb = new ScriptBuilder())
+            {
+                sb.EmitPush(m);
+                foreach (ECPoint publicKey in publicKeys.OrderBy(p => p))
+                {
+                    sb.EmitPush(publicKey.EncodePoint(true));
+                }
+                sb.EmitPush(publicKeys.Length);
+                sb.Emit(OpCode.CHECKMULTISIG);
+                return sb.ToArray();
+            }
+        }
+
         /// <summary>
         ///     Converts the byte array to a ScriptHash of type UInt160
         /// </summary>
