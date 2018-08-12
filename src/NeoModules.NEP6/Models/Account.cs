@@ -89,7 +89,7 @@ namespace NeoModules.NEP6.Models
         private readonly KeyPair _key;
 
         [JsonIgnore]
-        string IAccount.Address => Address.ToString();
+        string IAccount.Address => Address.ToAddress();
 
         [JsonIgnore]
         byte[] IAccount.PrivateKey => _key?.PrivateKey;

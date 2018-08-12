@@ -117,7 +117,7 @@ namespace NeoModules.Demo
             var getClaimed = await restService.GetClaimedAsync(testAddress);
             var getClaimable = await restService.GetClaimableAsync(testAddress);
             var getUnclaimed = await restService.GetUnclaimedAsync(testAddress);
-           // var getAddress = await restService.GetAddressAsync(testAddress);
+            // var getAddress = await restService.GetAddressAsync(testAddress);
             var nodes = await restService.GetAllNodesAsync();
             var transaction =
                 await restService.GetTransactionAsync(
@@ -129,7 +129,7 @@ namespace NeoModules.Demo
                 "AZCcft1uYtmZXxzHPr5tY7L6M85zG7Dsrv", 0);
             var block = await restService.GetBlock("54ffd56d6a052567c5d9abae43cc0504ccb8c1efe817c2843d154590f0b572f7");
             var lastTransactionsByAddress =
-                await restService.GetLastTransactionsByAddress("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn", 0);       
+                await restService.GetLastTransactionsByAddress("AGbj6WKPUWHze12zRyEL5sx8nGPVN6NXUn", 0);
         }
 
         // Test getting the nodes list registered on http://monitor.cityofzion.io
@@ -189,9 +189,12 @@ namespace NeoModules.Demo
                 var transferNepTx =
                     await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m,
                         scriptHash);
+
+                // Confirm a transaction
+                var confirmedTransaction = await accountSignerTransactionManager.WaitForTxConfirmation(transferNepTx.Hash.ToString());
             }
         }
-        
+
         private static async Task NotificationsService()
         {
             var notificationService = new NotificationsService();
@@ -201,6 +204,5 @@ namespace NeoModules.Demo
                 await notificationService.GetContractNotifications("0x67a5086bac196b67d5fd20745b0dc9db4d2930ed");
             var tokenList = await notificationService.GetTokens();
         }
-
     }
 }

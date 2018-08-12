@@ -17,6 +17,8 @@ namespace NeoModules.RPC.TransactionManagers
 
         public abstract Task<string> SignTransactionAsync(byte[] transactionData);
 
+        public abstract Task<Transaction> WaitForTxConfirmation(string tx);
+
         public virtual async Task<double> EstimateGasAsync(string serializedScriptHash)
         {
             if (Client == null) throw new NullReferenceException("Client not configured");
@@ -42,6 +44,14 @@ namespace NeoModules.RPC.TransactionManagers
             if (signedTx == null) throw new ArgumentNullException(nameof(signedTx));
             var neoSendRawTransaction = new NeoSendRawTransaction(Client);
             return await neoSendRawTransaction.SendRequestAsync(signedTx);
+        }
+
+        public async Task<Transaction> GetTransaction(string tx)
+        {
+            if (Client == null) throw new NullReferenceException("Client not configured");
+            if (string.IsNullOrEmpty(tx)) throw new ArgumentNullException(nameof(tx));
+            var neoGetRawTransaction = new NeoGetRawTransaction(Client);
+            return await neoGetRawTransaction.SendRequestAsync(tx);
         }
     }
 }

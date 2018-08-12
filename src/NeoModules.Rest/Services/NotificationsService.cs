@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace NeoModules.Rest.Services
 {
-    public class NotificationsService
+    public class NotificationsService : INotificationsService
     {
         private static readonly string notificationsMainNetUrl = "http://notifications.neeeo.org/v1/";
         private static readonly string addressNotificationsUrl = "notifications/addr/";
@@ -58,8 +58,8 @@ namespace NeoModules.Rest.Services
             int afterBlock = 0, int pageSize = 100)
         {
             if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
-            var composedUrl =
-                $"{addressNotificationsUrl}{address}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
+            var composedUrl = eventType == "" ? $"{addressNotificationsUrl}{address}?Page={page}&AfterBlock={afterBlock}&PageSize={pageSize}" : $"{addressNotificationsUrl}{address}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
+          
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             var dto = JsonConvert.DeserializeObject<AddressResult>(data);
