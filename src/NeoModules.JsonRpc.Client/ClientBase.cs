@@ -1,10 +1,11 @@
+using System;
 using System.Threading.Tasks;
 
 namespace NeoModules.JsonRpc.Client
 {
     public abstract class ClientBase : IClient
     {
-        public static int ConnectionTimeout { get; set; } = 20000;
+        public static TimeSpan ConnectionTimeout { get; set; } = TimeSpan.FromSeconds(20.0);
 
         public async Task<T> SendRequestAsync<T>(RpcRequest request, string route = null)
         {            

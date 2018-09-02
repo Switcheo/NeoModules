@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6;
+using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
 using Newtonsoft.Json;
-using TransactionOutput = NeoModules.NEP6.Transactions.TransactionOutput;
 
 namespace NeoModules.Demo
 {
     public class Program
     {
-        private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed2.aphelion-neo.com:10332"));
+        private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed3.aphelion-neo.com:10332"));
         private static readonly RpcClient RpcTestNetClient = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
 
         public static void Main(string[] args)
@@ -43,6 +43,7 @@ namespace NeoModules.Demo
 
                 //http://notifications.neeeo.org/ service
                 NotificationsService().Wait();
+                WalletAndTransactionsTest().Wait();
             }
             catch (Exception ex)
             {
@@ -141,20 +142,19 @@ namespace NeoModules.Demo
             return nodes;
         }
 
-        private static async void WalletAndTransactionsTest()
+        private static async Task WalletAndTransactionsTest()
         {
             // Create online wallet and import account
             var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.MainNet), RpcClient);
-            var importedAccount = walletManager.ImportAccount("** INSERT WIF HERE **", "Test");
+            var importedAccount = await walletManager.ImportAccount("*** ENCRYPTED KEY***", "*** PASSWORD***", "Test");
 
             // Get account signer for transactions
             if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
             {
                 // Send native assets
-                var sendGasTx =
-                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", "GAS", 323.032m);
-                var sendNeoTx =
-                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", "NEO", 13m);
+                var assets = new Dictionary<string, decimal> { { "NEO", 1 }, { "GAS", 1 } };
+                var sendNeoAndGasTx =
+                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", assets);
 
                 // Call contract
                 var scriptHash = "** INSERT CONTRACT SCRIPTHASH **".ToScriptHash().ToArray();
@@ -170,9 +170,9 @@ namespace NeoModules.Demo
 
                 // Call contract with attached assets
                 var assetToAttach = "GAS";
-                var output = new List<TransactionOutput>()
+                var output = new List<TransferOutput>()
                 {
-                    new TransactionOutput()
+                    new TransferOutput()
                     {
                         AddressHash = "** INSERT TO ADDRESS HERE**".ToScriptHash().ToArray(),
                         Amount = 2,
@@ -191,7 +191,8 @@ namespace NeoModules.Demo
                         scriptHash);
 
                 // Confirm a transaction
-                var confirmedTransaction = await accountSignerTransactionManager.WaitForTxConfirmation(transferNepTx.Hash.ToString());
+                var confirmedTransaction =
+                    await accountSignerTransactionManager.WaitForTxConfirmation(transferNepTx.Hash.ToString());
             }
         }
 

@@ -2,6 +2,6 @@
 {
     public interface IRandomNumberGenerator
     {
-        byte[] GenerateRandomBytes(int size);
+        byte[] GenerateNonce(int size);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
@@ -13,13 +14,19 @@ namespace NeoModules.NEP6.Helpers
 {
     public static class TransactionBuilderHelper
     {
-        private static Dictionary<string, string> _systemAssets;
+        public static readonly Dictionary<string, string> SystemAssets = new Dictionary<string, string>
+        {
+            {"NEO", Utils.NeoToken},
+            {"GAS", Utils.GasToken},
+        };
+
+        private static Fixed8 SystemFee => Fixed8.Zero;
 
         public static async Task<Dictionary<string, List<Unspent>>> GetUnspent(string address,
             INeoscanService restService)
         {
             if (restService == null) throw new NullReferenceException("REST client not configured");
-            var addressBalance = await restService.GetBalanceAsync(address);            
+            var addressBalance = await restService.GetBalanceAsync(address);
 
             var result = new Dictionary<string, List<Unspent>>();
             if (addressBalance.Balance != null)
@@ -49,10 +56,10 @@ namespace NeoModules.NEP6.Helpers
             return result;
         }
 
-
+        // Old method
         public static async Task<(List<SignedTransaction.Input> inputs, List<SignedTransaction.Output> outputs)>
-            GenerateInputsOutputs(KeyPair key, string symbol, IEnumerable<TransactionOutput> targets,
-                INeoscanService restService)
+           GenerateInputsOutputs(KeyPair key, string symbol, IEnumerable<TransferOutput> targets, decimal fee,
+               INeoscanService restService)
         {
             var address = Helper.CreateSignatureRedeemScript(key.PublicKey);
             var unspent = await GetUnspent(address.ToScriptHash().ToAddress(), restService);
@@ -74,7 +81,7 @@ namespace NeoModules.NEP6.Helpers
             decimal cost = 0;
 
             var fromHash = key.PublicKeyHash.ToArray();
-            List<TransactionOutput> transactionOutputs = null;
+            List<TransferOutput> transactionOutputs = null;
             if (targets != null)
             {
                 transactionOutputs = targets.ToList();
@@ -94,7 +101,7 @@ namespace NeoModules.NEP6.Helpers
 
                 foreach (var src in sources)
                 {
-                    selected += (decimal) src.Value;
+                    selected += (decimal)src.Value;
 
                     var input = new SignedTransaction.Input
                     {
@@ -146,21 +153,38 @@ namespace NeoModules.NEP6.Helpers
             return (claimable.ClaimableList.ToList(), (decimal)amount);
         }
 
+        public static List<TransferOutput> BuildTransferOutputs(string address, Dictionary<string, decimal> symbolsAndAmount)
+        {
+            var targets = new List<TransferOutput>();
+            var toScriptHash = address.ToScriptHash().ToArray();
+            foreach (var symbol in symbolsAndAmount.Keys)
+            {
+                var target = new TransferOutput
+                {
+                    AssetId = SystemAssets[symbol].HexToBytes().Reverse().ToArray(),
+                    AddressHash = toScriptHash,
+                    Amount = symbolsAndAmount[symbol],
+                    Symbol = symbol
+                };
+                targets.Add(target);
+            }
+            return targets;
+        }
+
         internal static Dictionary<string, string> GetAssetsInfo()
         {
-            if (_systemAssets == null)
+            if (SystemAssets == null)
             {
-                _systemAssets = new Dictionary<string, string>();
                 AddAsset("NEO", Utils.NeoToken);
                 AddAsset("GAS", Utils.GasToken);
             }
 
-            return _systemAssets;
+            return SystemAssets;
         }
 
         private static void AddAsset(string symbol, string hash)
         {
-            _systemAssets[symbol] = hash;
+            SystemAssets[symbol] = hash;
         }
     }
 }

@@ -15,7 +15,6 @@ using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.TransactionManagers;
 using Org.BouncyCastle.Security;
 using Helper = NeoModules.KeyPairs.Helper;
-using TransactionOutput = NeoModules.NEP6.Transactions.TransactionOutput;
 
 namespace NeoModules.NEP6
 {
@@ -34,7 +33,7 @@ namespace NeoModules.NEP6
                 _accountKey = new KeyPair(account.PrivateKey); //if account is watch only, it does not have private key
         }
 
-        public byte[] GenerateRandomBytes(int size)
+        public byte[] GenerateNonce(int size)
         {
             var bytes = new byte[size];
             Random.NextBytes(bytes);
@@ -104,16 +103,16 @@ namespace NeoModules.NEP6
         /// <param name="attachTargets"></param>
         /// <returns></returns>
         public async Task<double> EstimateGasContractCall(byte[] scriptHash, string operation,
-            object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
+            object[] args, string attachSymbol = null, IEnumerable<TransferOutput> attachTargets = null)
         {
             var bytes = Utils.GenerateScript(scriptHash, operation, args);
 
             if (string.IsNullOrEmpty(attachSymbol)) attachSymbol = "GAS";
 
-            if (attachTargets == null) attachTargets = new List<TransactionOutput>();
+            if (attachTargets == null) attachTargets = new List<TransferOutput>();
 
             var (inputs, outputs) =
-                await TransactionBuilderHelper.GenerateInputsOutputs(_accountKey, attachSymbol, attachTargets, _restService);
+                await TransactionBuilderHelper.GenerateInputsOutputs(_accountKey, attachSymbol, attachTargets, 0, _restService);
 
             if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
 
@@ -142,7 +141,7 @@ namespace NeoModules.NEP6
         /// <param name="attachTargets"></param>
         /// <returns></returns>
         public async Task<SignedTransaction> CallContract(byte[] contractScriptHash, string operation,
-            object[] args, string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
+            object[] args, string attachSymbol = null, IEnumerable<TransferOutput> attachTargets = null)
         {
             var bytes = Utils.GenerateScript(contractScriptHash, operation, args);
             return await CallContract(_accountKey, contractScriptHash, bytes, attachSymbol, attachTargets);
@@ -174,9 +173,9 @@ namespace NeoModules.NEP6
                         Data = signatureScript.ToArray(),
                         Usage = TransactionAttributeUsage.Script
                     },
-                    new TransactionAttribute
+                    new TransactionAttribute //TODO: change this to use the same nonce in same tx to avoid duplicated tx
                     {
-                        Data = GenerateRandomBytes(4),
+                        Data = GenerateNonce(4),
                         Usage = TransactionAttributeUsage.Remark
                     }
                 }
@@ -186,14 +185,14 @@ namespace NeoModules.NEP6
         }
 
         public async Task<SignedTransaction> CallContract(KeyPair key, byte[] scriptHash, byte[] script,
-            string attachSymbol = null, IEnumerable<TransactionOutput> attachTargets = null)
+            string attachSymbol = null, IEnumerable<TransferOutput> attachTargets = null, decimal fee = 0)
         {
             if (string.IsNullOrEmpty(attachSymbol)) attachSymbol = "GAS";
 
-            if (attachTargets == null) attachTargets = new List<TransactionOutput>();
+            if (attachTargets == null) attachTargets = new List<TransferOutput>();
 
             var (inputs, outputs) =
-                await TransactionBuilderHelper.GenerateInputsOutputs(key, attachSymbol, attachTargets, _restService);
+                await TransactionBuilderHelper.GenerateInputsOutputs(key, attachSymbol, attachTargets, fee, _restService);
 
             //Assetless contract call
             if (inputs.Count == 0 && outputs.Count == 0)
@@ -226,12 +225,12 @@ namespace NeoModules.NEP6
         /// <param name="symbol"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<SignedTransaction> SendAsset(string toAddress, string symbol, decimal amount)
+        public async Task<SignedTransaction> SendAsset(string toAddress, Dictionary<string, decimal> symbolsAndAmount, decimal fee = 0)
         {
             var toScriptHash = toAddress.ToScriptHash().ToArray();
-            var target = new TransactionOutput { AddressHash = toScriptHash, Amount = amount };
-            var targets = new List<TransactionOutput> { target };
-            return await SendAsset(_accountKey, symbol, targets);
+            var targets = TransactionBuilderHelper.BuildTransferOutputs(toAddress, symbolsAndAmount);
+            //var fixedFee = fee == 0 ? Fixed8.Zero : Fixed8.FromDecimal(fee);
+            return await SendAsset(_accountKey, targets, fee);
         }
 
         /// <summary>
@@ -241,18 +240,33 @@ namespace NeoModules.NEP6
         /// <param name="symbol"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<SignedTransaction> SendAsset(byte[] toAddress, string symbol, decimal amount)
+        public async Task<SignedTransaction> SendAsset(byte[] toAddress, List<string> symbols, decimal amount, decimal fee = 0)
         {
-            var target = new TransactionOutput { AddressHash = toAddress, Amount = amount };
-            var targets = new List<TransactionOutput> { target };
-            return await SendAsset(_accountKey, symbol, targets);
+            var target = new TransferOutput { AddressHash = toAddress, Amount = amount };
+            var targets = new List<TransferOutput> { target };
+            //var fixedFee = fee == 0 ? Fixed8.Zero : Fixed8.FromDecimal(fee);
+            return await SendAsset(_accountKey, targets, fee);
         }
 
-        public async Task<SignedTransaction> SendAsset(KeyPair fromKey, string symbol,
-            IEnumerable<TransactionOutput> targets)
+        public async Task<SignedTransaction> SendAsset(KeyPair fromKey, IEnumerable<TransferOutput> targets, decimal fee)
         {
-            var (inputs, outputs) =
-                await TransactionBuilderHelper.GenerateInputsOutputs(fromKey, symbol, targets, _restService);
+            List<SignedTransaction.Input> finalInputs = new List<SignedTransaction.Input>();
+            List<SignedTransaction.Output> finalOutputs = new List<SignedTransaction.Output>();
+
+            foreach (var transferOutput in targets)
+            {
+                List<SignedTransaction.Input> inputs;
+                List<SignedTransaction.Output> outputs;
+
+                (inputs, outputs) =
+                    await TransactionBuilderHelper.GenerateInputsOutputs(fromKey,
+                        transferOutput.Symbol,
+                        new List<TransferOutput> { transferOutput },
+                        fee,
+                        _restService);
+                finalInputs.AddRange(inputs);
+                finalOutputs.AddRange(outputs);
+            }
 
             var tx = new SignedTransaction
             {
@@ -260,8 +274,8 @@ namespace NeoModules.NEP6
                 Version = 0,
                 Script = null,
                 Gas = -1,
-                Inputs = inputs.ToArray(),
-                Outputs = outputs.ToArray()
+                Inputs = finalInputs.ToArray(),
+                Outputs = finalOutputs.ToArray()
             };
 
             var result = await SignAndSendTransaction(tx);
