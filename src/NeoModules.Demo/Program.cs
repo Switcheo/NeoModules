@@ -200,7 +200,7 @@ namespace NeoModules.Demo
 
         private static async Task NotificationsService()
         {
-            var notificationService = new NotificationsService(6);
+            var notificationService = new NotificationsService();
             var addressNotifications = await notificationService.GetAddressNotifications("AGfGWQeM6md6RtEsTUivQNXhp8p4ytkDMR", 1, "", 13, 200);
             var blockNotifications = await notificationService.GetBlockNotifications(10);
             var contractNotifications =
