@@ -7,6 +7,7 @@ using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.DTOs.NeoScan;
+using NeoModules.Rest.Interfaces;
 using NeoModules.Rest.Services;
 using Helper = NeoModules.KeyPairs.Helper;
 

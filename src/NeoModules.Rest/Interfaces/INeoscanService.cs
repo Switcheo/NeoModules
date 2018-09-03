@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NeoModules.Rest.DTOs.NeoScan;
 
-namespace NeoModules.Rest.Services
+namespace NeoModules.Rest.Interfaces
 {
     public interface INeoscanService
     {

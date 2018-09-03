@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace NeoModules.Rest.Services
+namespace NeoModules.Rest.Interfaces
 {
     public interface INelApiRestService //todo: DTOs
     {

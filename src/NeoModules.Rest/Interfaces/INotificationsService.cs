@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using NeoModules.Rest.DTOs.NeoNotifications;
 
-namespace NeoModules.Rest.Services
+namespace NeoModules.Rest.Interfaces
 {
     public interface INotificationsService
     {

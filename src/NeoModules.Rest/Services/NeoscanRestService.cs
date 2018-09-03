@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NeoModules.Rest.DTOs.NeoScan;
+using NeoModules.Rest.Interfaces;
 using Newtonsoft.Json.Linq;
 
 namespace NeoModules.Rest.Services

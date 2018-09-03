@@ -2,13 +2,14 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using NeoModules.Rest.DTOs.NeoNotifications;
+using NeoModules.Rest.Interfaces;
 using Newtonsoft.Json;
 
 namespace NeoModules.Rest.Services
 {
     public class NotificationsService : INotificationsService
     {
-        private static readonly string notificationsMainNetUrl = "http://notifications.neeeo.org/v1/";
+        private static readonly string notificationsMainNetUrl = "https://n1.cityofzion.io/v1/"; //todo ask about if it's a proxy server
         private static readonly string addressNotificationsUrl = "notifications/addr/";
         private static readonly string blockNotificationsUrl = "notifications/block/";
         private static readonly string contractNotificationsUrl = "notifications/contract/";

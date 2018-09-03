@@ -8,6 +8,7 @@ using NeoModules.KeyPairs;
 using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Interfaces;
 using NeoModules.NEP6.Transactions;
+using NeoModules.Rest.Interfaces;
 using NeoModules.Rest.Services;
 using NeoModules.RPC;
 using NeoModules.RPC.DTOs;

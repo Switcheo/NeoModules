@@ -43,6 +43,7 @@ namespace NeoModules.Demo
 
                 //http://notifications.neeeo.org/ service
                 NotificationsService().Wait();
+                HappyNodesService().Wait();
                 WalletAndTransactionsTest().Wait();
             }
             catch (Exception ex)
@@ -140,6 +141,14 @@ namespace NeoModules.Demo
             var result = await service.GetNodesList(MonitorNet.TestNet);
             var nodes = JsonConvert.DeserializeObject<NodeList>(result);
             return nodes;
+        }
+
+        private static async Task HappyNodesService()
+        {
+            var happyNodesService = new HappyNodesService();
+            var unconfirmedTxs = await happyNodesService.GetUnconfirmed();
+            var bestBlock = await happyNodesService.GetBestBlock();
+            var lastBlock = await happyNodesService.GetLastBlock();
         }
 
         private static async Task WalletAndTransactionsTest()

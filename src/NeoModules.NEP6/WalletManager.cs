@@ -8,6 +8,7 @@ using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
+using NeoModules.Rest.Interfaces;
 using NeoModules.Rest.Services;
 using Helper = NeoModules.KeyPairs.Helper;
 
