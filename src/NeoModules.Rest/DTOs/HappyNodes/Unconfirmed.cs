@@ -34,10 +34,4 @@ namespace NeoModules.Rest.DTOs.HappyNodes
         [JsonProperty("last_blockheight")]
         public long LastBlockheight { get; set; }
     }
-
-    public enum Protocol
-    {
-        Http,
-        Https
-    };
 }

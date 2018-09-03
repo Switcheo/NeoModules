@@ -9,17 +9,24 @@ namespace NeoModules.Rest.Services
 {
     public class NotificationsService : INotificationsService
     {
-        private static readonly string notificationsMainNetUrl = "https://n1.cityofzion.io/v1/"; //todo ask about if it's a proxy server
-        private static readonly string addressNotificationsUrl = "notifications/addr/";
-        private static readonly string blockNotificationsUrl = "notifications/block/";
-        private static readonly string contractNotificationsUrl = "notifications/contract/";
-        private static readonly string tokensUrl = "tokens";
+        private const string NotificationsMainNetUrl = "https://nX.cityofzion.io/v1/";
+        private const string AddressNotificationsUrl = "notifications/addr/";
+        private const string BlockNotificationsUrl = "notifications/block/";
+        private const string ContractNotificationsUrl = "notifications/contract/";
+        private const string TokensUrl = "tokens";
 
         private readonly HttpClient _restClient;
-        
-        public NotificationsService()
+
+        public NotificationsService(string url)
         {
-            _restClient = new HttpClient {BaseAddress = new Uri(notificationsMainNetUrl)};
+            _restClient = new HttpClient { BaseAddress = new Uri(url) };
+        }
+
+        public NotificationsService(int node = 1)
+        {
+            if (node > 5) throw new ArgumentOutOfRangeException(nameof(node));
+            string url = NotificationsMainNetUrl.Replace("X", node.ToString());
+            _restClient = new HttpClient { BaseAddress = new Uri(url) };
         }
 
         public async Task<ContractResult> GetContractNotifications(string scriptHash, int page = 1,
@@ -27,7 +34,7 @@ namespace NeoModules.Rest.Services
         {
             if (string.IsNullOrEmpty(scriptHash)) throw new ArgumentNullException(nameof(scriptHash));
             var composedUrl =
-                $"{contractNotificationsUrl}{scriptHash}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
+                $"{ContractNotificationsUrl}{scriptHash}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             var dto = JsonConvert.DeserializeObject<ContractResult>(data);
@@ -37,7 +44,7 @@ namespace NeoModules.Rest.Services
         public async Task<TokenResult> GetTokens(int page = 1, string eventType = "", int afterBlock = 0,
             int pageSize = 100)
         {
-            var result = await _restClient.GetAsync(tokensUrl);
+            var result = await _restClient.GetAsync(TokensUrl);
             var data = await result.Content.ReadAsStringAsync();
             var dto = JsonConvert.DeserializeObject<TokenResult>(data);
             return dto;
@@ -48,7 +55,7 @@ namespace NeoModules.Rest.Services
         {
             if (blockHeight < 0) throw new ArgumentOutOfRangeException(nameof(blockHeight));
             var composedUrl =
-                $"{blockNotificationsUrl}{blockHeight}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
+                $"{BlockNotificationsUrl}{blockHeight}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             var dto = JsonConvert.DeserializeObject<BlockResult>(data);
@@ -59,8 +66,8 @@ namespace NeoModules.Rest.Services
             int afterBlock = 0, int pageSize = 100)
         {
             if (string.IsNullOrEmpty(address)) throw new ArgumentNullException(nameof(address));
-            var composedUrl = eventType == "" ? $"{addressNotificationsUrl}{address}?Page={page}&AfterBlock={afterBlock}&PageSize={pageSize}" : $"{addressNotificationsUrl}{address}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
-          
+            var composedUrl = eventType == "" ? $"{AddressNotificationsUrl}{address}?Page={page}&AfterBlock={afterBlock}&PageSize={pageSize}" : $"{AddressNotificationsUrl}{address}?Page={page}&EventType={eventType}&AfterBlock={afterBlock}&PageSize={pageSize}";
+
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             var dto = JsonConvert.DeserializeObject<AddressResult>(data);

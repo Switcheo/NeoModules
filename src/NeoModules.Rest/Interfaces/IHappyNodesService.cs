@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using NeoModules.Rest.DTOs.HappyNodes;
 
 namespace NeoModules.Rest.Interfaces
@@ -12,6 +13,6 @@ namespace NeoModules.Rest.Interfaces
         Task<string> GetNodes(string nodeId = "");
         Task<string> GetValidatedPeersOfNode(string nodeId);
         Task<string> GetEdges();
-        Task<string> GetNodesList();
+        Task<IList<Nodes>> GetNodesList();
     }
 }

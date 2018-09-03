@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NeoModules.Rest.DTOs.HappyNodes;
@@ -12,14 +13,14 @@ namespace NeoModules.Rest.Services
 
         private readonly HttpClient _restClient;
 
-        private readonly string _unconfirmed = "unconfirmed";
-        private readonly string _bestBlock = "bestblock";
-        private readonly string _lastBlock = "lastblock";
-        private readonly string _blockTime = "blocktime";
-        private readonly string _nodes = "nodes";
-        private readonly string _validatedPeers = "validatedpeers";
-        private readonly string _edges = "edges";
-        private readonly string _nodesList = "nodeslist";
+        private const string Unconfirmed = "unconfirmed";
+        private const string BestBlock = "bestblock";
+        private const string LastBlock = "lastblock";
+        private const string BlockTime = "blocktime";
+        private const string Nodes = "nodes";
+        private const string ValidatedPeers = "validatedpeers";
+        private const string Edges = "edges";
+        private const string NodesList = "nodeslist";
 
         public HappyNodesService(string customUrl = "")
         {
@@ -28,28 +29,28 @@ namespace NeoModules.Rest.Services
 
         public async Task<Unconfirmed> GetUnconfirmed()
         {
-            var result = await _restClient.GetAsync(_unconfirmed);
+            var result = await _restClient.GetAsync(Unconfirmed).ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
-            return Unconfirmed.FromJson(data);
+            return DTOs.HappyNodes.Unconfirmed.FromJson(data);
         }
 
         public async Task<long> GetBestBlock()
         {
-            var result = await _restClient.GetAsync(_bestBlock);
+            var result = await _restClient.GetAsync(BestBlock).ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
             return Convert.ToInt64(data.Split(':')[1].Trim('}'));
         }
 
         public async Task<long> GetLastBlock()
         {
-            var result = await _restClient.GetAsync(_lastBlock);
+            var result = await _restClient.GetAsync(LastBlock).ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
             return Convert.ToInt64(data.Split(':')[1].Trim('}'));
         }
 
         public async Task<int> GetBlockTime()
         {
-            var result = await _restClient.GetAsync(_blockTime);
+            var result = await _restClient.GetAsync(BlockTime).ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
             return Convert.ToInt32(data.Split(':')[1].Trim('}'));
         }
@@ -59,11 +60,11 @@ namespace NeoModules.Rest.Services
             HttpResponseMessage result;
             if (string.IsNullOrEmpty(nodeId))
             {
-                result = await _restClient.GetAsync(_nodes);
+                result = await _restClient.GetAsync(Nodes).ConfigureAwait(false);
             }
             else
             {
-                result = await _restClient.GetAsync($"{_nodes}/{nodeId}");
+                result = await _restClient.GetAsync($"{Nodes}/{nodeId}").ConfigureAwait(false);
             }
             var data = await result.Content.ReadAsStringAsync();
             return data;//TODO DTO
@@ -71,23 +72,23 @@ namespace NeoModules.Rest.Services
 
         public async Task<string> GetValidatedPeersOfNode(string nodeId)
         {
-            var result = await _restClient.GetAsync($"{_nodes}/{nodeId}/{_validatedPeers}");
+            var result = await _restClient.GetAsync($"{Nodes}/{nodeId}/{ValidatedPeers}").ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
             return data;//TODO DTO
         }
 
         public async Task<string> GetEdges()
         {
-            var result = await _restClient.GetAsync(_edges);
+            var result = await _restClient.GetAsync(Edges).ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
             return data;//TODO DTO
         }
 
-        public async Task<string> GetNodesList()
+        public async Task<IList<Nodes>> GetNodesList()
         {
-            var result = await _restClient.GetAsync(_nodesList);
+            var result = await _restClient.GetAsync(NodesList).ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
-            return data;//TODO DTO
+            return DTOs.HappyNodes.Nodes.FromJson(data);
         }
     }
 }

@@ -34,16 +34,17 @@ namespace NeoModules.Demo
 
                 TestNep5Service(nep5ApiService).Wait();
 
-
                 //create rest api client
                 RestClientTest().Wait();
 
-                //nodes list
+                //nodes list from http://monitor.cityofzion.io/
                 NodesListTestAsync().Wait();
 
-                //http://notifications.neeeo.org/ service
+                //https://n1.cityofzion.io/v1/"
                 NotificationsService().Wait();
+
                 HappyNodesService().Wait();
+
                 WalletAndTransactionsTest().Wait();
             }
             catch (Exception ex)
@@ -143,14 +144,6 @@ namespace NeoModules.Demo
             return nodes;
         }
 
-        private static async Task HappyNodesService()
-        {
-            var happyNodesService = new HappyNodesService();
-            var unconfirmedTxs = await happyNodesService.GetUnconfirmed();
-            var bestBlock = await happyNodesService.GetBestBlock();
-            var lastBlock = await happyNodesService.GetLastBlock();
-        }
-
         private static async Task WalletAndTransactionsTest()
         {
             // Create online wallet and import account
@@ -207,12 +200,22 @@ namespace NeoModules.Demo
 
         private static async Task NotificationsService()
         {
-            var notificationService = new NotificationsService();
+            var notificationService = new NotificationsService(6);
             var addressNotifications = await notificationService.GetAddressNotifications("AGfGWQeM6md6RtEsTUivQNXhp8p4ytkDMR", 1, "", 13, 200);
             var blockNotifications = await notificationService.GetBlockNotifications(10);
             var contractNotifications =
                 await notificationService.GetContractNotifications("0x67a5086bac196b67d5fd20745b0dc9db4d2930ed");
             var tokenList = await notificationService.GetTokens();
         }
+
+        private static async Task HappyNodesService()
+        {
+            var happyNodesService = new HappyNodesService();
+            var unconfirmedTxs = await happyNodesService.GetUnconfirmed();
+            var bestBlock = await happyNodesService.GetBestBlock();
+            var lastBlock = await happyNodesService.GetLastBlock();
+            var nodes = await happyNodesService.GetNodesList();
+        }
+
     }
 }
