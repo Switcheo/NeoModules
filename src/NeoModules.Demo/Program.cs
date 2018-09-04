@@ -201,11 +201,14 @@ namespace NeoModules.Demo
         private static async Task NotificationsService()
         {
             var notificationService = new NotificationsService();
-            var addressNotifications = await notificationService.GetAddressNotifications("AGfGWQeM6md6RtEsTUivQNXhp8p4ytkDMR", 1, "", 13, 200);
+            var addressNotifications = await notificationService.GetAddressNotifications("AGfGWQeM6md6RtEsTUivQNXhp8p4ytkDMR", 1, null, 13, 2691913, 500);
             var blockNotifications = await notificationService.GetBlockNotifications(10);
             var contractNotifications =
                 await notificationService.GetContractNotifications("0x67a5086bac196b67d5fd20745b0dc9db4d2930ed");
             var tokenList = await notificationService.GetTokens();
+            var transaction =
+                await notificationService.GetTransactionNotifications(
+                    "1db9ad15febbf7b9cfa11603ecbe52aad5be6137a9e1d29e83465fa664c2a6ed");
         }
 
         private static async Task HappyNodesService()
