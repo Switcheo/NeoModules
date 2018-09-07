@@ -9,10 +9,12 @@ namespace NeoModules.Rest.Interfaces
         Task<Unconfirmed> GetUnconfirmed();
         Task<long> GetBestBlock();
         Task<long> GetLastBlock();
-        Task<int> GetBlockTime();
-        Task<string> GetNodes(string nodeId = "");
-        Task<string> GetValidatedPeersOfNode(string nodeId);
-        Task<string> GetEdges();
-        Task<IList<Nodes>> GetNodesList();
+        Task<decimal> GetBlockTime();
+        Task<Nodes> GetNodes();
+        Task<FlatNode> GetNodeById(int nodeId);
+        Task<IList<FlatNode>> GetNodesFlat();
+        Task<IList<SimpleNode>> GetValidatedPeersOfNode(string nodeId);
+        Task<IList<EdgeNode>> GetEdges();
+        //Task<IList<Nodes>> GetNodesList();
     }
 }

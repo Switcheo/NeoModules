@@ -22,6 +22,9 @@ namespace NeoModules.Demo
         {
             try
             {
+                //https://api.happynodes.f27.ventures
+                HappyNodesService().Wait();
+
                 var neoApiCompleteService = SetupCompleteNeoService();
 
                 var neoApiSimpleContractService = SetupSimpleService();
@@ -43,7 +46,7 @@ namespace NeoModules.Demo
                 //https://n1.cityofzion.io/v1/"
                 NotificationsService().Wait();
 
-                HappyNodesService().Wait();
+                
 
                 WalletAndTransactionsTest().Wait();
             }
@@ -214,10 +217,18 @@ namespace NeoModules.Demo
         private static async Task HappyNodesService()
         {
             var happyNodesService = new HappyNodesService();
-            var unconfirmedTxs = await happyNodesService.GetUnconfirmed();
             var bestBlock = await happyNodesService.GetBestBlock();
-            var lastBlock = await happyNodesService.GetLastBlock();
-            var nodes = await happyNodesService.GetNodesList();
+            //var lastBlock = await happyNodesService.GetLastBlock();
+            var blockTime = await happyNodesService.GetBlockTime();
+            var unconfirmedTxs = await happyNodesService.GetUnconfirmed();
+
+            var nodesFlat = await happyNodesService.GetNodesFlat();
+
+            var nodes = await happyNodesService.GetNodes();
+            var nodeById = await happyNodesService.GetNodeById(482);
+            var edges = await happyNodesService.GetEdges();
+
+
         }
 
     }

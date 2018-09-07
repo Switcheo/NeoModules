@@ -3,6 +3,7 @@
     public enum Protocol
     {
         Http,
-        Https
+        Https,
+        Rest
     }
 }
