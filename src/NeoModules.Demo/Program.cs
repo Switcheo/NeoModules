@@ -46,7 +46,7 @@ namespace NeoModules.Demo
                 //https://n1.cityofzion.io/v1/"
                 NotificationsService().Wait();
 
-                
+
 
                 WalletAndTransactionsTest().Wait();
             }
@@ -218,17 +218,27 @@ namespace NeoModules.Demo
         {
             var happyNodesService = new HappyNodesService();
             var bestBlock = await happyNodesService.GetBestBlock();
-            //var lastBlock = await happyNodesService.GetLastBlock();
+            var lastBlock = await happyNodesService.GetLastBlock();
             var blockTime = await happyNodesService.GetBlockTime();
+
             var unconfirmedTxs = await happyNodesService.GetUnconfirmed();
 
             var nodesFlat = await happyNodesService.GetNodesFlat();
-
             var nodes = await happyNodesService.GetNodes();
             var nodeById = await happyNodesService.GetNodeById(482);
-            var edges = await happyNodesService.GetEdges();
+            var edges = await happyNodesService.GetEdges();    
+            var nodesList = await happyNodesService.GetNodesList();
 
+            var dailyHistory = await happyNodesService.GetDailyNodeHistory();
+            var weeklyHistory = await happyNodesService.GetWeeklyNodeHistory();
 
+            var dailyStability = await happyNodesService.GetDailyNodeStability(480);
+            var weeklyStability = await happyNodesService.GetWeeklyNodeStability(480);
+
+            var dailyLatency = await happyNodesService.GetDailyNodeLatency(480);
+            var weeklyLatency = await happyNodesService.GetWeeklyNodeLatency(480);
+            var blockHeightLag = await happyNodesService.GetNodeBlockheightLag(0);
+            var endpoints = await happyNodesService.GetEndPoints();
         }
 
     }
