@@ -8,7 +8,7 @@ namespace NeoModules.Rest.Interfaces
     {
         Task<Unconfirmed> GetUnconfirmed();
         Task<long> GetBestBlock();
-        Task<decimal> GetLastBlock();
+        Task<int> GetLastBlock();
         Task<decimal> GetBlockTime();
         Task<Nodes> GetNodes();
         Task<FlatNode> GetNodeById(int nodeId);
@@ -18,10 +18,10 @@ namespace NeoModules.Rest.Interfaces
         Task<IList<SimpleNode>> GetNodesList();
         Task<HistoricNetworkSize> GetDailyNodeHistory();
         Task<HistoricNetworkSize> GetWeeklyNodeHistory();
-        Task<string> GetDailyNodeStability(int nodeId); 
-        Task<string> GetWeeklyNodeStability(int nodeId);
-        Task<string> GetDailyNodeLatency(int nodeId);
-        Task<string> GetWeeklyNodeLatency(int nodeId);
+        Task<IList<NodeStability>> GetDailyNodeStability(int nodeId); 
+        Task<IList<NodeStability>> GetWeeklyNodeStability(int nodeId);
+        Task<IList<NodeLatency>> GetDailyNodeLatency(int nodeId);
+        Task<IList<NodeLatency>> GetWeeklyNodeLatency(int nodeId);
         Task<string> GetNodeBlockheightLag(int nodeId);
         Task<EndPoints> GetEndPoints();
     }

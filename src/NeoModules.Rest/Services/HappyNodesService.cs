@@ -29,13 +29,14 @@ namespace NeoModules.Rest.Services
         private const string Endpoints = "endpoints";
         private static readonly string happyNodesUrl = "https://api.happynodes.f27.ventures/redis/";
 
+
         private readonly HttpClient _restClient;
 
         public HappyNodesService(string customUrl = "")
         {
             _restClient = string.IsNullOrEmpty(customUrl)
-                ? new HttpClient {BaseAddress = new Uri(happyNodesUrl)}
-                : new HttpClient {BaseAddress = new Uri(customUrl)};
+                ? new HttpClient { BaseAddress = new Uri(happyNodesUrl) }
+                : new HttpClient { BaseAddress = new Uri(customUrl) };
         }
 
         //https://api.happynodes.f27.ventures/redis/bestblock
@@ -47,11 +48,11 @@ namespace NeoModules.Rest.Services
         }
 
         //https://api.happynodes.f27.ventures/redis/lastblock
-        public async Task<decimal> GetLastBlock() // todo check with creator about decimals in lastblock
+        public async Task<int> GetLastBlock() // todo check with creator about decimals in lastblock
         {
             var result = await _restClient.GetAsync(LastBlockEndpoint).ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
-            return Convert.ToDecimal(data.Split(':')[1].Trim('}', '"'), CultureInfo.InvariantCulture);
+            return Convert.ToInt32(Convert.ToDecimal(data.Split(':')[1].Trim('}', '"'), CultureInfo.InvariantCulture));
         }
 
         //https://api.happynodes.f27.ventures/redis/blocktime
@@ -138,39 +139,39 @@ namespace NeoModules.Rest.Services
         }
 
         //https://api.happynodes.f27.ventures/redis/historic/node/stability/daily/:node_id
-        public async Task<string> GetDailyNodeStability(int nodeId)
+        public async Task<IList<NodeStability>> GetDailyNodeStability(int nodeId)
         {
             if (nodeId < 0) throw new ArgumentOutOfRangeException(nameof(nodeId));
             var result = await _restClient.GetAsync($"{DailyNodeStabilityEndpoint}/{nodeId}").ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
-            return data; //TODO dto
+            return NodeStability.DailyFromJson(data);
         }
 
         //https://api.happynodes.f27.ventures/redis/historic/node/stability/weekly/:node_id
-        public async Task<string> GetWeeklyNodeStability(int nodeId)
+        public async Task<IList<NodeStability>> GetWeeklyNodeStability(int nodeId)
         {
             if (nodeId < 0) throw new ArgumentOutOfRangeException(nameof(nodeId));
             var result = await _restClient.GetAsync($"{WeeklyNodeStabilityEndpoint}/{nodeId}").ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
-            return data; //TODO dto
+            return NodeStability.WeeklyFromJson(data);
         }
 
         //https://api.happynodes.f27.ventures/redis/historic/node/latency/daily/:node_id
-        public async Task<string> GetDailyNodeLatency(int nodeId)
+        public async Task<IList<NodeLatency>> GetDailyNodeLatency(int nodeId)
         {
             if (nodeId < 0) throw new ArgumentOutOfRangeException(nameof(nodeId));
             var result = await _restClient.GetAsync($"{DailyNodeLatencyEndpoint}/{nodeId}").ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
-            return data; //TODO dto
+            return NodeLatency.DailyFromJson(data);
         }
 
         //https://api.happynodes.f27.ventures/redis/historic/node/latency/weekly/:node_id
-        public async Task<string> GetWeeklyNodeLatency(int nodeId)
+        public async Task<IList<NodeLatency>> GetWeeklyNodeLatency(int nodeId)
         {
             if (nodeId < 0) throw new ArgumentOutOfRangeException(nameof(nodeId));
             var result = await _restClient.GetAsync($"{WeeklyNodeLatencyEndpoint}/{nodeId}").ConfigureAwait(false);
             var data = await result.Content.ReadAsStringAsync();
-            return data; //TODO dto
+            return NodeLatency.WeeklyFromJson(data);
         }
 
         //https://api.happynodes.f27.ventures/redis/historic/node/blockheightlag/:node_id

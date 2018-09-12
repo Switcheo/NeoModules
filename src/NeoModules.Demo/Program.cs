@@ -226,14 +226,14 @@ namespace NeoModules.Demo
             var nodesFlat = await happyNodesService.GetNodesFlat();
             var nodes = await happyNodesService.GetNodes();
             var nodeById = await happyNodesService.GetNodeById(482);
-            var edges = await happyNodesService.GetEdges();    
+            var edges = await happyNodesService.GetEdges();
             var nodesList = await happyNodesService.GetNodesList();
 
             var dailyHistory = await happyNodesService.GetDailyNodeHistory();
             var weeklyHistory = await happyNodesService.GetWeeklyNodeHistory();
 
             var dailyStability = await happyNodesService.GetDailyNodeStability(480);
-            var weeklyStability = await happyNodesService.GetWeeklyNodeStability(480);
+            var weeklyStability = await happyNodesService.GetWeeklyNodeStability(0);
 
             var dailyLatency = await happyNodesService.GetDailyNodeLatency(480);
             var weeklyLatency = await happyNodesService.GetWeeklyNodeLatency(480);
