@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using NeoModules.Core;
 using NeoModules.NVM;
@@ -199,6 +200,34 @@ namespace NeoModules.NEP6
             decimal r = val;
             r /= D;
             return r;
+        }
+        
+        public static void Write<T>(this BinaryWriter writer, T[] value) where T : ISerializable
+        {
+            writer.WriteVarInt(value.Length);
+            for (int i = 0; i < value.Length; i++)
+            {
+                value[i].Serialize(writer);
+            }
+        }
+
+        public static Fixed8 Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, Fixed8> selector)
+        {
+            return source.Select(selector).Sum();
+        }
+       
+
+        public static Fixed8 Sum(this IEnumerable<Fixed8> source)
+        {
+            long sum = 0;
+            checked
+            {
+                foreach (Fixed8 item in source)
+                {
+                    sum += item.value;
+                }
+            }
+            return new Fixed8(sum);
         }
     }
 

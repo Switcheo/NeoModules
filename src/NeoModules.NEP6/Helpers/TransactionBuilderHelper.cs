@@ -10,6 +10,7 @@ using NeoModules.Rest.DTOs.NeoScan;
 using NeoModules.Rest.Interfaces;
 using NeoModules.Rest.Services;
 using Helper = NeoModules.KeyPairs.Helper;
+using Transaction = NeoModules.NEP6.Transactions.Transaction;
 
 namespace NeoModules.NEP6.Helpers
 {
@@ -58,7 +59,7 @@ namespace NeoModules.NEP6.Helpers
         }
 
         // Old method
-        public static async Task<(List<SignedTransaction.Input> inputs, List<SignedTransaction.Output> outputs)>
+        public static async Task<(List<Transaction.CoinReference> inputs, List<Transaction.TransactionOutput> outputs)>
            GenerateInputsOutputs(KeyPair key, string symbol, IEnumerable<TransferOutput> targets, decimal fee,
                INeoscanService restService)
         {
@@ -68,8 +69,8 @@ namespace NeoModules.NEP6.Helpers
             // filter any asset lists with zero unspent inputs
             unspent = unspent.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            var inputs = new List<SignedTransaction.Input>();
-            var outputs = new List<SignedTransaction.Output>();
+            var inputs = new List<Transaction.CoinReference>();
+            var outputs = new List<Transaction.TransactionOutput>();
 
             string assetId;
 
@@ -89,7 +90,7 @@ namespace NeoModules.NEP6.Helpers
                 foreach (var target in transactionOutputs)
                 {
                     if (target.AddressHash.SequenceEqual(fromHash))
-                        throw new WalletException("Target can't be same as input");
+                        throw new WalletException("Target can't be same as coinReference");
 
                     cost += target.Amount;
                 }
@@ -104,7 +105,7 @@ namespace NeoModules.NEP6.Helpers
                 {
                     selected += (decimal)src.Value;
 
-                    var input = new SignedTransaction.Input
+                    var input = new Transaction.CoinReference
                     {
                         PrevHash = src.TxId.HexToBytes().Reverse().ToArray(),
                         PrevIndex = src.N
@@ -120,7 +121,7 @@ namespace NeoModules.NEP6.Helpers
                 if (cost > 0 && targets != null)
                     foreach (var target in transactionOutputs)
                     {
-                        var output = new SignedTransaction.Output
+                        var output = new Transaction.TransactionOutput
                         {
                             AssetId = assetId.HexToBytes().Reverse().ToArray(),
                             ScriptHash = target.AddressHash.ToArray(),
@@ -133,7 +134,7 @@ namespace NeoModules.NEP6.Helpers
                 {
                     var left = selected - cost;
                     var signatureScript = Helper.CreateSignatureRedeemScript(key.PublicKey).ToScriptHash();
-                    var change = new SignedTransaction.Output
+                    var change = new Transaction.TransactionOutput
                     {
                         AssetId = assetId.HexToBytes().Reverse().ToArray(),
                         ScriptHash = signatureScript.ToArray(),

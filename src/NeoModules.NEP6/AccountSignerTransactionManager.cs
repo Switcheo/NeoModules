@@ -16,6 +16,7 @@ using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.TransactionManagers;
 using Org.BouncyCastle.Security;
 using Helper = NeoModules.KeyPairs.Helper;
+using Transaction = NeoModules.NEP6.Transactions.Transaction;
 
 namespace NeoModules.NEP6
 {
@@ -42,11 +43,11 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
-        /// Signs a SignedTransaction object and sends a 'sendrawtransaction' RPC call to the connected node.
+        /// Signs a Transaction object and sends a 'sendrawtransaction' RPC call to the connected node.
         /// </summary>
         /// <param name="txInput"></param>
         /// <returns></returns>
-        private async Task<bool> SignAndSendTransaction(SignedTransaction txInput)
+        private async Task<bool> SignAndSendTransaction(Transaction txInput)
         {
             if (txInput == null) return false;
             SignTransaction(txInput);
@@ -55,10 +56,10 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
-        /// Signs a SignedTransaction object
+        /// Signs a Transaction object
         /// </summary>
         /// <param name="txInput"></param>
-        public void SignTransaction(SignedTransaction txInput)
+        public void SignTransaction(Transaction txInput)
         {
             txInput.Sign(_accountKey);
         }
@@ -81,7 +82,7 @@ namespace NeoModules.NEP6
         /// </summary>
         /// <param name="tx"></param>
         /// <returns></returns>
-        public override async Task<Transaction> WaitForTxConfirmation(string tx)
+        public override async Task<RPC.DTOs.Transaction> WaitForTxConfirmation(string tx)
         {
             while (true)
             {
@@ -117,13 +118,12 @@ namespace NeoModules.NEP6
 
             if (inputs.Count == 0) throw new WalletException($"Not enough inputs for transaction");
 
-            var tx = new SignedTransaction
+            var tx = new InvocationTransaction()
             {
-                Type = TransactionType.InvocationTransaction,
                 Version = 0,
                 Script = bytes,
                 Gas = 0,
-                Inputs = inputs.ToArray(),
+                CoinReferences = inputs.ToArray(),
                 Outputs = outputs.ToArray()
             };
 
@@ -141,7 +141,7 @@ namespace NeoModules.NEP6
         /// <param name="attachSymbol"></param>
         /// <param name="attachTargets"></param>
         /// <returns></returns>
-        public async Task<SignedTransaction> CallContract(byte[] contractScriptHash, string operation,
+        public async Task<Transaction> CallContract(byte[] contractScriptHash, string operation,
             object[] args, string attachSymbol = null, IEnumerable<TransferOutput> attachTargets = null)
         {
             var bytes = Utils.GenerateScript(contractScriptHash, operation, args);
@@ -151,22 +151,22 @@ namespace NeoModules.NEP6
         /// <summary>
         /// (Alternative)
         /// Creates a 'InvocationTransaction' with the parameters passed, signs it and send a 'sendrawtransaction' RPC call to the connected node.
-        /// But because there are no fees currently, you can execute contracts without assets, if there is no need for input.
+        /// But because there are no fees currently, you can execute contracts without assets, if there is no need for coinReference.
         /// </summary>
         /// <param name="scriptHash"></param>
         /// <param name="script"></param>
         /// <returns></returns>
-        public async Task<SignedTransaction> AssetlessContractCall(byte[] scriptHash, byte[] script)
+        public async Task<Transaction> AssetlessContractCall(byte[] scriptHash, byte[] script)
         {
             var signatureScript = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
-            var tx = new SignedTransaction
+            var tx = new Transaction
             {
                 Type = TransactionType.InvocationTransaction,
                 Version = 0,
                 Script = script,
                 Gas = 0,
-                Inputs = new SignedTransaction.Input[0],
-                Outputs = new SignedTransaction.Output[0],
+                CoinReferences = new Transaction.CoinReference[0],
+                Outputs = new Transaction.TransactionOutput[0],
                 Attributes = new[]
                 {
                     new TransactionAttribute
@@ -185,7 +185,7 @@ namespace NeoModules.NEP6
             return result ? tx : null;
         }
 
-        public async Task<SignedTransaction> CallContract(KeyPair key, byte[] scriptHash, byte[] script,
+        public async Task<Transaction> CallContract(KeyPair key, byte[] scriptHash, byte[] script,
             string attachSymbol = null, IEnumerable<TransferOutput> attachTargets = null, decimal fee = 0)
         {
             if (string.IsNullOrEmpty(attachSymbol)) attachSymbol = "GAS";
@@ -201,13 +201,13 @@ namespace NeoModules.NEP6
                 return await AssetlessContractCall(scriptHash, script);
             }
 
-            var tx = new SignedTransaction
+            var tx = new Transaction
             {
                 Type = TransactionType.InvocationTransaction,
                 Version = 0,
                 Script = script,
                 Gas = 0,
-                Inputs = inputs.ToArray(),
+                CoinReferences = inputs.ToArray(),
                 Outputs = outputs.ToArray()
             };
 
@@ -226,7 +226,7 @@ namespace NeoModules.NEP6
         /// <param name="symbol"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<SignedTransaction> SendAsset(string toAddress, Dictionary<string, decimal> symbolsAndAmount, decimal fee = 0)
+        public async Task<Transaction> SendAsset(string toAddress, Dictionary<string, decimal> symbolsAndAmount, decimal fee = 0)
         {
             var toScriptHash = toAddress.ToScriptHash().ToArray();
             var targets = TransactionBuilderHelper.BuildTransferOutputs(toAddress, symbolsAndAmount);
@@ -241,7 +241,7 @@ namespace NeoModules.NEP6
         /// <param name="symbol"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<SignedTransaction> SendAsset(byte[] toAddress, List<string> symbols, decimal amount, decimal fee = 0)
+        public async Task<Transaction> SendAsset(byte[] toAddress, List<string> symbols, decimal amount, decimal fee = 0)
         {
             var target = new TransferOutput { AddressHash = toAddress, Amount = amount };
             var targets = new List<TransferOutput> { target };
@@ -249,15 +249,15 @@ namespace NeoModules.NEP6
             return await SendAsset(_accountKey, targets, fee);
         }
 
-        public async Task<SignedTransaction> SendAsset(KeyPair fromKey, IEnumerable<TransferOutput> targets, decimal fee)
+        public async Task<Transaction> SendAsset(KeyPair fromKey, IEnumerable<TransferOutput> targets, decimal fee)
         {
-            List<SignedTransaction.Input> finalInputs = new List<SignedTransaction.Input>();
-            List<SignedTransaction.Output> finalOutputs = new List<SignedTransaction.Output>();
+            List<Transaction.CoinReference> finalInputs = new List<Transaction.CoinReference>();
+            List<Transaction.TransactionOutput> finalOutputs = new List<Transaction.TransactionOutput>();
 
             foreach (var transferOutput in targets)
             {
-                List<SignedTransaction.Input> inputs;
-                List<SignedTransaction.Output> outputs;
+                List<Transaction.CoinReference> inputs;
+                List<Transaction.TransactionOutput> outputs;
 
                 (inputs, outputs) =
                     await TransactionBuilderHelper.GenerateInputsOutputs(fromKey,
@@ -269,13 +269,13 @@ namespace NeoModules.NEP6
                 finalOutputs.AddRange(outputs);
             }
 
-            var tx = new SignedTransaction
+            var tx = new Transaction
             {
                 Type = TransactionType.ContractTransaction,
                 Version = 0,
                 Script = null,
                 Gas = -1,
-                Inputs = finalInputs.ToArray(),
+                CoinReferences = finalInputs.ToArray(),
                 Outputs = finalOutputs.ToArray()
             };
 
@@ -286,16 +286,16 @@ namespace NeoModules.NEP6
         /// Creates a 'ClaimTransaction', signs it and send a 'sendrawtransaction' RPC call to the connected node.
         /// </summary>
         /// <returns></returns>
-        public async Task<SignedTransaction> ClaimGas()
+        public async Task<Transaction> ClaimGas()
         {
             var address = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey);
             var targetScriptHash = address.ToScriptHash();
             var (claimable, amount) =
                 await TransactionBuilderHelper.GetClaimable(address.ToScriptHash().ToAddress(), _restService);
 
-            var references = new List<SignedTransaction.Input>();
+            var references = new List<Transaction.CoinReference>();
             foreach (var entry in claimable)
-                references.Add(new SignedTransaction.Input
+                references.Add(new Transaction.CoinReference
                 {
                     PrevHash = entry.Txid.HexToBytes().Reverse().ToArray(),
                     PrevIndex = entry.N
@@ -303,9 +303,9 @@ namespace NeoModules.NEP6
 
             if (amount <= 0) throw new WalletException("No GAS available to claim at this address");
 
-            var outputs = new List<SignedTransaction.Output>
+            var outputs = new List<Transaction.TransactionOutput>
             {
-                new SignedTransaction.Output
+                new Transaction.TransactionOutput
                 {
                     ScriptHash = targetScriptHash.ToArray(),
                     AssetId = Utils.GasToken.HexToBytes().Reverse().ToArray(),
@@ -313,14 +313,14 @@ namespace NeoModules.NEP6
                 }
             };
 
-            var tx = new SignedTransaction
+            var tx = new Transaction
             {
                 Type = TransactionType.ClaimTransaction,
                 Version = 0,
                 Script = null,
                 Gas = -1,
                 References = references.ToArray(),
-                Inputs = new SignedTransaction.Input[0],
+                CoinReferences = new Transaction.CoinReference[0],
                 Outputs = outputs.ToArray()
             };
 
@@ -343,14 +343,14 @@ namespace NeoModules.NEP6
         /// <param name="tokenScriptHash"></param>
         /// <param name="decimals"></param>
         /// <returns></returns>
-        public async Task<SignedTransaction> TransferNep5(string toAddress, decimal amount, byte[] tokenScriptHash,
+        public async Task<Transaction> TransferNep5(string toAddress, decimal amount, byte[] tokenScriptHash,
             int decimals = 8)
         {
             var toAddressScriptHash = toAddress.ToScriptHash().ToArray();
             return await TransferNep5(toAddressScriptHash, amount, tokenScriptHash, decimals);
         }
 
-        public async Task<SignedTransaction> TransferNep5(byte[] toAddress, decimal amount, byte[] tokenScriptHash,
+        public async Task<Transaction> TransferNep5(byte[] toAddress, decimal amount, byte[] tokenScriptHash,
             int decimals = 8)
         {
             if (toAddress.Length != 20) throw new ArgumentException(nameof(toAddress));

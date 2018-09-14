@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Helpers;
@@ -6,22 +8,21 @@ using Helper = NeoModules.KeyPairs.Helper;
 
 namespace NeoModules.NEP6.Transactions
 {
-    public class SignedTransaction
+    public class Transaction
     {
-        private UInt256 _hash;
-        public TransactionAttribute[] Attributes;
-        public decimal Gas;
+        /// <summary>
+        /// Maximum number of attributes that can be contained within a transaction
+        /// </summary>
+        private const int MaxTransactionAttributes = 16;
 
-        public Input[] Inputs;
-        public Output[] Outputs;
-
-        public Input[] References;
-        public byte[] Script;
-
-        public TransactionType Type;
+        public readonly TransactionType Type;
         public byte Version;
-        public Witness[] Witnesses;
+        public TransactionAttribute[] Attributes;
+        public CoinReference[] CoinReferences;
+        public TransactionOutput[] Outputs;
+        public Witness[] Witnesses { get; set; }
 
+        private UInt256 _hash;
         public UInt256 Hash
         {
             get
@@ -36,6 +37,42 @@ namespace NeoModules.NEP6.Transactions
             }
         }
 
+        public Dictionary<CoinReference, TransactionOutput> References { get; set; }
+
+        public virtual Fixed8 SystemFee => Fixed8.Zero;
+
+        private Fixed8 _network_fee = -Fixed8.Satoshi;
+        public virtual Fixed8 NetworkFee
+        {
+            get
+            {
+                if (_network_fee == -Fixed8.Satoshi)
+                {
+                    Fixed8 input = References.Values.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken))).Sum(p => p.Value);
+                    Fixed8 output = Outputs.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken).ToArray())).Sum(p => p.Value);
+                    _network_fee = input - output - SystemFee;
+                }
+                return _network_fee;
+            }
+        }
+
+        protected Transaction(TransactionType type)
+        {
+            Type = type;
+        }
+
+        void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)Type);
+            writer.Write(Version);
+            SerializeExclusiveData(writer);
+            writer.Write(Attributes);
+            writer.Write(Inputs);
+            writer.Write(Outputs);
+        }
+
+
+        //TODO remove
         public byte[] Serialize(bool signed = true)
         {
             using (var stream = new MemoryStream())
@@ -45,28 +82,28 @@ namespace NeoModules.NEP6.Transactions
                     writer.Write((byte)Type);
                     writer.Write(Version);
 
-                    // exclusive data
-                    switch (Type)
-                    {
-                        case TransactionType.InvocationTransaction:
-                            {
-                                writer.WriteVarInt(Script.Length);
-                                writer.Write(Script);
-                                if (Version >= 1) writer.WriteFixed(Gas);
+                    //// exclusive data
+                    //switch (Type)
+                    //{
+                    //    case TransactionType.InvocationTransaction:
+                    //        {
+                    //            writer.WriteVarInt(Script.Length);
+                    //            writer.Write(Script);
+                    //            if (Version >= 1) writer.WriteFixed(Gas);
 
-                                break;
-                            }
-                        case TransactionType.ClaimTransaction:
-                            {
-                                writer.WriteVarInt(References.Length);
-                                foreach (var entry in References)
-                                {
-                                    SerializationHelper.SerializeTransactionInput(writer, entry);
-                                }
+                    //            break;
+                    //        }
+                    //    case TransactionType.ClaimTransaction:
+                    //        {
+                    //            writer.WriteVarInt(References.Length);
+                    //            foreach (var entry in References)
+                    //            {
+                    //                SerializationHelper.SerializeTransactionInput(writer, entry);
+                    //            }
 
-                                break;
-                            }
-                    }
+                    //            break;
+                    //        }
+                    //}
                     // Don't need any attributes
                     if (Attributes != null)
                     {
@@ -81,8 +118,8 @@ namespace NeoModules.NEP6.Transactions
                         writer.Write((byte)0);
                     }
 
-                    writer.WriteVarInt(Inputs.Length);
-                    foreach (var input in Inputs) SerializationHelper.SerializeTransactionInput(writer, input);
+                    writer.WriteVarInt(CoinReferences.Length);
+                    foreach (var input in CoinReferences) SerializationHelper.SerializeTransactionInput(writer, input);
 
                     writer.WriteVarInt(Outputs.Length);
                     foreach (var output in Outputs) SerializationHelper.SerializeTransactionOutput(writer, output);
@@ -95,6 +132,10 @@ namespace NeoModules.NEP6.Transactions
                 }
                 return stream.ToArray();
             }
+        }
+
+        protected virtual void SerializeExclusiveData(BinaryWriter writer)
+        {
         }
 
         public void Sign(KeyPair key)
@@ -132,19 +173,6 @@ namespace NeoModules.NEP6.Transactions
                     VerificationScript = verificationScript
                 }
             };
-        }
-
-        public struct Input
-        {
-            public byte[] PrevHash;
-            public uint PrevIndex;
-        }
-
-        public struct Output
-        {
-            public byte[] ScriptHash;
-            public byte[] AssetId;
-            public decimal Value;
         }
     }
 }
