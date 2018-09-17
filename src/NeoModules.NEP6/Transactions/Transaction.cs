@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6.Helpers;
 using Helper = NeoModules.KeyPairs.Helper;
+using Utils = NeoModules.NEP6.Helpers.Utils;
 
 namespace NeoModules.NEP6.Transactions
 {
-    public class Transaction
+    public class Transaction : ISerializable
     {
         /// <summary>
         /// Maximum number of attributes that can be contained within a transaction
@@ -18,19 +21,19 @@ namespace NeoModules.NEP6.Transactions
         public readonly TransactionType Type;
         public byte Version;
         public TransactionAttribute[] Attributes;
-        public CoinReference[] CoinReferences;
+        public CoinReference[] Inputs;
         public TransactionOutput[] Outputs;
         public Witness[] Witnesses { get; set; }
 
         private UInt256 _hash;
+
         public UInt256 Hash
         {
             get
             {
                 if (_hash == null)
                 {
-                    var rawTx = Serialize(false);
-                    _hash = new UInt256(Helper.Hash256(rawTx));
+                    _hash = new UInt256(Helper.Hash256(Utils.GetHashData(this)));
                 }
 
                 return _hash;
@@ -42,26 +45,38 @@ namespace NeoModules.NEP6.Transactions
         public virtual Fixed8 SystemFee => Fixed8.Zero;
 
         private Fixed8 _network_fee = -Fixed8.Satoshi;
+
         public virtual Fixed8 NetworkFee
         {
             get
             {
                 if (_network_fee == -Fixed8.Satoshi)
                 {
-                    Fixed8 input = References.Values.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken))).Sum(p => p.Value);
-                    Fixed8 output = Outputs.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken).ToArray())).Sum(p => p.Value);
+                    Fixed8 input = References.Values.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken)))
+                        .Sum(p => p.Value);
+                    Fixed8 output = Outputs.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken).ToArray()))
+                        .Sum(p => p.Value);
                     _network_fee = input - output - SystemFee;
                 }
+
                 return _network_fee;
             }
         }
+
+        public virtual int Size => sizeof(TransactionType) + sizeof(byte) + Attributes.GetVarSize() + Inputs.GetVarSize() + Outputs.GetVarSize() + Witnesses.GetVarSize();
 
         protected Transaction(TransactionType type)
         {
             Type = type;
         }
 
-        void Serialize(BinaryWriter writer)
+        void ISerializable.Serialize(BinaryWriter writer)
+        {
+            SerializeUnsigned(writer);
+            writer.Write(Witnesses);
+        }
+
+        internal void SerializeUnsigned(BinaryWriter writer)
         {
             writer.Write((byte)Type);
             writer.Write(Version);
@@ -71,90 +86,27 @@ namespace NeoModules.NEP6.Transactions
             writer.Write(Outputs);
         }
 
-
-        //TODO remove
-        public byte[] Serialize(bool signed = true)
+        void ISerializable.Deserialize(BinaryReader reader)
         {
-            using (var stream = new MemoryStream())
-            {
-                using (var writer = new BinaryWriter(stream))
-                {
-                    writer.Write((byte)Type);
-                    writer.Write(Version);
-
-                    //// exclusive data
-                    //switch (Type)
-                    //{
-                    //    case TransactionType.InvocationTransaction:
-                    //        {
-                    //            writer.WriteVarInt(Script.Length);
-                    //            writer.Write(Script);
-                    //            if (Version >= 1) writer.WriteFixed(Gas);
-
-                    //            break;
-                    //        }
-                    //    case TransactionType.ClaimTransaction:
-                    //        {
-                    //            writer.WriteVarInt(References.Length);
-                    //            foreach (var entry in References)
-                    //            {
-                    //                SerializationHelper.SerializeTransactionInput(writer, entry);
-                    //            }
-
-                    //            break;
-                    //        }
-                    //}
-                    // Don't need any attributes
-                    if (Attributes != null)
-                    {
-                        writer.WriteVarInt(Attributes.Length);
-                        foreach (var attr in Attributes)
-                        {
-                            attr.Serialize(writer);
-                        }
-                    }
-                    else
-                    {
-                        writer.Write((byte)0);
-                    }
-
-                    writer.WriteVarInt(CoinReferences.Length);
-                    foreach (var input in CoinReferences) SerializationHelper.SerializeTransactionInput(writer, input);
-
-                    writer.WriteVarInt(Outputs.Length);
-                    foreach (var output in Outputs) SerializationHelper.SerializeTransactionOutput(writer, output);
-
-                    if (signed && Witnesses != null)
-                    {
-                        writer.WriteVarInt(Witnesses.Length);
-                        foreach (var witness in Witnesses) witness.Serialize(writer);
-                    }
-                }
-                return stream.ToArray();
-            }
+            throw new NotImplementedException();
         }
 
         protected virtual void SerializeExclusiveData(BinaryWriter writer)
         {
         }
 
-        public void Sign(KeyPair key)
+        public byte[] Sign(KeyPair key)
         {
-            var txdata = Serialize(false);
-
-            var privkey = key.PrivateKey;
-            var signature = Utils.Sign(txdata, privkey);
-
-            var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
-            var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
-            Witnesses = new[]
+            byte[] txdata = null;
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
             {
-                new Witness
-                {
-                    InvocationScript = invocationScript,
-                    VerificationScript = verificationScript
-                }
-            };
+                SerializeUnsigned(writer);
+                txdata = ms.ToArray();
+            }
+
+            var signature = Utils.Sign(txdata, key.PrivateKey);
+
         }
 
         public void Sign(byte[] privateKey)

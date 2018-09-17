@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.IO;
 using NeoModules.Core;
+using NeoModules.NEP6.Helpers;
 
 namespace NeoModules.NEP6.Transactions
 {
@@ -10,8 +9,14 @@ namespace NeoModules.NEP6.Transactions
         public ClaimTransaction() : base(TransactionType.ClaimTransaction)
         {
         }
+
         public CoinReference[] Claims;
 
         public override Fixed8 NetworkFee => Fixed8.Zero;
+
+        protected override void SerializeExclusiveData(BinaryWriter writer)
+        {
+            writer.Write(Claims);
+        }
     }
 }

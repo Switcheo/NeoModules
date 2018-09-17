@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
+using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Models;
 using NeoModules.Rest.Interfaces;
 using NeoModules.Rest.Services;

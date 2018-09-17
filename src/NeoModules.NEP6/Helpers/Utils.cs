@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using NeoModules.Core;
+using NeoModules.NEP6.Transactions;
 using NeoModules.NVM;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 
-namespace NeoModules.NEP6
+namespace NeoModules.NEP6.Helpers
 {
     public static class Utils
     {
@@ -96,11 +99,11 @@ namespace NeoModules.NEP6
 
         public static uint ToTimestamp(this DateTime time)
         {
-            return (uint) (time.ToUniversalTime() - UnixEpoch).TotalSeconds;
+            return (uint)(time.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
 
         public static byte[]
-            GenerateScript(byte[] scriptHash, string operation, object[] args, bool addNonce = true)
+            GenerateScript(byte[] scriptHash, string operation, object[] args, bool addNonce = true) //todo maintain nonce for sending the same txhash in case of tx failure/mempool
         {
             var script = new UInt160(scriptHash);
             using (var sb = new ScriptBuilder())
@@ -126,7 +129,7 @@ namespace NeoModules.NEP6
 
         public static byte[] ReadVarBytes(this BinaryReader reader, int max = 0X7fffffc7)
         {
-            return reader.ReadBytes((int) reader.ReadVarInt((ulong) max));
+            return reader.ReadBytes((int)reader.ReadVarInt((ulong)max));
         }
 
         public static ulong ReadVarInt(this BinaryReader reader, ulong max = ulong.MaxValue)
@@ -156,27 +159,34 @@ namespace NeoModules.NEP6
             writer.Write(value);
         }
 
+        public static T ReadSerializable<T>(this BinaryReader reader) where T : ISerializable, new()
+        {
+            T obj = new T();
+            obj.Deserialize(reader);
+            return obj;
+        }
+
         public static void WriteVarInt(this BinaryWriter writer, long value)
         {
             if (value < 0)
                 throw new ArgumentOutOfRangeException();
             if (value < 0xFD)
             {
-                writer.Write((byte) value);
+                writer.Write((byte)value);
             }
             else if (value <= 0xFFFF)
             {
-                writer.Write((byte) 0xFD);
-                writer.Write((ushort) value);
+                writer.Write((byte)0xFD);
+                writer.Write((ushort)value);
             }
             else if (value <= 0xFFFFFFFF)
             {
-                writer.Write((byte) 0xFE);
-                writer.Write((uint) value);
+                writer.Write((byte)0xFE);
+                writer.Write((uint)value);
             }
             else
             {
-                writer.Write((byte) 0xFF);
+                writer.Write((byte)0xFF);
                 writer.Write(value);
             }
         }
@@ -190,7 +200,7 @@ namespace NeoModules.NEP6
         {
             long D = 100_000_000;
             value *= D;
-            writer.Write((long) value);
+            writer.Write((long)value);
         }
 
         public static decimal ReadFixed(this BinaryReader reader)
@@ -201,7 +211,7 @@ namespace NeoModules.NEP6
             r /= D;
             return r;
         }
-        
+
         public static void Write<T>(this BinaryWriter writer, T[] value) where T : ISerializable
         {
             writer.WriteVarInt(value.Length);
@@ -211,11 +221,16 @@ namespace NeoModules.NEP6
             }
         }
 
+        public static void Write(this BinaryWriter writer, ISerializable value)
+        {
+            value.Serialize(writer);
+        }
+
         public static Fixed8 Sum<TSource>(this IEnumerable<TSource> source, Func<TSource, Fixed8> selector)
         {
             return source.Select(selector).Sum();
         }
-       
+
 
         public static Fixed8 Sum(this IEnumerable<Fixed8> source)
         {
@@ -228,6 +243,72 @@ namespace NeoModules.NEP6
                 }
             }
             return new Fixed8(sum);
+        }
+
+        internal static int GetVarSize(int value)
+        {
+            if (value < 0xFD)
+                return sizeof(byte);
+            if (value <= 0xFFFF)
+                return sizeof(byte) + sizeof(ushort);
+            return sizeof(byte) + sizeof(uint);
+        }
+
+        internal static int GetVarSize<T>(this T[] value)
+        {
+            int valueSize;
+            Type t = typeof(T);
+            if (typeof(ISerializable).IsAssignableFrom(t))
+            {
+                valueSize = value.OfType<ISerializable>().Sum(p => p.Size);
+            }
+            else if (t.GetTypeInfo().IsEnum)
+            {
+                int elementSize;
+                Type u = t.GetTypeInfo().GetEnumUnderlyingType();
+                if (u == typeof(sbyte) || u == typeof(byte))
+                    elementSize = 1;
+                else if (u == typeof(short) || u == typeof(ushort))
+                    elementSize = 2;
+                else if (u == typeof(int) || u == typeof(uint))
+                    elementSize = 4;
+                else //if (u == typeof(long) || u == typeof(ulong))
+                    elementSize = 8;
+                valueSize = value.Length * elementSize;
+            }
+            else
+            {
+                valueSize = value.Length * Marshal.SizeOf<T>();
+            }
+            return GetVarSize(value.Length) + valueSize;
+        }
+
+        internal static int GetVarSize(this string value)
+        {
+            int size = Encoding.UTF8.GetByteCount(value);
+            return GetVarSize(size) + size;
+        }
+
+        public static T[] ReadSerializableArray<T>(this BinaryReader reader, int max = 0x10000000) where T : ISerializable, new()
+        {
+            T[] array = new T[reader.ReadVarInt((ulong)max)];
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = new T();
+                array[i].Deserialize(reader);
+            }
+            return array;
+        }
+
+        public static byte[] GetHashData(Transaction tx)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                tx.SerializeUnsigned(writer);
+                writer.Flush();
+                return ms.ToArray();
+            }
         }
     }
 

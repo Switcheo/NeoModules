@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using NeoModules.Core;
 using NeoModules.KeyPairs;
+using NeoModules.NEP6.Helpers;
 
 namespace NeoModules.NEP6.Transactions
 {
-    public class Witness
+    public class Witness : ISerializable
     {
         public byte[] InvocationScript;
         public byte[] VerificationScript;
@@ -21,18 +22,18 @@ namespace NeoModules.NEP6.Transactions
                 return _scriptHash;
             }
         }
+        public int Size => InvocationScript.GetVarSize() + VerificationScript.GetVarSize();
 
-        public void Serialize(BinaryWriter writer)
+        void ISerializable.Deserialize(BinaryReader reader)
+        {
+            InvocationScript = reader.ReadVarBytes(65536);
+            VerificationScript = reader.ReadVarBytes(65536);
+        }
+
+        void ISerializable.Serialize(BinaryWriter writer)
         {
             writer.WriteVarBytes(InvocationScript);
             writer.WriteVarBytes(VerificationScript);
-        }
-
-        public static Witness Unserialize(BinaryReader reader)
-        {
-            var invocationScript = reader.ReadVarBytes(65536);
-            var verificationScript = reader.ReadVarBytes(65536);
-            return new Witness {InvocationScript = invocationScript, VerificationScript = verificationScript};
         }
     }
 }

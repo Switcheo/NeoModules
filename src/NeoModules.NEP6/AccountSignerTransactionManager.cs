@@ -17,6 +17,7 @@ using NeoModules.RPC.TransactionManagers;
 using Org.BouncyCastle.Security;
 using Helper = NeoModules.KeyPairs.Helper;
 using Transaction = NeoModules.NEP6.Transactions.Transaction;
+using Utils = NeoModules.NEP6.Helpers.Utils;
 
 namespace NeoModules.NEP6
 {
@@ -123,7 +124,7 @@ namespace NeoModules.NEP6
                 Version = 0,
                 Script = bytes,
                 Gas = 0,
-                CoinReferences = inputs.ToArray(),
+                Inputs = inputs.ToArray(),
                 Outputs = outputs.ToArray()
             };
 
@@ -165,7 +166,7 @@ namespace NeoModules.NEP6
                 Version = 0,
                 Script = script,
                 Gas = 0,
-                CoinReferences = new Transaction.CoinReference[0],
+                Inputs = new Transaction.CoinReference[0],
                 Outputs = new Transaction.TransactionOutput[0],
                 Attributes = new[]
                 {
@@ -207,7 +208,7 @@ namespace NeoModules.NEP6
                 Version = 0,
                 Script = script,
                 Gas = 0,
-                CoinReferences = inputs.ToArray(),
+                Inputs = inputs.ToArray(),
                 Outputs = outputs.ToArray()
             };
 
@@ -275,7 +276,7 @@ namespace NeoModules.NEP6
                 Version = 0,
                 Script = null,
                 Gas = -1,
-                CoinReferences = finalInputs.ToArray(),
+                Inputs = finalInputs.ToArray(),
                 Outputs = finalOutputs.ToArray()
             };
 
@@ -320,7 +321,7 @@ namespace NeoModules.NEP6
                 Script = null,
                 Gas = -1,
                 References = references.ToArray(),
-                CoinReferences = new Transaction.CoinReference[0],
+                Inputs = new Transaction.CoinReference[0],
                 Outputs = outputs.ToArray()
             };
 
