@@ -8,14 +8,26 @@ namespace NeoModules.RPC.DTOs
         [JsonProperty("txid")]
         public string Txid { get; set; }
 
+        [JsonProperty("executions")]
+        public List<Execution> Executions { get; set; }
+    }
+
+    public class Execution
+    {
+        [JsonProperty("trigger")]
+        public string Trigger { get; set; }
+
+        [JsonProperty("contract")]
+        public string Contract { get; set; }
+
         [JsonProperty("vmstate")]
-        public string VmState { get; set; }
+        public string Vmstate { get; set; }
 
         [JsonProperty("gas_consumed")]
         public string GasConsumed { get; set; }
 
         [JsonProperty("stack")]
-        public List<object> Stack { get; set; } // todo need to see examples of this
+        public List<Stack> Stack { get; set; }
 
         [JsonProperty("notifications")]
         public List<Notification> Notifications { get; set; }

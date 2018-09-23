@@ -9,6 +9,7 @@ namespace NeoModules.RPC
         getbestblockhash,
         getblock,
         getblockcount,
+        getblockheader,
         getblocksysfee,
         getblockhash,
         getconnectioncount,

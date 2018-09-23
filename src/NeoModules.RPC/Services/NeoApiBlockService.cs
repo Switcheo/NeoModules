@@ -11,15 +11,17 @@ namespace NeoModules.RPC.Services
         public NeoGetBlockCount GetBlockCount { get; private set; }
         public NeoGetBlockSerialized GetBlockSerialized { get; private set; }
         public NeoGetBlockSysFee GetBlockSysFee { get; private set; }
+        public NeoGetBlockHeader GetBlockHeader { get; private set; }
 
         public NeoApiBlockService(IClient client) : base(client)
-        {           
+        {
             GetBestBlockHash = new NeoGetBestBlockHash(client);
             GetBlock = new NeoGetBlock(client);
             GetBlockSerialized = new NeoGetBlockSerialized(client);
             GetBlockCount = new NeoGetBlockCount(client);
             GetBlockHash = new NeoGetBlockHash(client);
             GetBlockSysFee = new NeoGetBlockSysFee(client);
+            GetBlockHeader = new NeoGetBlockHeader(client);
         }
     }
 }
