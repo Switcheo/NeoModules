@@ -9,7 +9,7 @@ namespace NeoModules.NEP6.Transactions
         public Fixed8 Gas;
         public byte[] Script;
 
-        protected InvocationTransaction() : base(TransactionType.InvocationTransaction)
+        public InvocationTransaction() : base(TransactionType.InvocationTransaction)
         {
         }
 

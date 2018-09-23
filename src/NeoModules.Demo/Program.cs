@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using NeoModules.Core;
 using NeoModules.JsonRpc.Client;
 using NeoModules.KeyPairs;
 using NeoModules.NEP6;
@@ -15,7 +16,7 @@ namespace NeoModules.Demo
 {
     public class Program
     {
-        private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed3.aphelion-neo.com:10332"));
+        private static readonly RpcClient RpcClient = new RpcClient(new Uri("https://seed3.switcheo.network:10331"));
         private static readonly RpcClient RpcTestNetClient = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
 
         public static void Main(string[] args)
@@ -23,7 +24,7 @@ namespace NeoModules.Demo
             try
             {
                 //https://api.happynodes.f27.ventures
-                HappyNodesService().Wait();
+                //HappyNodesService().Wait();
 
                 var neoApiCompleteService = SetupCompleteNeoService();
 
@@ -33,18 +34,18 @@ namespace NeoModules.Demo
 
                 var nep5ApiService = SetupNep5Service();
 
-                BlockApiTest(neoApiCompleteService).Wait();
+                //BlockApiTest(neoApiCompleteService).Wait();
 
-                TestNep5Service(nep5ApiService).Wait();
+                //TestNep5Service(nep5ApiService).Wait();
 
                 //create rest api client
-                RestClientTest().Wait();
+                //RestClientTest().Wait();
 
                 //nodes list from http://monitor.cityofzion.io/
-                NodesListTestAsync().Wait();
+                //NodesListTestAsync().Wait();
 
                 //https://n1.cityofzion.io/v1/"
-                NotificationsService().Wait();
+                //NotificationsService().Wait();
 
 
 
@@ -151,53 +152,69 @@ namespace NeoModules.Demo
         {
             // Create online wallet and import account
             var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.MainNet), RpcClient);
-            var importedAccount = await walletManager.ImportAccount("*** ENCRYPTED KEY***", "*** PASSWORD***", "Test");
+            var importedAccount = await walletManager.ImportAccount("", "", "Test");
 
             // Get account signer for transactions
             if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
             {
-                // Send native assets
-                var assets = new Dictionary<string, decimal> { { "NEO", 1 }, { "GAS", 1 } };
-                var sendNeoAndGasTx =
-                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", assets);
-
-                // Call contract
-                var scriptHash = "** INSERT CONTRACT SCRIPTHASH **".ToScriptHash().ToArray();
-                var operation = "balanceOf";
-                var arguments = new object[] { "arg1" };
-
-                var contractCallTx =
-                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments);
-
-                // Estimate Gas consumed from contract call
-                var estimateContractGasCall =
-                    await accountSignerTransactionManager.EstimateGasContractCall(scriptHash, operation, arguments);
-
-                // Call contract with attached assets
-                var assetToAttach = "GAS";
-                var output = new List<TransferOutput>()
+                var transferOutput = new List<TransferOutput>();
+                if (!BigDecimal.TryParse("0.5", byte.Parse("8"), out BigDecimal amount))
                 {
-                    new TransferOutput()
-                    {
-                        AddressHash = "** INSERT TO ADDRESS HERE**".ToScriptHash().ToArray(),
-                        Amount = 2,
-                    }
-                };
-                var contractCallWithAttachedTx =
-                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments, assetToAttach,
-                        output);
+                    Console.WriteLine("Incorrect Amount Format");
+                }
+                transferOutput.Add(new TransferOutput
+                {
+                    AssetId = NEP6.Helpers.Utils.GasToken,
+                    Value = amount,
+                    ScriptHash = "".ToScriptHash(),
+                });
+                var tx = await accountSignerTransactionManager.NativeAssetTransaction(null, transferOutput);
 
-                // Claim gas
-                var callGasTx = await accountSignerTransactionManager.ClaimGas();
 
-                // Transfer NEP5 tokens
-                var transferNepTx =
-                    await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m,
-                        scriptHash);
 
-                // Confirm a transaction
-                var confirmedTransaction =
-                    await accountSignerTransactionManager.WaitForTxConfirmation(transferNepTx.Hash.ToString());
+
+                // Send native assets
+                //var assets = new Dictionary<string, decimal> { { "NEO", 1 }, { "GAS", 1 } };
+                //var sendNeoAndGasTx =
+                //    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", assets);
+
+                //// Call contract
+                //var scriptHash = "** INSERT CONTRACT SCRIPTHASH **".ToScriptHash().ToArray();
+                //var operation = "balanceOf";
+                //var arguments = new object[] { "arg1" };
+
+                //var contractCallTx =
+                //    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments);
+
+                //// Estimate Gas consumed from contract call
+                //var estimateContractGasCall =
+                //    await accountSignerTransactionManager.EstimateGasContractCall(scriptHash, operation, arguments);
+
+                //// Call contract with attached assets
+                //var assetToAttach = "GAS";
+                //var output = new List<TransferOutput>()
+                //{
+                //    new TransferOutput()
+                //    {
+                //        AddressHash = "** INSERT TO ADDRESS HERE**".ToScriptHash().ToArray(),
+                //        Amount = 2,
+                //    }
+                //};
+                //var contractCallWithAttachedTx =
+                //    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments, assetToAttach,
+                //        output);
+
+                //// Claim gas
+                //var callGasTx = await accountSignerTransactionManager.ClaimGas();
+
+                //// Transfer NEP5 tokens
+                //var transferNepTx =
+                //    await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m,
+                //        scriptHash);
+
+                //// Confirm a transaction
+                //var confirmedTransaction =
+                //    await accountSignerTransactionManager.WaitForTxConfirmation(transferNepTx.Hash.ToString());
             }
         }
 

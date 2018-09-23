@@ -17,9 +17,9 @@ namespace NeoModules.NEP6.Helpers
 {
     public static class Utils
     {
-        public static readonly string NeoToken = "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
-        public static readonly string GasToken = "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
-        public static Dictionary<string, string> _systemAssets;
+        public static readonly UInt256 NeoToken = UInt256.Parse("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b");
+        public static readonly UInt256 GasToken = UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7");
+
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private static byte[] TranscodeSignatureToConcat(byte[] derSignature, int outputLength)
@@ -77,13 +77,6 @@ namespace NeoModules.NEP6.Helpers
             var sig = signer.GenerateSignature();
 
             return TranscodeSignatureToConcat(sig, 64);
-        }
-
-        public static string ReverseHex(string hex)
-        {
-            var result = "";
-            for (var i = hex.Length - 2; i >= 0; i -= 2) result += hex.Substring(i, 2);
-            return result;
         }
 
         public static System.Numerics.BigInteger ConvertToBigInt(decimal value, int decimals)
@@ -148,11 +141,6 @@ namespace NeoModules.NEP6.Helpers
             return value;
         }
 
-        public static string ReadVarString(this BinaryReader reader)
-        {
-            return Encoding.UTF8.GetString(reader.ReadVarBytes());
-        }
-
         public static void WriteVarBytes(this BinaryWriter writer, byte[] value)
         {
             writer.WriteVarInt(value.Length);
@@ -191,25 +179,11 @@ namespace NeoModules.NEP6.Helpers
             }
         }
 
-        public static void WriteVarString(this BinaryWriter writer, string value)
-        {
-            writer.WriteVarBytes(Encoding.UTF8.GetBytes(value));
-        }
-
         public static void WriteFixed(this BinaryWriter writer, decimal value)
         {
             long D = 100_000_000;
             value *= D;
             writer.Write((long)value);
-        }
-
-        public static decimal ReadFixed(this BinaryReader reader)
-        {
-            var val = reader.ReadInt64();
-            long D = 100_000_000;
-            decimal r = val;
-            r /= D;
-            return r;
         }
 
         public static void Write<T>(this BinaryWriter writer, T[] value) where T : ISerializable
@@ -230,7 +204,6 @@ namespace NeoModules.NEP6.Helpers
         {
             return source.Select(selector).Sum();
         }
-
 
         public static Fixed8 Sum(this IEnumerable<Fixed8> source)
         {
@@ -283,29 +256,23 @@ namespace NeoModules.NEP6.Helpers
             return GetVarSize(value.Length) + valueSize;
         }
 
-        internal static int GetVarSize(this string value)
-        {
-            int size = Encoding.UTF8.GetByteCount(value);
-            return GetVarSize(size) + size;
-        }
-
-        public static T[] ReadSerializableArray<T>(this BinaryReader reader, int max = 0x10000000) where T : ISerializable, new()
-        {
-            T[] array = new T[reader.ReadVarInt((ulong)max)];
-            for (int i = 0; i < array.Length; i++)
-            {
-                array[i] = new T();
-                array[i].Deserialize(reader);
-            }
-            return array;
-        }
-
         public static byte[] GetHashData(Transaction tx)
         {
             using (MemoryStream ms = new MemoryStream())
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
                 tx.SerializeUnsigned(writer);
+                writer.Flush();
+                return ms.ToArray();
+            }
+        }
+
+        public static byte[] ToArray(this ISerializable value)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
+            {
+                value.Serialize(writer);
                 writer.Flush();
                 return ms.ToArray();
             }

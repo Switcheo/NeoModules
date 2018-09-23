@@ -52,9 +52,9 @@ namespace NeoModules.NEP6.Transactions
             {
                 if (_network_fee == -Fixed8.Satoshi)
                 {
-                    Fixed8 input = References.Values.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken)))
+                    Fixed8 input = References.Values.Where(p => p.AssetId.Equals(Utils.GasToken))
                         .Sum(p => p.Value);
-                    Fixed8 output = Outputs.Where(p => p.AssetId.Equals(UInt256.Parse(Utils.GasToken).ToArray()))
+                    Fixed8 output = Outputs.Where(p => p.AssetId.Equals(Utils.GasToken)).ToArray()
                         .Sum(p => p.Value);
                     _network_fee = input - output - SystemFee;
                 }
@@ -97,7 +97,7 @@ namespace NeoModules.NEP6.Transactions
 
         public byte[] Sign(KeyPair key)
         {
-            byte[] txdata = null;
+            byte[] txdata;
             using (MemoryStream ms = new MemoryStream())
             using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
             {
@@ -106,17 +106,8 @@ namespace NeoModules.NEP6.Transactions
             }
 
             var signature = Utils.Sign(txdata, key.PrivateKey);
-
-        }
-
-        public void Sign(byte[] privateKey)
-        {
-            var txdata = Serialize(false);
-
-            var signature = Utils.Sign(txdata, privateKey);
-
             var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
-            var verificationScript = Helper.CreateSignatureRedeemScript(new KeyPair(privateKey).PublicKey);
+            var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
             Witnesses = new[]
             {
                 new Witness
@@ -125,6 +116,13 @@ namespace NeoModules.NEP6.Transactions
                     VerificationScript = verificationScript
                 }
             };
+
+            return this.ToArray();
+        }
+
+        public byte[] Sign(byte[] privateKey)
+        {
+            return Sign(new KeyPair(privateKey));
         }
     }
 }
