@@ -4,10 +4,10 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using NeoModules.KeyPairs;
-using NeoModules.KeyPairs.Cryptography;
+using NeoModules.Core.KeyPair;
+using NeoModules.Core.KeyPair.Cryptography;
 using NeoModules.NEP6.Models;
-using ECCurve = NeoModules.KeyPairs.Cryptography.ECC.ECCurve;
+using ECCurve = NeoModules.Core.KeyPair.Cryptography.ECC.ECCurve;
 
 namespace NeoModules.NEP6
 {
@@ -97,7 +97,7 @@ namespace NeoModules.NEP6
         }
 
         // Encryption methods
-        internal static byte[] AES256Decrypt(this byte[] block, byte[] key)
+        private static byte[] AES256Decrypt(this byte[] block, byte[] key)
         {
             using (var aes = Aes.Create())
             {
@@ -111,7 +111,7 @@ namespace NeoModules.NEP6
             }
         }
 
-        internal static byte[] AES256Encrypt(this byte[] block, byte[] key)
+        private static byte[] AES256Encrypt(this byte[] block, byte[] key)
         {
             using (var aes = Aes.Create())
             {

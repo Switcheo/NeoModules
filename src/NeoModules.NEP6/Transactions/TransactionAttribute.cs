@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using NeoModules.Core;
+using NeoModules.Core.NVM;
 using NeoModules.NEP6.Helpers;
 
 namespace NeoModules.NEP6.Transactions
@@ -47,9 +48,9 @@ namespace NeoModules.NEP6.Transactions
 
         void ISerializable.Serialize(BinaryWriter writer)
         {
-            writer.Write((byte) Usage);
+            writer.Write((byte)Usage);
             if (Usage == TransactionAttributeUsage.DescriptionUrl)
-                writer.Write((byte) Data.Length);
+                writer.Write((byte)Data.Length);
             else if (Usage == TransactionAttributeUsage.Description || Usage >= TransactionAttributeUsage.Remark)
                 writer.WriteVarInt(Data.Length);
             if (Usage == TransactionAttributeUsage.ECDH02 || Usage == TransactionAttributeUsage.ECDH03)

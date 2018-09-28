@@ -12,7 +12,7 @@ namespace NeoModules.RPC.DTOs
 		public string State { get; set; }
 
 		[JsonProperty("gas_consumed")]
-		public string GasConsumed { get; set; }
+		public decimal GasConsumed { get; set; }
 
 		[JsonProperty("stack")]
 		public List<Stack> Stack { get; set; }

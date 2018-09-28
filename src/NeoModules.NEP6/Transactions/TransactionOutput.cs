@@ -14,10 +14,7 @@ namespace NeoModules.NEP6.Transactions
 
         void ISerializable.Deserialize(BinaryReader reader)
         {
-            AssetId = reader.ReadSerializable<UInt256>();
-            Value = reader.ReadSerializable<Fixed8>();
-            if (Value <= Fixed8.Zero) throw new FormatException();
-            ScriptHash = reader.ReadSerializable<UInt160>();
+            throw new NotImplementedException();
         }
 
         void ISerializable.Serialize(BinaryWriter writer)

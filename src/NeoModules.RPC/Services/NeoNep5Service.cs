@@ -60,8 +60,6 @@ namespace NeoModules.RPC.Services
             var resultString = result.Stack[0].Value.ToString();
             if (decimals.Equals(0)) return Convert.ToInt64(resultString, 16);
 
-            if (decimals.Equals(0)) return Convert.ToInt64(resultString, 16);
-
             var totalSupplyBigInteger = new BigInteger(resultString.HexStringToBytes());
             var totalSupply = Nep5Helper.CalculateDecimalFromBigInteger(totalSupplyBigInteger, decimals);
 

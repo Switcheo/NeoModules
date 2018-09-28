@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using NeoModules.Core;
-using NeoModules.KeyPairs;
+using NeoModules.Core.KeyPair;
+using NeoModules.Core.NVM;
 using NeoModules.NEP6.Helpers;
-using Helper = NeoModules.KeyPairs.Helper;
+using Helper = NeoModules.Core.KeyPair.Helper;
 using Utils = NeoModules.NEP6.Helpers.Utils;
 
 namespace NeoModules.NEP6.Transactions
 {
     public class Transaction : ISerializable
     {
-        /// <summary>
-        /// Maximum number of attributes that can be contained within a transaction
-        /// </summary>
-        private const int MaxTransactionAttributes = 16;
-
         public readonly TransactionType Type;
         public byte Version;
         public TransactionAttribute[] Attributes;
@@ -26,7 +19,6 @@ namespace NeoModules.NEP6.Transactions
         public Witness[] Witnesses { get; set; }
 
         private UInt256 _hash;
-
         public UInt256 Hash
         {
             get
@@ -40,8 +32,6 @@ namespace NeoModules.NEP6.Transactions
             }
         }
 
-        public Dictionary<CoinReference, TransactionOutput> References { get; set; }
-
         public virtual Fixed8 SystemFee => Fixed8.Zero;
 
         private Fixed8 _network_fee = -Fixed8.Satoshi;
@@ -50,16 +40,16 @@ namespace NeoModules.NEP6.Transactions
         {
             get
             {
-                if (_network_fee == -Fixed8.Satoshi)
-                {
-                    Fixed8 input = References.Values.Where(p => p.AssetId.Equals(Utils.GasToken))
-                        .Sum(p => p.Value);
-                    Fixed8 output = Outputs.Where(p => p.AssetId.Equals(Utils.GasToken)).ToArray()
-                        .Sum(p => p.Value);
-                    _network_fee = input - output - SystemFee;
-                }
+                //if (_network_fee == -Fixed8.Satoshi)
+                //{
+                //    Fixed8 input = References.Values.Where(p => p.AssetId.Equals(Utils.GasToken))
+                //        .Sum(p => p.Value);
+                //    Fixed8 output = Outputs.Where(p => p.AssetId.Equals(Utils.GasToken)).ToArray()
+                //        .Sum(p => p.Value);
+                //    _network_fee = input - output - SystemFee;
+                //}
 
-                return _network_fee;
+                return _network_fee;//todo
             }
         }
 
@@ -97,13 +87,7 @@ namespace NeoModules.NEP6.Transactions
 
         public byte[] Sign(KeyPair key)
         {
-            byte[] txdata;
-            using (MemoryStream ms = new MemoryStream())
-            using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
-            {
-                SerializeUnsigned(writer);
-                txdata = ms.ToArray();
-            }
+            byte[] txdata = Utils.GetHashData(this);
 
             var signature = Utils.Sign(txdata, key.PrivateKey);
             var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
@@ -117,7 +101,8 @@ namespace NeoModules.NEP6.Transactions
                 }
             };
 
-            return this.ToArray();
+            var signedTx = this.ToArray();
+            return signedTx;
         }
 
         public byte[] Sign(byte[] privateKey)

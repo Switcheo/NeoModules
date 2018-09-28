@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
 using NeoModules.RPC.DTOs;
@@ -19,23 +18,23 @@ namespace NeoModules.RPC.TransactionManagers
 
         public abstract Task<Transaction> WaitForTxConfirmation(string tx);
 
-        public virtual async Task<double> EstimateGasAsync(string serializedScriptHash)
+        public virtual async Task<decimal> EstimateGasAsync(string serializedScriptHash)
         {
             if (Client == null) throw new NullReferenceException("Client not configured");
             if (serializedScriptHash == null) throw new ArgumentNullException(nameof(serializedScriptHash));
             var neoEstimateGas = new NeoInvokeScript(Client);
             var invokeResult = await neoEstimateGas.SendRequestAsync(serializedScriptHash);
-            return double.Parse(invokeResult.GasConsumed, CultureInfo.InvariantCulture);
+            return invokeResult.GasConsumed;
         }
 
-        public virtual async Task<double> EstimateGasAsync(string scriptHash, string operation,
+        public virtual async Task<decimal> EstimateGasAsync(string scriptHash, string operation,
             List<InvokeParameter> parameterList)
         {
             if (Client == null) throw new NullReferenceException("Client not configured");
             if (scriptHash == null) throw new ArgumentNullException(nameof(scriptHash));
             var neoEstimateGas = new NeoInvokeFunction(Client);
             var invokeResult = await neoEstimateGas.SendRequestAsync(scriptHash, operation, parameterList);
-            return double.Parse(invokeResult.GasConsumed, CultureInfo.InvariantCulture);
+            return invokeResult.GasConsumed;
         } 
 
         public async Task<bool> SendTransactionAsync(string signedTx)

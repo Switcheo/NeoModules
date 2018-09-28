@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using NeoModules.Core;
-using NeoModules.KeyPairs;
+using NeoModules.Core.KeyPair;
+using NeoModules.Core.NVM;
 using NeoModules.NEP6.Helpers;
 
 namespace NeoModules.NEP6.Transactions
@@ -9,6 +11,8 @@ namespace NeoModules.NEP6.Transactions
     {
         public byte[] InvocationScript;
         public byte[] VerificationScript;
+
+        public int Size => InvocationScript.GetVarSize() + VerificationScript.GetVarSize();
 
         private UInt160 _scriptHash;
         public virtual UInt160 ScriptHash
@@ -22,12 +26,10 @@ namespace NeoModules.NEP6.Transactions
                 return _scriptHash;
             }
         }
-        public int Size => InvocationScript.GetVarSize() + VerificationScript.GetVarSize();
 
         void ISerializable.Deserialize(BinaryReader reader)
         {
-            InvocationScript = reader.ReadVarBytes(65536);
-            VerificationScript = reader.ReadVarBytes(65536);
+            throw new NotImplementedException();
         }
 
         void ISerializable.Serialize(BinaryWriter writer)

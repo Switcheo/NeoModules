@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NeoModules.KeyPairs;
+using NeoModules.Core.KeyPair;
 
 namespace NeoModules.NEP6.Transactions
 {

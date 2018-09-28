@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using NeoModules.Core;
+using NeoModules.Core.NVM;
 using NeoModules.NEP6.Helpers;
 
 namespace NeoModules.NEP6.Transactions

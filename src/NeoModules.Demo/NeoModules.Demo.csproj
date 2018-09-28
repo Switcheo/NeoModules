@@ -8,7 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\NeoModules.Core\NeoModules.Core.csproj" />
     <ProjectReference Include="..\NeoModules.NEP6\NeoModules.NEP6.csproj" />
-    <ProjectReference Include="..\NeoModules.NVM\NeoModules.NVM.csproj" />
     <ProjectReference Include="..\NeoModules.Rest\NeoModules.Rest.csproj" />
     <ProjectReference Include="..\NeoModules.RPC\NeoModules.RPC.csproj" />
   </ItemGroup>
