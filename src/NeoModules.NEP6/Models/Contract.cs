@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using NeoModules.Core;
-using NeoModules.KeyPairs;
+using NeoModules.Core.KeyPair;
 using NeoModules.NEP6.Converters;
 
 namespace NeoModules.NEP6.Models

@@ -1,6 +1,6 @@
 ﻿using System;
 using NeoModules.Core;
-using NeoModules.KeyPairs;
+using NeoModules.Core.KeyPair;
 using Newtonsoft.Json;
 
 namespace NeoModules.NEP6.Converters

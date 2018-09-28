@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NeoModules.Core\NeoModules.Core.csproj" />
-    <ProjectReference Include="..\NeoModules.NVM\NeoModules.NVM.csproj" />
   </ItemGroup>
 
   <ItemGroup>

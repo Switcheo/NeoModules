@@ -1,47 +1,52 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using NeoModules.Core;
+using NeoModules.Core.NVM;
+using NeoModules.NEP6.Helpers;
 
 namespace NeoModules.NEP6.Transactions
 {
-    public struct TransactionAttribute
+    public class TransactionAttribute : ISerializable
     {
-        public TransactionAttributeUsage Usage;
         public byte[] Data;
+        public TransactionAttributeUsage Usage;
 
-        public static TransactionAttribute Unserialize(BinaryReader reader)
+        public int Size
         {
-            var usage = (TransactionAttributeUsage) reader.ReadByte();
-
-            byte[] data;
-
-            if (usage == TransactionAttributeUsage.ContractHash || usage == TransactionAttributeUsage.Vote ||
-                usage >= TransactionAttributeUsage.Hash1 && usage <= TransactionAttributeUsage.Hash15)
-                data = reader.ReadBytes(32);
-            else switch (usage)
+            get
             {
-                case TransactionAttributeUsage.ECDH02:
-                case TransactionAttributeUsage.ECDH03:
-                    data = new[] {(byte) usage}.Concat(reader.ReadBytes(32)).ToArray();
-                    break;
-                case TransactionAttributeUsage.Script:
-                    data = reader.ReadBytes(20);
-                    break;
-                case TransactionAttributeUsage.DescriptionUrl:
-                    data = reader.ReadBytes(reader.ReadByte());
-                    break;
-                default:
-                    if (usage == TransactionAttributeUsage.Description || usage >= TransactionAttributeUsage.Remark)
-                        data = reader.ReadVarBytes(ushort.MaxValue);
-                    else
-                        throw new NotImplementedException();
-                    break;
+                if (Usage == TransactionAttributeUsage.ContractHash || Usage == TransactionAttributeUsage.ECDH02 ||
+                    Usage == TransactionAttributeUsage.ECDH03 || Usage == TransactionAttributeUsage.Vote ||
+                    Usage >= TransactionAttributeUsage.Hash1 && Usage <= TransactionAttributeUsage.Hash15)
+                    return sizeof(TransactionAttributeUsage) + 32;
+                if (Usage == TransactionAttributeUsage.Script)
+                    return sizeof(TransactionAttributeUsage) + 20;
+                if (Usage == TransactionAttributeUsage.DescriptionUrl)
+                    return sizeof(TransactionAttributeUsage) + sizeof(byte) + Data.Length;
+                return sizeof(TransactionAttributeUsage) + Data.GetVarSize();
             }
-
-            return new TransactionAttribute {Usage = usage, Data = data};
         }
 
-        internal void Serialize(BinaryWriter writer)
+        void ISerializable.Deserialize(BinaryReader reader)
+        {
+            Usage = (TransactionAttributeUsage) reader.ReadByte();
+            if (Usage == TransactionAttributeUsage.ContractHash || Usage == TransactionAttributeUsage.Vote ||
+                Usage >= TransactionAttributeUsage.Hash1 && Usage <= TransactionAttributeUsage.Hash15)
+                Data = reader.ReadBytes(32);
+            else if (Usage == TransactionAttributeUsage.ECDH02 || Usage == TransactionAttributeUsage.ECDH03)
+                Data = new[] {(byte) Usage}.Concat(reader.ReadBytes(32)).ToArray();
+            else if (Usage == TransactionAttributeUsage.Script)
+                Data = reader.ReadBytes(20);
+            else if (Usage == TransactionAttributeUsage.DescriptionUrl)
+                Data = reader.ReadBytes(reader.ReadByte());
+            else if (Usage == TransactionAttributeUsage.Description || Usage >= TransactionAttributeUsage.Remark)
+                Data = reader.ReadVarBytes(ushort.MaxValue);
+            else
+                throw new FormatException();
+        }
+
+        void ISerializable.Serialize(BinaryWriter writer)
         {
             writer.Write((byte)Usage);
             if (Usage == TransactionAttributeUsage.DescriptionUrl)

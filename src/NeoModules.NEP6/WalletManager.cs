@@ -5,12 +5,13 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NeoModules.Core;
+using NeoModules.Core.KeyPair;
 using NeoModules.JsonRpc.Client;
-using NeoModules.KeyPairs;
+using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Models;
 using NeoModules.Rest.Interfaces;
 using NeoModules.Rest.Services;
-using Helper = NeoModules.KeyPairs.Helper;
+using Helper = NeoModules.Core.KeyPair.Helper;
 
 namespace NeoModules.NEP6
 {

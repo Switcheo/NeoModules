@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using NeoModules.KeyPairs;
 using System;
 using System.IO;
+using NeoModules.Core.KeyPair;
 
 namespace NeoModules.NEP6.Models
 {

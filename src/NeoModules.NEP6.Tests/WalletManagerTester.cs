@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NeoModules.Core.KeyPair;
 using NeoModules.JsonRpc.Client;
-using NeoModules.KeyPairs;
 using NeoModules.NEP6.Models;
 using NeoModules.Rest.Services;
 using Xunit;

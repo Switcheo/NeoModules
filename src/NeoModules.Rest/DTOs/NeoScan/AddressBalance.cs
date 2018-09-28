@@ -19,6 +19,12 @@ namespace NeoModules.Rest.DTOs.NeoScan
         [JsonProperty("unspent")]
         public IList<Unspent> Unspent { get; set; }
 
+        [JsonProperty("asset_symbol")]
+        public string AssetSymbol { get; set; }
+
+        [JsonProperty("asset_hash")]
+        public string AssetHash { get; set; }
+
         [JsonProperty("asset")]
         public string Asset { get; set; }
 

@@ -1,5 +1,5 @@
 ﻿using NeoModules.Core;
-using NeoModules.KeyPairs;
+using NeoModules.Core.KeyPair;
 using NeoModules.NEP6.Converters;
 using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.TransactionManagers;

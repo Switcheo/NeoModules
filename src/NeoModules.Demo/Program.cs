@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using NeoModules.Core;
+using NeoModules.Core.KeyPair;
 using NeoModules.JsonRpc.Client;
-using NeoModules.KeyPairs;
 using NeoModules.NEP6;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.Services;
@@ -15,15 +16,13 @@ namespace NeoModules.Demo
 {
     public class Program
     {
-        private static readonly RpcClient RpcClient = new RpcClient(new Uri("http://seed3.aphelion-neo.com:10332"));
+        private static readonly RpcClient RpcClient = new RpcClient(new Uri("https://seed3.switcheo.network:10331"));
         private static readonly RpcClient RpcTestNetClient = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
 
         public static void Main(string[] args)
         {
             try
             {
-                //https://api.happynodes.f27.ventures
-                HappyNodesService().Wait();
 
                 var neoApiCompleteService = SetupCompleteNeoService();
 
@@ -45,6 +44,9 @@ namespace NeoModules.Demo
 
                 //https://n1.cityofzion.io/v1/"
                 NotificationsService().Wait();
+
+                //https://api.happynodes.f27.ventures
+                HappyNodesService().Wait();
 
 
 
@@ -151,53 +153,59 @@ namespace NeoModules.Demo
         {
             // Create online wallet and import account
             var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.MainNet), RpcClient);
-            var importedAccount = await walletManager.ImportAccount("*** ENCRYPTED KEY***", "*** PASSWORD***", "Test");
+            var importedAccount = walletManager.ImportAccount("PRIVATE KEY", "Account_label");
 
             // Get account signer for transactions
             if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
             {
-                // Send native assets
-                var assets = new Dictionary<string, decimal> { { "NEO", 1 }, { "GAS", 1 } };
-                var sendNeoAndGasTx =
-                    await accountSignerTransactionManager.SendAsset("** INSERT TO ADDRESS HERE **", assets);
+                // list of transfer outputs
+                var transferOutputWithNep5AndGas = new List<TransferOutput>
+                {
+                    new TransferOutput
+                    {
+                        AssetId = UInt160.Parse("a58b56b30425d3d1f8902034996fcac4168ef71d"), //  e.g. Script Hash of ASA
+                        Value = BigDecimal.Parse("0.0001", byte.Parse("8")), // majority of NEP5 tokens have 8 decimals
+                        ScriptHash = "Address to sent here".ToScriptHash(),
+                    },
+                    new TransferOutput
+                    {
+                        AssetId = NEP6.Helpers.Utils.GasToken, //GAS
+                        Value = BigDecimal.Parse("0.00001", byte.Parse("8")), // GAS has 8 decimals too
+                        ScriptHash = "Address to sent here".ToScriptHash(),
+                    }
+                };
+
+                var transferOutputWithOnlyGas = new List<TransferOutput>
+                {
+                    new TransferOutput
+                    {
+                        AssetId = NEP6.Helpers.Utils.GasToken, //GAS
+                        Value = BigDecimal.Parse("0.00001", byte.Parse("8")), // GAS has 8 decimals too
+                        ScriptHash = "Address to sent here".ToScriptHash(),
+                    }
+                };
+
+                // Claims unclaimed gas. Does not spent your neo to make gas claimable, you have to do it yourself!
+                var claim = await accountSignerTransactionManager.ClaimGas();
+
+                // Transfer NEP5 and gas with fee
+                var invocationTx = await accountSignerTransactionManager.SendInvocationTransaction(null, transferOutputWithNep5AndGas, null, null, Fixed8.FromDecimal(0.00001m));
+
+                // Send native assets (NEO and GAS) with fee
+                var nativeTx = await accountSignerTransactionManager.SendNativeAsset(null, transferOutputWithOnlyGas, null, fee: Fixed8.FromDecimal((decimal)0.0001));
 
                 // Call contract
-                var scriptHash = "** INSERT CONTRACT SCRIPTHASH **".ToScriptHash().ToArray();
-                var operation = "balanceOf";
-                var arguments = new object[] { "arg1" };
-
-                var contractCallTx =
-                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments);
+                var scriptHash = "a58b56b30425d3d1f8902034996fcac4168ef71d".ToScriptHash().ToArray(); // ASA e.g
+                var operation = "your operation here";
+                var arguments = new object[] { "arg1", "arg2", "etc" };
 
                 // Estimate Gas consumed from contract call
                 var estimateContractGasCall =
-                    await accountSignerTransactionManager.EstimateGasContractCall(scriptHash, operation, arguments);
-
-                // Call contract with attached assets
-                var assetToAttach = "GAS";
-                var output = new List<TransferOutput>()
-                {
-                    new TransferOutput()
-                    {
-                        AddressHash = "** INSERT TO ADDRESS HERE**".ToScriptHash().ToArray(),
-                        Amount = 2,
-                    }
-                };
-                var contractCallWithAttachedTx =
-                    await accountSignerTransactionManager.CallContract(scriptHash, operation, arguments, assetToAttach,
-                        output);
-
-                // Claim gas
-                var callGasTx = await accountSignerTransactionManager.ClaimGas();
-
-                // Transfer NEP5 tokens
-                var transferNepTx =
-                    await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m,
-                        scriptHash);
+                    await accountSignerTransactionManager.EstimateGasContractInvocation(scriptHash, operation, arguments);
 
                 // Confirm a transaction
                 var confirmedTransaction =
-                    await accountSignerTransactionManager.WaitForTxConfirmation(transferNepTx.Hash.ToString());
+                    await accountSignerTransactionManager.WaitForTxConfirmation(invocationTx.Hash.ToString());
             }
         }
 
@@ -240,6 +248,5 @@ namespace NeoModules.Demo
             var blockHeightLag = await happyNodesService.GetNodeBlockheightLag(0);
             var endpoints = await happyNodesService.GetEndPoints();
         }
-
     }
 }

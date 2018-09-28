@@ -1,10 +1,26 @@
-﻿namespace NeoModules.NEP6.Transactions
+﻿using System;
+using NeoModules.Core;
+
+namespace NeoModules.NEP6.Transactions
 {
     public class TransferOutput
     {
-        public byte[] AddressHash { get; set; }
-        public byte[] AssetId { get; set; }
-        public string Symbol { get; set; }
-        public decimal Amount { get; set; }
+        public UIntBase AssetId;
+        public BigDecimal Value;
+        public UInt160 ScriptHash;
+
+        public bool IsGlobalAsset => AssetId.Size == 32;
+
+        public TransactionOutput ToTxOutput()
+        {
+            if (AssetId is UInt256 asset_id)
+                return new TransactionOutput
+                {
+                    AssetId = asset_id,
+                    Value = Value.ToFixed8(),
+                    ScriptHash = ScriptHash
+                };
+            throw new NotSupportedException();
+        }
     }
 }
