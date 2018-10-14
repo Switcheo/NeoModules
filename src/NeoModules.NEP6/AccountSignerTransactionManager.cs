@@ -187,6 +187,18 @@ namespace NeoModules.NEP6
             return result ? tx : null;
         }
 
+        /// <summary>
+        /// Creates an InvocationTransactions. Serves to invoke a contract on the blockchain.
+        /// It need the contract script hash, operation and operation arguments.
+        /// This call can be used for the "mintTokens" call for example.
+        /// </summary>
+        /// <param name="contractScriptHash"></param>
+        /// <param name="operation"></param>
+        /// <param name="args"></param>
+        /// <param name="outputs"></param>
+        /// <param name="fee"></param>
+        /// <param name="attributes"></param>
+        /// <returns></returns>
         public async Task<Transaction> CallContract(string contractScriptHash, string operation,
             object[] args, IEnumerable<TransferOutput> outputs = null, 
             decimal fee = 0, List<TransactionAttribute> attributes = null)
@@ -221,6 +233,14 @@ namespace NeoModules.NEP6
             return success ? tx : null;
         }
 
+        /// <summary>
+        /// Transfer NEP5 tokens.
+        /// </summary>
+        /// <param name="attributes"></param>
+        /// <param name="outputs"></param>
+        /// <param name="changeAddress"></param>
+        /// <param name="fee"></param>
+        /// <returns></returns>
         public async Task<Transaction> TransferNep5(List<TransactionAttribute> attributes,
             IEnumerable<TransferOutput> outputs,
             UInt160 changeAddress = null, decimal fee = 0)
@@ -284,6 +304,14 @@ namespace NeoModules.NEP6
             return success ? tx : null;
         }
 
+        /// <summary>
+        /// Creates a ContractTransaction. It can only send "native" assets, such as NEO or/and GAS.
+        /// </summary>
+        /// <param name="attributes"></param>
+        /// <param name="outputs"></param>
+        /// <param name="changeAddress"></param>
+        /// <param name="fee"></param>
+        /// <returns></returns>
         public async Task<ContractTransaction> SendNativeAsset(List<TransactionAttribute> attributes,
             IEnumerable<TransferOutput> outputs,
             UInt160 changeAddress = null,
@@ -300,6 +328,15 @@ namespace NeoModules.NEP6
             return success ? tx : null;
         }
 
+        /// <summary>
+        /// Method that SendNativeAsset, TransferNep5 and CallContract uses to create the inputs and outputs of the transaction.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tx"></param>
+        /// <param name="from"></param>
+        /// <param name="changeAddress"></param>
+        /// <param name="fee"></param>
+        /// <returns></returns>
         public T MakeTransaction<T>(T tx, UInt160 from = null, UInt160 changeAddress = null, Fixed8 fee = default(Fixed8)) where T : Transaction
         {
             if (tx.Outputs == null) tx.Outputs = new TransactionOutput[0];

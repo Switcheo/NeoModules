@@ -12,6 +12,13 @@ namespace NeoModules.NEP6.Helpers
 {
     public static class TransactionBuilderHelper
     {
+        /// <summary>
+        /// Get the unspent coin references for a specific address.
+        /// For now it only works using the NeoScan API.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="restService"></param>
+        /// <returns></returns>
         public static async Task<IEnumerable<Coin>> GetUnspent(string address,
             INeoscanService restService)
         {
@@ -43,6 +50,12 @@ namespace NeoModules.NEP6.Helpers
             return coinList;
         }
 
+        /// <summary>
+        /// Gets nep5 tokens balance from NeoScan.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="restService"></param>
+        /// <returns></returns>
         //TODO change this to become neoscan independent
         public static async Task<List<Balance>> GetNep5Balances(string address,
             INeoscanService restService)
@@ -64,6 +77,12 @@ namespace NeoModules.NEP6.Helpers
             return nep5Balances;
         }
 
+        /// <summary>
+        /// Get claimable GAS from NeoScan.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="restService"></param>
+        /// <returns></returns>
         public static async Task<(List<ClaimableElement>, decimal amount)> GetClaimable(string address, INeoscanService restService)
         {
             var claimable = await restService.GetClaimableAsync(address);
