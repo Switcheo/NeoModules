@@ -20,6 +20,7 @@ namespace NeoModules.RPC
         gettxout,
         getvalidators,
         getversion,
+        getwalletheight,
         invoke,
         invokefunction,
         invokescript,

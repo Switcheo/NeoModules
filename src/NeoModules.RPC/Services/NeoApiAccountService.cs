@@ -13,6 +13,7 @@ namespace NeoModules.RPC.Services
             GetBalance = new NeoGetBalance(client);
             ListAddresses = new NeoListAddresses(client);
             DumpPrivateKey = new NeoDumpPrivateKey(client);
+            GetWalletHeight = new NeoGetWalletHeight(client);
         }
        
         public NeoGetAccountState GetAccountState { get; private set; }
@@ -21,5 +22,6 @@ namespace NeoModules.RPC.Services
         public NeoGetBalance GetBalance { get; private set; }
         public NeoListAddresses ListAddresses { get; private set; }
         public NeoDumpPrivateKey DumpPrivateKey { get; private set; }
+        public NeoGetWalletHeight GetWalletHeight { get; private set; }
     }
 }
