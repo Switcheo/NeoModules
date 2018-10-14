@@ -125,7 +125,7 @@ namespace NeoModules.NEP6
         public void ChangeDefaultAccount(Account account)
         {
             if (_wallet.Accounts.Count == 0) throw new WalletException($"No accounts available in this Wallet");
-            if (account == null) throw new WalletException($"Address cannot be null");
+            if (account == null) throw new WalletException($"AddressScriptHash cannot be null");
 
             var newDefaultAccounAddress = account.Address.ToAddress();
 

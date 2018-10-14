@@ -7,7 +7,7 @@ using Xunit;
 
 namespace NeoModules.RPC.Tests.Testers.Transactions
 {
-	public class NeoSendManyTester : RpcRequestTester<DTOs.Transaction> // TODO: add a way to test method that need an open wallet
+	public class NeoSendManyTester : RpcRequestTester<DTOs.Transaction>
 	{
 		[Fact]
 		public async void ShouldReturnTransactionDetails()

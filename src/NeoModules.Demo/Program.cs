@@ -165,13 +165,13 @@ namespace NeoModules.Demo
                     {
                         AssetId = UInt160.Parse("a58b56b30425d3d1f8902034996fcac4168ef71d"), //  e.g. Script Hash of ASA
                         Value = BigDecimal.Parse("0.0001", byte.Parse("8")), // majority of NEP5 tokens have 8 decimals
-                        ScriptHash = "Address to sent here".ToScriptHash(),
+                        ScriptHash = "AddressScriptHash to sent here".ToScriptHash(),
                     },
                     new TransferOutput
                     {
                         AssetId = NEP6.Helpers.Utils.GasToken, //GAS
                         Value = BigDecimal.Parse("0.00001", byte.Parse("8")), // GAS has 8 decimals too
-                        ScriptHash = "Address to sent here".ToScriptHash(),
+                        ScriptHash = "AddressScriptHash to sent here".ToScriptHash(),
                     }
                 };
 
@@ -181,7 +181,7 @@ namespace NeoModules.Demo
                     {
                         AssetId = NEP6.Helpers.Utils.GasToken, //GAS
                         Value = BigDecimal.Parse("0.00001", byte.Parse("8")), // GAS has 8 decimals too
-                        ScriptHash = "Address to sent here".ToScriptHash(),
+                        ScriptHash = "AddressScriptHash to sent here".ToScriptHash(),
                     }
                 };
 
@@ -189,7 +189,7 @@ namespace NeoModules.Demo
                 var claim = await accountSignerTransactionManager.ClaimGas();
 
                 // Transfer NEP5 and gas with fee
-                var invocationTx = await accountSignerTransactionManager.SendInvocationTransaction(null, transferOutputWithNep5AndGas, null, null, Fixed8.FromDecimal(0.00001m));
+                var invocationTx = await accountSignerTransactionManager.TransferNep5(null, transferOutputWithNep5AndGas, null, null, Fixed8.FromDecimal(0.00001m));
 
                 // Send native assets (NEO and GAS) with fee
                 var nativeTx = await accountSignerTransactionManager.SendNativeAsset(null, transferOutputWithOnlyGas, null, fee: Fixed8.FromDecimal((decimal)0.0001));

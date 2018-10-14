@@ -118,11 +118,6 @@ namespace NeoModules.Core.NVM
             return value;
         }
 
-        public static string ReadVarString(this BinaryReader reader)
-        {
-            return Encoding.UTF8.GetString(reader.ReadVarBytes());
-        }
-
         public static void WriteVarBytes(this BinaryWriter writer, byte[] value)
         {
             writer.WriteVarInt(value.Length);

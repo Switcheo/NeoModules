@@ -20,29 +20,26 @@ namespace NeoModules.NEP6.Helpers
 
             var coinList = new List<Coin>();
             if (addressBalance.Balance != null)
-                foreach (var balanceEntry in addressBalance.Balance)
-                {
-                    var child = balanceEntry.Unspent;
-                    if (!(child?.Count > 0)) continue;
-
-                    foreach (var unspent in balanceEntry.Unspent)
+            {
+                coinList.AddRange(from balanceEntry in addressBalance.Balance
+                    let child = balanceEntry.Unspent
+                    where child?.Count > 0
+                    from unspent in balanceEntry.Unspent
+                    select new Coin
                     {
-                        coinList.Add(new Coin
+                        Output = new TransactionOutput
                         {
-                            Output = new TransactionOutput
-                            {
-                                AssetId = UInt256.Parse(balanceEntry.AssetHash),
-                                ScriptHash = address.ToScriptHash(),
-                                Value = Fixed8.FromDecimal((decimal)unspent.Value),
-                            },
-                            Reference = new CoinReference
-                            {
-                                PrevHash = UInt256.Parse(unspent.TxId),
-                                PrevIndex = (ushort)unspent.N,
-                            }
-                        });
-                    }
-                }
+                            AssetId = UInt256.Parse(balanceEntry.AssetHash),
+                            ScriptHash = address.ToScriptHash(),
+                            Value = Fixed8.FromDecimal((decimal)unspent.Value),
+                        },
+                        Reference = new CoinReference
+                        {
+                            PrevHash = UInt256.Parse(unspent.TxId),
+                            PrevIndex = (ushort)unspent.N,
+                        }
+                    });
+            }
             return coinList;
         }
 
@@ -75,7 +72,6 @@ namespace NeoModules.NEP6.Helpers
             return (claimable.ClaimableList.ToList(), (decimal)amount);
         }
 
-
         public static async Task<Coin[]> FindUnspentCoins(UInt256 assetId, Fixed8 amount, UInt160 from, INeoscanService restService)
         {
             var address = from.ToAddress(); //todo
@@ -94,6 +90,5 @@ namespace NeoModules.NEP6.Helpers
             else
                 return unspentsOrdered.Take(i).Concat(new[] { unspentsOrdered.Last(p => p.Output.Value >= amount) }).ToArray();
         }
-
     }
 }

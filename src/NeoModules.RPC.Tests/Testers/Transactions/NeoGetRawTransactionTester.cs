@@ -19,7 +19,7 @@ namespace NeoModules.RPC.Tests.Testers.Transactions
 		public override async Task<Transaction> ExecuteAsync(IClient client)
 		{
 			var rawTransaction = new NeoGetRawTransaction(client);
-			return await rawTransaction.SendRequestAsync("f4250dab094c38d8265acc15c366dc508d2e14bf5699e12d9df26577ed74d657"); // todo move to settings
+			return await rawTransaction.SendRequestAsync("f4250dab094c38d8265acc15c366dc508d2e14bf5699e12d9df26577ed74d657");
 		}
 
 		public override Type GetRequestType()

@@ -27,8 +27,7 @@ namespace NeoModules.NEP6
         private static readonly SecureRandom Random = new SecureRandom();
         private readonly KeyPair _accountKey;
         private readonly INeoscanService _restService;
-        public string Address => Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash().ToAddress();
-
+        public UInt160 AddressScriptHash => Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
 
         public AccountSignerTransactionManager(IClient rpcClient, INeoscanService restService, IAccount account)
         {
@@ -78,7 +77,6 @@ namespace NeoModules.NEP6
             return Task.FromResult(signerTransaction.ToHexString());
         }
 
-
         /// <summary>
         /// Makes a 'getrawtransaction ' RPC call to the connected node.
         /// Only returns if the Transaction already has a block hash (indicates that is part of a block, therefore is confirmed)
@@ -117,9 +115,8 @@ namespace NeoModules.NEP6
         /// <returns></returns>
         public async Task<ClaimTransaction> ClaimGas(UInt160 changeAddress = null) // todo test this
         {
-            var addressHash = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
             var (claimable, amount) =
-                await TransactionBuilderHelper.GetClaimable(addressHash.ToAddress(), _restService);
+                await TransactionBuilderHelper.GetClaimable(AddressScriptHash.ToAddress(), _restService);
 
             if (amount <= 0) throw new WalletException("No GAS available to claim at this address");
 
@@ -135,7 +132,7 @@ namespace NeoModules.NEP6
                 });
             }
 
-            if (changeAddress == null) changeAddress = addressHash;
+            if (changeAddress == null) changeAddress = AddressScriptHash;
             var outputs = new List<TransactionOutput>
             {
                 new TransactionOutput
@@ -165,7 +162,6 @@ namespace NeoModules.NEP6
         /// <returns></returns>
         public async Task<Transaction> AssetlessContractCall(byte[] scriptHash, byte[] script)
         {
-            var signatureScript = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
             var tx = new InvocationTransaction()
             {
                 Version = 0,
@@ -177,10 +173,10 @@ namespace NeoModules.NEP6
                 {
                     new TransactionAttribute
                     {
-                        Data = signatureScript.ToArray(),
+                        Data = AddressScriptHash.ToArray(),
                         Usage = TransactionAttributeUsage.Script
                     },
-                    new TransactionAttribute //TODO: change this to use the same nonce in same tx to avoid duplicated tx
+                    new TransactionAttribute //Nonce used to prevent hash colision
                     {
                         Data = GenerateNonce(4),
                         Usage = TransactionAttributeUsage.Remark
@@ -191,11 +187,45 @@ namespace NeoModules.NEP6
             return result ? tx : null;
         }
 
-        public async Task<Transaction> SendInvocationTransaction(List<TransactionAttribute> attributes,
-            IEnumerable<TransferOutput> outputs, UInt160 from = null,
-            UInt160 changeAddress = null, Fixed8 fee = default(Fixed8))
+        public async Task<Transaction> CallContract(string contractScriptHash, string operation,
+            object[] args, IEnumerable<TransferOutput> outputs = null, 
+            decimal fee = 0, List<TransactionAttribute> attributes = null)
         {
-            InvocationTransaction tx = new InvocationTransaction();
+            if (string.IsNullOrEmpty(contractScriptHash)) throw new ArgumentNullException(nameof(contractScriptHash));
+            if(string.IsNullOrEmpty(operation)) throw new ArgumentNullException(nameof(operation));
+
+            var script = Utils.GenerateScript(contractScriptHash.ToScriptHash(), operation, args);
+
+            if (attributes == null) attributes = new List<TransactionAttribute>();
+            attributes.Add(new TransactionAttribute
+            {
+                Usage = TransactionAttributeUsage.Script,
+                Data = AddressScriptHash.ToArray()
+            });
+
+            var tx = new InvocationTransaction
+            {
+                Version = 1,
+                Script = script,
+                Attributes = attributes.ToArray(),
+                Inputs = new CoinReference[0],
+                Outputs = outputs == null ? new TransactionOutput[0] : outputs.Where(p => p.IsGlobalAsset).Select(p => p.ToTxOutput()).ToArray(),
+                Witnesses = new Witness[0]
+            };
+
+            var gasConsumed = await EstimateGasAsync(tx.Script.ToHexString());
+            tx.Gas = InvocationTransaction.GetGas(Fixed8.FromDecimal(gasConsumed));
+
+            tx = MakeTransaction(tx, AddressScriptHash, null, Fixed8.FromDecimal(fee));
+            var success = await SignAndSendTransaction(tx);
+            return success ? tx : null;
+        }
+
+        public async Task<Transaction> TransferNep5(List<TransactionAttribute> attributes,
+            IEnumerable<TransferOutput> outputs,
+            UInt160 changeAddress = null, decimal fee = 0)
+        {
+            InvocationTransaction tx;
             var cOutputs = outputs.Where(p => !p.IsGlobalAsset).GroupBy(p => new
             {
                 AssetId = (UInt160)p.AssetId,
@@ -210,8 +240,7 @@ namespace NeoModules.NEP6
             {
                 return null;
             }
-            if (from == null) from = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
-            var nep5Balances = await TransactionBuilderHelper.GetNep5Balances(from.ToAddress(), _restService);
+            var nep5Balances = await TransactionBuilderHelper.GetNep5Balances(AddressScriptHash.ToAddress(), _restService);
 
             using (ScriptBuilder sb = new ScriptBuilder())
             {
@@ -222,7 +251,7 @@ namespace NeoModules.NEP6
                     {
                         throw new WalletException($"Not enough balance of: {output.AssetId} ");
                     }
-                    sb.EmitAppCall(output.AssetId, Nep5Methods.transfer.ToString(), from, output.Account, output.Value);
+                    sb.EmitAppCall(output.AssetId, Nep5Methods.transfer.ToString(), AddressScriptHash, output.Account, output.Value);
                     sb.Emit(OpCode.THROWIFNOT);
                 }
 
@@ -239,7 +268,7 @@ namespace NeoModules.NEP6
             attributes.Add(new TransactionAttribute
             {
                 Usage = TransactionAttributeUsage.Script,
-                Data = from.ToArray()
+                Data = AddressScriptHash.ToArray()
             });
 
             tx.Attributes = attributes.ToArray();
@@ -247,21 +276,18 @@ namespace NeoModules.NEP6
             tx.Outputs = outputs.Where(p => p.IsGlobalAsset).Select(p => p.ToTxOutput()).ToArray();
             tx.Witnesses = new Witness[0];
 
-            var addressScriptHash = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
-
             var gasConsumed = await EstimateGasAsync(tx.Script.ToHexString()); //todo add gas limit 
             tx.Gas = InvocationTransaction.GetGas(Fixed8.FromDecimal(gasConsumed));
 
-            tx = MakeTransaction(tx, addressScriptHash, changeAddress, fee);
+            tx = MakeTransaction(tx, AddressScriptHash, changeAddress, Fixed8.FromDecimal(fee));
             var success = await SignAndSendTransaction(tx);
             return success ? tx : null;
         }
 
         public async Task<ContractTransaction> SendNativeAsset(List<TransactionAttribute> attributes,
             IEnumerable<TransferOutput> outputs,
-            UInt160 from = null,
             UInt160 changeAddress = null,
-            Fixed8 fee = default(Fixed8)) //todo from change
+            decimal fee = 0) //todo from change
         {
             ContractTransaction tx = new ContractTransaction();
             if (attributes == null) attributes = new List<TransactionAttribute>();
@@ -269,8 +295,7 @@ namespace NeoModules.NEP6
             tx.Inputs = new CoinReference[0];
             tx.Outputs = outputs.Where(p => p.IsGlobalAsset).Select(p => p.ToTxOutput()).ToArray();
             tx.Witnesses = new Witness[0];
-            if (from == null) from = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
-            tx = MakeTransaction(tx, from, changeAddress, fee);
+            tx = MakeTransaction(tx, AddressScriptHash, changeAddress, Fixed8.FromDecimal(fee));
             var success = await SignAndSendTransaction(tx);
             return success ? tx : null;
         }
@@ -279,7 +304,7 @@ namespace NeoModules.NEP6
         {
             if (tx.Outputs == null) tx.Outputs = new TransactionOutput[0];
             if (tx.Attributes == null) tx.Attributes = new TransactionAttribute[0];
-            if (from == null) from = Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
+            if (from == null) from = AddressScriptHash;
             fee += tx.SystemFee;
             var payTotal = tx.Outputs.GroupBy(p => p.AssetId, (k, g) => new
             {
