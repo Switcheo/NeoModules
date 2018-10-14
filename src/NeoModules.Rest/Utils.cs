@@ -49,6 +49,11 @@ namespace NeoModules.Rest
             // Subtract 3 days from Thursday to get Monday, which is the first weekday in ISO8601
             return result.AddDays(-3);
         }
+
+        public static string ComposeUrl(string url, object pathToAdd)
+        {
+            return $"{url}{pathToAdd}";
+        }
     }
 
 

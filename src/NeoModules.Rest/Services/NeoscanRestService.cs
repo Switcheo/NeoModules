@@ -57,7 +57,7 @@ namespace NeoModules.Rest.Services
         // TODO: I can refractor this more, move the 3 lines of each call to a function
         public async Task<AddressBalance> GetBalanceAsync(string address)
         {
-            var composedUrl = ComposeUrl(getBalanceUrl, address);
+            var composedUrl = Utils.ComposeUrl(getBalanceUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return AddressBalance.FromJson(data);
@@ -65,7 +65,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<Claimable> GetClaimableAsync(string address)
         {
-            var composedUrl = ComposeUrl(getClaimableUrl, address);
+            var composedUrl = Utils.ComposeUrl(getClaimableUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return Claimable.FromJson(data);
@@ -73,7 +73,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<Claimed> GetClaimedAsync(string address)
         {
-            var composedUrl = ComposeUrl(getClaimedUrl, address);
+            var composedUrl = Utils.ComposeUrl(getClaimedUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return Claimed.FromJson(data);
@@ -81,7 +81,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<Unclaimed> GetUnclaimedAsync(string address)
         {
-            var composedUrl = ComposeUrl(getUnclaimedUrl, address);
+            var composedUrl = Utils.ComposeUrl(getUnclaimedUrl, address);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return Unclaimed.FromJson(data);
@@ -89,7 +89,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<Transaction> GetTransactionAsync(string hash)
         {
-            var composedUrl = ComposeUrl(getTransaction, hash);
+            var composedUrl = Utils.ComposeUrl(getTransaction, hash);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return Transaction.FromJson(data);
@@ -125,7 +125,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<AbstractAddress> GetAddressAbstracts(string address, int page = 0)
         {
-            var composedUrl = ComposeUrl(getAddressAbstracts, string.Concat(address, "/", page));
+            var composedUrl = Utils.ComposeUrl(getAddressAbstracts, string.Concat(address, "/", page));
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return AbstractAddress.FromJson(data);
@@ -133,7 +133,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<AbstractAddress> GetAddressToAddressAbstract(string addressfrom, string addressTo, int page = 0)
         {
-            var composedUrl = ComposeUrl(getAddressToAddressAbstracts,
+            var composedUrl = Utils.ComposeUrl(getAddressToAddressAbstracts,
                 string.Concat(addressfrom, "/", addressTo, "/", page));
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
@@ -142,7 +142,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<Block> GetBlock(string blockHash)
         {
-            var composedUrl = ComposeUrl(getBlock, blockHash);
+            var composedUrl = Utils.ComposeUrl(getBlock, blockHash);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return Block.FromJson(data);
@@ -150,7 +150,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<Block> GetBlock(int blockHeight)
         {
-            var composedUrl = ComposeUrl(getBlock, blockHeight);
+            var composedUrl = Utils.ComposeUrl(getBlock, blockHeight);
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
             return Block.FromJson(data);
@@ -158,7 +158,7 @@ namespace NeoModules.Rest.Services
 
         public async Task<List<Transaction>> GetLastTransactionsByAddress(string address, int page = 0)
         {
-            var composedUrl = ComposeUrl(getLastTransactionsByAddress,
+            var composedUrl = Utils.ComposeUrl(getLastTransactionsByAddress,
                 string.Concat(address, "/", page));
             var result = await _restClient.GetAsync(composedUrl);
             var data = await result.Content.ReadAsStringAsync();
@@ -172,9 +172,6 @@ namespace NeoModules.Rest.Services
             return data;
         }
 
-        private string ComposeUrl(string url, object pathToAdd)
-        {
-            return $"{url}{pathToAdd}";
-        }
+       
     }
 }

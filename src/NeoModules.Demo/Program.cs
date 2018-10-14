@@ -24,33 +24,34 @@ namespace NeoModules.Demo
             try
             {
 
-                var neoApiCompleteService = SetupCompleteNeoService();
+                //var neoApiCompleteService = SetupCompleteNeoService();
 
-                var neoApiSimpleContractService = SetupSimpleService();
-                var neoApiSimpleAccountService = SetupAnotherSimpleService();
-                //You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+                //var neoApiSimpleContractService = SetupSimpleService();
+                //var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                ////You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-                var nep5ApiService = SetupNep5Service();
+                //var nep5ApiService = SetupNep5Service();
 
-                BlockApiTest(neoApiCompleteService).Wait();
+                //BlockApiTest(neoApiCompleteService).Wait();
 
-                TestNep5Service(nep5ApiService).Wait();
+                //TestNep5Service(nep5ApiService).Wait();
 
-                //create rest api client
-                RestClientTest().Wait();
+                ////create rest api client
+                //RestClientTest().Wait();
 
-                //nodes list from http://monitor.cityofzion.io/
-                NodesListTestAsync().Wait();
+                ////nodes list from http://monitor.cityofzion.io/
+                //NodesListTestAsync().Wait();
 
-                //https://n1.cityofzion.io/v1/"
-                NotificationsService().Wait();
+                ////https://n1.cityofzion.io/v1/"
+                //NotificationsService().Wait();
 
-                //https://api.happynodes.f27.ventures
-                HappyNodesService().Wait();
+                ////https://api.happynodes.f27.ventures
+                //HappyNodesService().Wait();
 
 
+                SwitcheoService().Wait();
 
-                WalletAndTransactionsTest().Wait();
+                //WalletAndTransactionsTest().Wait();
             }
             catch (Exception ex)
             {
@@ -189,10 +190,10 @@ namespace NeoModules.Demo
                 var claim = await accountSignerTransactionManager.ClaimGas();
 
                 // Transfer NEP5 and gas with fee
-                var invocationTx = await accountSignerTransactionManager.TransferNep5(null, transferOutputWithNep5AndGas, null, null, Fixed8.FromDecimal(0.00001m));
+                var invocationTx = await accountSignerTransactionManager.TransferNep5(null, transferOutputWithNep5AndGas, null, 0.00001m);
 
                 // Send native assets (NEO and GAS) with fee
-                var nativeTx = await accountSignerTransactionManager.SendNativeAsset(null, transferOutputWithOnlyGas, null, fee: Fixed8.FromDecimal((decimal)0.0001));
+                var nativeTx = await accountSignerTransactionManager.SendNativeAsset(null, transferOutputWithOnlyGas, null, 0.0001m);
 
                 // Call contract
                 var scriptHash = "a58b56b30425d3d1f8902034996fcac4168ef71d".ToScriptHash().ToArray(); // ASA e.g
@@ -247,6 +248,18 @@ namespace NeoModules.Demo
             var weeklyLatency = await happyNodesService.GetWeeklyNodeLatency(480);
             var blockHeightLag = await happyNodesService.GetNodeBlockheightLag(0);
             var endpoints = await happyNodesService.GetEndPoints();
+        }
+
+        private static async Task SwitcheoService()
+        {
+            var switcheoService = new SwitcheoRestService(SwitcheoNet.MainNet);
+
+            var timeStamp = await switcheoService.GetTimeStampAsync();
+            var contracts = await switcheoService.GetContractsAsync();
+            var tokens = await switcheoService.GetTokensAsync();
+            var pairs = await switcheoService.GetPairsAsync();
+            var candleSticks = await switcheoService.GetCandleSticksAsync("SWTH_NEO", 1539541508, 1539541808, 60);
+            var last24HourData = await switcheoService.Get24HourDataAsync();
         }
     }
 }
