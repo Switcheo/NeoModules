@@ -21,16 +21,9 @@
 | ------------- |--------------------------|-----------|
 | [NeoModules.RPC](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.RPC)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.10-green.svg)](https://www.nuget.org/packages/NeoModules.RPC/)| RPC Class Library to interact with NEO RPC nodes |
 | [NeoModules.JsonRpc.Client](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.JsonRpc.Client) | [![NuGet version](https://img.shields.io/badge/nuget-1.0.2-green.svg)](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/)| Base RPC client definition, used in NeoModules.RPC|
-| [NeoModules.Rest](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.Rest)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.7-green.svg)](https://www.nuget.org/packages/NeoModules.Rest/)| Simple Rest client for https://neoscan.io public API |
-
-## Libraries (in dev)
-|  Project Source | Nuget Package |  Description |
-| ------------- |--------------------------|-----------|
+| [NeoModules.Rest](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.Rest)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.7-green.svg)](https://www.nuget.org/packages/NeoModules.Rest/)| REST clients for Neoscan, Notifications, HappyNodes and Switcheo |
 | [NeoModules.Core](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.Core)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.3-yellow.svg)](https://www.nuget.org/packages/NeoModules.Core/)| Core data types and methods used in NeoModules |
-| [NeoModules.NVM](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.NVM)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.3-yellow.svg)](https://www.nuget.org/packages/NeoModules.NVM/)| Neo VM with only the necessary functions to support script construction and KeyPair/NEP6 |
-| [NeoModules.KeyPairs](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.KeyPairs)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.5-yellow.svg)](https://www.nuget.org/packages/NeoModules.KeyPairs/)| KeyPair project, has the crypto methods needed for KeyPair creation and KeyPair definition |
 | [NeoModules.NEP6](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.NEP6)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.16-yellow.svg)](https://www.nuget.org/packages/NeoModules.NEP6/)| NEP6 light wallet implementation |
-
 
 ## RPC client
 
