@@ -251,7 +251,7 @@ namespace NeoModules.Demo
 
         private static async Task SwitcheoService()
         {
-            var switcheoService = new SwitcheoRestService(SwitcheoNet.MainNet);
+            var switcheoService = new SwitcheoRestService(SwitcheoNet.TestNet);
 
             var timeStamp = await switcheoService.GetTimeStampAsync();
             var contracts = await switcheoService.GetContractsAsync();
@@ -262,6 +262,7 @@ namespace NeoModules.Demo
             var lastPrice = await switcheoService.GetLastPriceAsync(null);
             var offers = await switcheoService.GetOffers("neo", "SWTH_NEO", "91b83e96f2a7c4fdf0c1688441ec61986c7cae26");
             var trades = await switcheoService.GetTradesAsync("91b83e96f2a7c4fdf0c1688441ec61986c7cae26", "SWTH_NEO");
+            var recentTrades = await switcheoService.GetRecentTradesAsync("SWTH_NEO");
         }
     }
 }
