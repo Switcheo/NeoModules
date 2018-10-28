@@ -10,8 +10,5 @@ namespace NeoModules.Rest.DTOs.Switcheo
 
         [JsonProperty("timestamp")]
         public long Timestamp { get; set; }
-
-        [JsonProperty("signature")]
-        public string Signature { get; set; }
     }
 }

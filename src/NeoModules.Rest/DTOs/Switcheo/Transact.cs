@@ -4,26 +4,20 @@ namespace NeoModules.Rest.DTOs.Switcheo
 {
     public class Transact
     {
-        [JsonProperty("blockchain")]
-        public string Blockchain { get; set; }
-
-        [JsonProperty("asset_id")]
-        public string AssetId { get; set; }
-
-        [JsonProperty("amount")]
+        [JsonProperty("amount", Order = 1)]
         [JsonConverter(typeof(ParseStringConverter))]
         public long Amount { get; set; }
 
-        [JsonProperty("timestamp")]
-        public long Timestamp { get; set; }
+        [JsonProperty("asset_id", Order = 2)]
+        public string AssetId { get; set; }
 
-        [JsonProperty("contract_hash")]
+        [JsonProperty("blockchain", Order = 3)]
+        public string Blockchain { get; set; }
+
+        [JsonProperty("contract_hash", Order = 4)]
         public string ContractHash { get; set; }
 
-        [JsonProperty("signature")]
-        public string Signature { get; set; }
-
-        [JsonProperty("address")]
-        public string Address { get; set; } //Do not include this in the parameters to be signed.
+        [JsonProperty("timestamp", Order = 5)]
+        public long Timestamp { get; set; }
     }
 }

@@ -36,7 +36,7 @@ namespace NeoModules.Rest.DTOs.Switcheo
         public string Price { get; set; }
 
         [JsonProperty("txn")]
-        public object Txn { get; set; }
+        public Txn Txn { get; set; }
 
         [JsonProperty("status")]
         public string Status { get; set; }

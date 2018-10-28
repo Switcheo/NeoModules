@@ -54,6 +54,17 @@ namespace NeoModules.Rest
         {
             return $"{url}{pathToAdd}";
         }
+
+        public static string ConvertStringToHex(string asciiString)
+        {
+            string hex = "";
+            foreach (char c in asciiString)
+            {
+                int tmp = c;
+                hex += $"{Convert.ToUInt32(tmp.ToString()):x2}";
+            }
+            return hex;
+        }
     }
 
 

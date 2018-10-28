@@ -30,10 +30,10 @@ namespace NeoModules.Rest.DTOs.Switcheo
         public string FilledAmount { get; set; }
 
         [JsonProperty("txn")]
-        public object Txn { get; set; }
+        public Txn Txn { get; set; }
 
         [JsonProperty("cancel_txn")]
-        public object CancelTxn { get; set; }
+        public Txn CancelTxn { get; set; }
 
         [JsonProperty("price")]
         public string Price { get; set; }

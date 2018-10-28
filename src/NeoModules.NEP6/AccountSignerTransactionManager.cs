@@ -10,7 +10,9 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Interfaces;
 using NeoModules.NEP6.Transactions;
+using NeoModules.Rest.DTOs.Switcheo;
 using NeoModules.Rest.Interfaces;
+using NeoModules.Rest.Services;
 using NeoModules.RPC;
 using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.TransactionManagers;
@@ -37,7 +39,7 @@ namespace NeoModules.NEP6
             if (account.PrivateKey != null)
                 _accountKey = new KeyPair(account.PrivateKey); //if account is watch only, it does not have private key
         }
-
+        
         public byte[] GenerateNonce(int size)
         {
             var bytes = new byte[size];
@@ -61,9 +63,10 @@ namespace NeoModules.NEP6
         /// Signs a Transaction object
         /// </summary>
         /// <param name="txInput"></param>
-        public byte[] SignTransaction(Transaction txInput)
+        /// <param name="signed"></param>
+        public byte[] SignTransaction(Transaction txInput, bool signed = true)
         {
-            return txInput.Sign(_accountKey);
+            return Transaction.Sign(_accountKey, txInput, signed);
         }
 
         /// <summary>
@@ -200,11 +203,11 @@ namespace NeoModules.NEP6
         /// <param name="attributes"></param>
         /// <returns></returns>
         public async Task<Transaction> CallContract(string contractScriptHash, string operation,
-            object[] args, IEnumerable<TransferOutput> outputs = null, 
+            object[] args, IEnumerable<TransferOutput> outputs = null,
             decimal fee = 0, List<TransactionAttribute> attributes = null)
         {
             if (string.IsNullOrEmpty(contractScriptHash)) throw new ArgumentNullException(nameof(contractScriptHash));
-            if(string.IsNullOrEmpty(operation)) throw new ArgumentNullException(nameof(operation));
+            if (string.IsNullOrEmpty(operation)) throw new ArgumentNullException(nameof(operation));
 
             var script = Utils.GenerateScript(contractScriptHash.ToScriptHash(), operation, args);
 
@@ -398,6 +401,11 @@ namespace NeoModules.NEP6
             tx.Inputs = payCoins.Values.SelectMany(p => p.Unspents).Select(p => p.Reference).ToArray();
             tx.Outputs = outputsNew.ToArray();
             return tx;
+        }
+
+        public string SignMessage(string message)
+        {
+            return Utils.Sign(message.HexToBytes(), _accountKey.PrivateKey).ToHexString();
         }
     }
 }

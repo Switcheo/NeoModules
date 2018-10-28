@@ -4,6 +4,7 @@ using System.Linq;
 using NeoModules.Core;
 using NeoModules.Core.NVM;
 using NeoModules.NEP6.Helpers;
+using Newtonsoft.Json;
 
 namespace NeoModules.NEP6.Transactions
 {

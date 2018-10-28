@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using NeoModules.Core;
 using NeoModules.Rest.DTOs.Switcheo;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -33,6 +35,7 @@ namespace NeoModules.Rest.Services
         private const string getOffers = "offers";
         private const string getTrades = "trades";
         private const string getRecentTrades = "trades/recent";
+        private const string getBalances = "balances"; //todo
         private const string createDeposit = "deposits";
         private const string executeDeposit = "deposits/:id/broadcast";
         private const string createWithdrawl = "withdrawals";
@@ -40,12 +43,30 @@ namespace NeoModules.Rest.Services
         private const string orders = "orders";
         private const string executeOrder = "orders/:id/broadcast";
 
+        public string ContractHash { get; set; }
+        public string Blockchain { get; set; }
 
         public SwitcheoRestService(SwitcheoNet net)
         {
             _restClient = net == SwitcheoNet.MainNet
                 ? new HttpClient { BaseAddress = new Uri(neoScanMainNetUrl) }
                 : new HttpClient { BaseAddress = new Uri(switcheoTestNetUrl) };
+        }
+
+        /// <summary>
+        /// Gets the last contract hash for the specified blockchain
+        /// Sets the Blockchain and ContractHash fields for future calls
+        /// <param name="blockchain"></param>
+        /// </summary>
+        public async Task InitService(string blockchain)
+        {
+            var contracts = await GetContractsAsync();
+            var lastContractHash = contracts[blockchain.ToUpperInvariant()].Last.ToObject<string>();
+            if (!string.IsNullOrEmpty(lastContractHash))
+            {
+                ContractHash = lastContractHash;
+                Blockchain = blockchain.ToLowerInvariant();
+            }
         }
 
         public async Task<long> GetTimeStampAsync()
@@ -179,16 +200,54 @@ namespace NeoModules.Rest.Services
         }
 
         /// <summary>
+        /// todo
+        /// </summary>
+        /// <param name="blockchain"></param>
+        /// <param name="contractHash"></param>
+        /// <param name="assetId"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        public async Task<Transact> PrepareCreateDeposit(string assetId, string amount, string blockchain = "", string contractHash = "")
+        {
+            if (string.IsNullOrEmpty(blockchain)) throw new ArgumentNullException(nameof(blockchain));
+            if (string.IsNullOrEmpty(assetId)) throw new ArgumentNullException(nameof(assetId));
+            if (string.IsNullOrEmpty(amount)) throw new ArgumentNullException(nameof(amount));
+            if (string.IsNullOrEmpty(contractHash)) contractHash = ContractHash;
+            if (string.IsNullOrEmpty(blockchain)) blockchain = Blockchain;
+
+            var timestamp = await GetTimeStampAsync();
+            var tokens = await GetTokensAsync();
+            int decimals;
+            if (tokens.ContainsKey(assetId))
+            {
+                decimals = tokens[assetId].Decimals;
+            }
+            else
+            {
+                throw new Exception($"{assetId} is not available for deposit in Switcheo");
+            }
+            var transact = new Transact
+            {
+                Blockchain = blockchain,
+                AssetId = assetId,
+                Timestamp = timestamp,
+                ContractHash = contractHash,
+                Amount = (long)BigDecimal.Parse(amount, byte.Parse(decimals.ToString())).Value
+            };
+
+            return transact;
+        }
+
+        /// <summary>
         /// This endpoint creates a deposit which can be executed through Execute Deposit.
         /// To be able to make a deposit, sufficient funds are required in the depositing wallet.
         /// IMPORTANT: After calling this endpoint, the Execute Deposit endpoint has to be called for the deposit to be executed. 
         /// </summary>
-        /// <param name="deposit"></param>
+        /// <param name="apiParams"></param>
         /// <returns></returns>
-        public async Task<string> CreateDeposit(Transact deposit)
+        public async Task<string> CreateDeposit(string apiParams)
         {
-            var json = JsonConvert.SerializeObject(deposit);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
             var result = await _restClient.PostAsync(createDeposit, httpContent);
             return await result.Content.ReadAsStringAsync();
         }
@@ -201,12 +260,50 @@ namespace NeoModules.Rest.Services
         /// <param name="signature"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<string> ExecuteDeposit(ExecuteDeposit signature, string id)//todo id?
+        public async Task<string> ExecuteDeposit(string signature, string id)
         {
-            var json = JsonConvert.SerializeObject(signature);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var json = new JObject { ["signature"] = signature };
+            var httpContent = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
             var result = await _restClient.PostAsync(executeDeposit.Replace(":id", id), httpContent);
             return await result.Content.ReadAsStringAsync();
+        }
+
+        /// <summary>
+        /// todo
+        /// </summary>
+        /// <param name="blockchain"></param>
+        /// <param name="contractHash"></param>
+        /// <param name="assetId"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        public async Task<Transact> PrepareCreateWithdrawal(string assetId, string amount, string blockchain = "", string contractHash = "")
+        {
+            if (string.IsNullOrEmpty(assetId)) throw new ArgumentNullException(nameof(assetId));
+            if (string.IsNullOrEmpty(amount)) throw new ArgumentNullException(nameof(amount));
+            if (string.IsNullOrEmpty(contractHash)) contractHash = ContractHash;
+            if (string.IsNullOrEmpty(blockchain)) blockchain = Blockchain;
+
+            var timestamp = await GetTimeStampAsync();
+            var tokens = await GetTokensAsync();
+            int decimals;
+            if (tokens.ContainsKey(assetId))
+            {
+                decimals = tokens[assetId].Decimals;
+            }
+            else
+            {
+                throw new Exception($"{assetId} is not available for withdrawal in Switcheo");
+            }
+            var transact = new Transact
+            {
+                Blockchain = blockchain,
+                AssetId = assetId,
+                Timestamp = timestamp,
+                ContractHash = contractHash,
+                Amount = (long)BigDecimal.Parse(amount, byte.Parse(decimals.ToString())).Value
+            };
+
+            return transact;
         }
 
         /// <summary>
@@ -214,12 +311,11 @@ namespace NeoModules.Rest.Services
         /// To be able to make a withdrawal, sufficient funds are required in the contract balance.
         /// A signature of the request payload has to be provided for this API call.
         /// </summary>
-        /// <param name="deposit"></param>
+        /// <param name="apiParams"></param>
         /// <returns></returns>
-        public async Task<string> CreateWithdrawl(Transact deposit) //returns  GUID todo
+        public async Task<string> CreateWithdrawl(string apiParams)
         {
-            var json = JsonConvert.SerializeObject(deposit);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
             var result = await _restClient.PostAsync(createWithdrawl, httpContent);
             return await result.Content.ReadAsStringAsync();
         }
@@ -228,13 +324,20 @@ namespace NeoModules.Rest.Services
         /// This is the second endpoint required to execute a withdrawal.
         /// After using the Create Withdrawal endpoint, you will receive a response which requires additional signing.
         /// </summary>
-        /// <param name="withdrawl"></param>
+        /// <param name="withdrawal"></param>
+        /// <param name="signature"></param>
         /// <returns></returns>
-        public async Task<WithdrawlResponse> ExecuteWithdraw(ExecuteWithdrawl withdrawl)
+        public async Task<WithdrawlResponse> ExecuteWithdraw(ExecuteWithdrawl withdrawal, string signature)
         {
-            var json = JsonConvert.SerializeObject(withdrawl);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(executeWithdrawl, httpContent);
+            var apiParams = new JObject
+            {
+                ["id"] = withdrawal.Id,
+                ["timestamp"] = withdrawal.Timestamp,
+                ["signature"] = signature
+            };
+
+            var httpContent = new StringContent(apiParams.ToString(), Encoding.UTF8, "application/json");
+            var result = await _restClient.PostAsync(executeWithdrawl.Replace(":id", withdrawal.Id.ToString()), httpContent);
             return WithdrawlResponse.FromJson(await result.Content.ReadAsStringAsync());
         }
 
@@ -269,17 +372,45 @@ namespace NeoModules.Rest.Services
             return OrderResponse.FromJson(await result.Content.ReadAsStringAsync());
         }
 
+
+        public async Task<OrderRequest> PrepareCreateOrder(string pair, string side, string price, string wantAmount, bool useNativeTokens,
+            string orderType, string blockchain = "", string contractHash = "") //todo checkDecimals, otcaddress, and fixed8 stuff
+        {
+            if (string.IsNullOrEmpty(pair)) throw new ArgumentNullException(nameof(pair));
+            if (string.IsNullOrEmpty(side)) throw new ArgumentNullException(nameof(side));
+            if (string.IsNullOrEmpty(price)) throw new ArgumentNullException(nameof(price));
+            if (string.IsNullOrEmpty(wantAmount)) throw new ArgumentNullException(nameof(wantAmount));
+            if (string.IsNullOrEmpty(orderType)) throw new ArgumentNullException(nameof(orderType));
+            //if (string.IsNullOrEmpty(otcAddress)) throw new ArgumentNullException(nameof(otcAddress));
+            if (string.IsNullOrEmpty(contractHash)) contractHash = ContractHash;
+            if (string.IsNullOrEmpty(blockchain)) blockchain = Blockchain;
+
+            var timestamp = await GetTimeStampAsync();
+            var order = new OrderRequest
+            {
+                Blockchain = blockchain,
+                ContractHash = contractHash,
+                OrderType = orderType,
+                Pair = pair,
+                Price = price,
+                Side = side,
+                Timestamp = timestamp,
+                UseNativeTokens = useNativeTokens,
+                WantAmount = wantAmount
+            };
+            return order;
+        }
+
         /// <summary>
         /// This endpoint creates an order which can be executed through Broadcast Order.
         /// Orders can only be created after sufficient funds have been deposited into the user's contract balance.
         /// A successful order will have zero or one make and/or zero or more fills.
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="apiParams"></param>
         /// <returns></returns>
-        public async Task<OrderResponse> CreateOrder(OrderRequest request)
+        public async Task<OrderResponse> CreateOrder(string apiParams)
         {
-            var json = JsonConvert.SerializeObject(request);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
             var result = await _restClient.PostAsync(orders, httpContent);
             return OrderResponse.FromJson(await result.Content.ReadAsStringAsync());
         }
@@ -291,13 +422,14 @@ namespace NeoModules.Rest.Services
         /// <param name="order"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<string> ExecuteOrder(ExecuteOrder order, string id) //todo response
+        public async Task<string> ExecuteOrder(ExecuteOrder order, string id) //todo ExecuteOrderResponse
         {
             var json = JsonConvert.SerializeObject(order);
-            var signaturesJson = $"{{signatures:{json}}}";
+            var signaturesJson = $"{{\"signatures\":{json}}}";
             var httpContent = new StringContent(signaturesJson, Encoding.UTF8, "application/json");
             var result = await _restClient.PostAsync(executeOrder.Replace(":id", id), httpContent);
-            return await result.Content.ReadAsStringAsync();
+            //return ExecuteOrderResponse.FromJson(await result.Content.ReadAsStringAsync()); 
+            return await result.Content.ReadAsStringAsync(); 
         }
     }
 }

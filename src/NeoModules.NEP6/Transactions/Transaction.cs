@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using NeoModules.Core;
 using NeoModules.Core.KeyPair;
 using NeoModules.Core.NVM;
 using NeoModules.NEP6.Helpers;
+using Newtonsoft.Json.Linq;
 using Helper = NeoModules.Core.KeyPair.Helper;
 using Utils = NeoModules.NEP6.Helpers.Utils;
 
@@ -85,29 +88,92 @@ namespace NeoModules.NEP6.Transactions
         {
         }
 
-        public byte[] Sign(KeyPair key)
+        public static byte[] Sign(KeyPair key, Transaction tx, bool signed = true)//todo signed
         {
-            byte[] txdata = Utils.GetHashData(this);
+            byte[] txdata = Utils.GetHashData(tx);
 
             var signature = Utils.Sign(txdata, key.PrivateKey);
-            var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
-            var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
-            Witnesses = new[]
+            if (signed)
             {
-                new Witness
+                var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
+                var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
+                tx.Witnesses = new[]
                 {
-                    InvocationScript = invocationScript,
-                    VerificationScript = verificationScript
-                }
-            };
+                    new Witness
+                    {
+                        InvocationScript = invocationScript,
+                        VerificationScript = verificationScript
+                    }
+                };
+                return tx.ToArray();
+            }
 
-            var signedTx = this.ToArray();
-            return signedTx;
+            // todo check
+            return signature;
         }
 
-        public byte[] Sign(byte[] privateKey)
+        public static byte[] Sign(byte[] privateKey, Transaction tx)
         {
-            return Sign(new KeyPair(privateKey));
+            return Sign(new KeyPair(privateKey), tx);
+        }
+
+        public static Transaction FromJson(string json)
+        {
+            JObject jsonObject = JObject.Parse(json);
+            var tx = new InvocationTransaction();
+            if ((TransactionType)Enum.Parse(typeof(TransactionType),
+                    jsonObject["type"].ToString()) == TransactionType.InvocationTransaction)
+            {
+                tx = new InvocationTransaction
+                {
+                    Attributes = jsonObject["attributes"]
+                        .Select(atttribute => new TransactionAttribute
+                        {
+                            Data = atttribute["data"].ToString().HexToBytes(),
+                            Usage = (TransactionAttributeUsage)Enum.Parse(typeof(TransactionAttributeUsage), atttribute["usage"].ToString())
+                        }).ToArray(),
+                    Version = jsonObject["version"].ToObject<byte>(),
+                    Inputs = jsonObject["inputs"]
+                       .Select(input => new CoinReference
+                       {
+                           PrevIndex = input["prevIndex"].ToObject<ushort>(),
+                           PrevHash = UInt256.Parse(input["prevHash"].ToString())
+                       }).ToArray(),
+                    Outputs = jsonObject["outputs"]
+                       .Select(output => new TransactionOutput
+                       {
+                           AssetId = UInt256.Parse(output["assetId"].ToString()),
+                           Value = Fixed8.FromDecimal((decimal)output["value"]),
+                           ScriptHash = UInt160.Parse(output["scriptHash"].ToString())
+                       }).ToArray(),
+                    Script = jsonObject["script"].ToString().HexToBytes(),
+                    _hash = UInt256.Parse(jsonObject["hash"].ToString()),
+                };
+            }
+            //else
+            //{
+            //    var tx = new Transaction((TransactionType)Enum.Parse(typeof(TransactionType),
+            //        jsonObject["type"].ToString()))
+            //    {
+            //        Version = jsonObject["version"].ToObject<byte>(),
+            //        Attributes = jsonObject["attributes"].ToObject<TransactionAttribute[]>() ??
+            //                     new TransactionAttribute[] { },
+            //        Inputs = jsonObject["inputs"]
+            //            .Select(input => new CoinReference
+            //            {
+            //                PrevIndex = input["prevIndex"].ToObject<ushort>(),
+            //                PrevHash = UInt256.Parse(input["prevHash"].ToString())
+            //            }).ToArray(),
+            //        Outputs = jsonObject["outputs"]
+            //            .Select(output => new TransactionOutput
+            //            {
+            //                AssetId = UInt256.Parse(output["assetId"].ToString()),
+            //                Value = Fixed8.FromDecimal((decimal)output["value"]),
+            //                ScriptHash = UInt160.Parse(output["scriptHash"].ToString())
+            //            }).ToArray(),
+            //    };
+            //}
+            return tx;
         }
     }
 }
