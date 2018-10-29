@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NeoModules.Rest.Helpers;
 using Newtonsoft.Json;
 
 namespace NeoModules.Rest.DTOs.HappyNodes

@@ -12,41 +12,9 @@ using Newtonsoft.Json.Linq;
 
 namespace NeoModules.Rest.Services
 {
-    public enum SwitcheoNet
-    {
-        MainNet,
-        TestNet
-    }
-
-    public class SwitcheoRestService // todo auth
+    public class SwitcheoRestService
     {
         private readonly HttpClient _restClient;
-
-        #region URLs
-        private static readonly string switcheoTestNetUrl = "https://test-api.switcheo.network/v2/";
-        private static readonly string neoScanMainNetUrl = "https://api.switcheo.network/v2/";
-
-        private const string getTimeStamp = "exchange/timestamp";
-        private const string getContracts = "exchange/contracts";
-        private const string getTokens = "exchange/tokens";
-        private const string getPairs = "exchange/pairs";
-        private const string getCandleSticks = "tickers/candlesticks";
-        private const string get24HourData = "tickers/last_24_hours";
-        private const string getLastPrice = "tickers/last_price";
-        private const string getOffers = "offers";
-        private const string getTrades = "trades";
-        private const string getRecentTrades = "trades/recent";
-        private const string getBalances = "balances"; //todo
-        private const string createDeposit = "deposits";
-        private const string executeDeposit = "deposits/:id/broadcast";
-        private const string createWithdrawl = "withdrawals";
-        private const string executeWithdrawl = "withdrawals/:id/broadcast";
-        private const string orders = "orders";
-        private const string executeOrder = "orders/:id/broadcast";
-        private const string cancellationRequest = "cancellations";
-        private const string executeCancellation = "cancellations/:id/broadcast";
-
-        #endregion
 
         public string ContractHash { get; set; }
         public string Blockchain { get; set; }
@@ -74,6 +42,12 @@ namespace NeoModules.Rest.Services
             }
         }
 
+        /// <summary>
+        /// Retrieve the current timestamp in the exchange, this value should be fetched and used when a timestamp parameter is required for API requests.
+        /// If the timestamp used for your API request is not within an acceptable range of the exchange's timestamp then an invalid signature error will be returned.
+        /// The acceptable range might vary, but it should be less than one minute.
+        /// </summary>
+        /// <returns></returns>
         public async Task<long> GetTimeStampAsync()
         {
             var result = await _restClient.GetAsync(getTimeStamp);
@@ -81,18 +55,32 @@ namespace NeoModules.Rest.Services
             return long.Parse(data);
         }
 
+        /// <summary>
+        /// Retrieve updated contract hashes deployed by Switcheo.
+        /// Please note that different contract hashes should be used for the TestNet vs the MainNet.
+        /// </summary>
+        /// <returns></returns>
         public async Task<JObject> GetContractsAsync() // returns a JObject because the json it does not have a specific format
         {
             var result = await _restClient.GetAsync(getContracts);
             return JObject.Parse(await result.Content.ReadAsStringAsync());
         }
 
+        /// <summary>
+        /// Retrieve a list of supported tokens on Switcheo.
+        /// </summary>
+        /// <returns></returns>
         public async Task<Dictionary<string, TokenData>> GetTokensAsync()
         {
             var result = await _restClient.GetAsync(getTokens);
             return TokenData.FromJson(await result.Content.ReadAsStringAsync());
         }
 
+        /// <summary>
+        /// Retrieve available currency pairs on Switcheo Exchange filtered by the base parameter. Defaults to all pairs.
+        /// The valid base currencies are currently: NEO, GAS, SWTH.
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<string>> GetPairsAsync()
         {
             var result = await _restClient.GetAsync(getPairs);
@@ -205,7 +193,7 @@ namespace NeoModules.Rest.Services
         }
 
         /// <summary>
-        /// todo
+        /// Creates a Transact object used for CreateDeposit call
         /// </summary>
         /// <param name="blockchain"></param>
         /// <param name="contractHash"></param>
@@ -273,7 +261,7 @@ namespace NeoModules.Rest.Services
         }
 
         /// <summary>
-        /// todo
+        /// Creates a Transact object used for CreateWithdrawal call
         /// </summary>
         /// <param name="blockchain"></param>
         /// <param name="contractHash"></param>
@@ -376,7 +364,18 @@ namespace NeoModules.Rest.Services
             return OrderResponse.FromJson(await result.Content.ReadAsStringAsync());
         }
 
-
+        /// <summary>
+        /// Prepares a OrderRequest object
+        /// </summary>
+        /// <param name="pair"></param>
+        /// <param name="side"></param>
+        /// <param name="price"></param>
+        /// <param name="wantAmount"></param>
+        /// <param name="useNativeTokens"></param>
+        /// <param name="orderType"></param>
+        /// <param name="blockchain"></param>
+        /// <param name="contractHash"></param>
+        /// <returns></returns>
         public async Task<OrderRequest> PrepareCreateOrder(string pair, string side, string price, string wantAmount, bool useNativeTokens,
             string orderType, string blockchain = "", string contractHash = "") //todo checkDecimals, otcaddress, and fixed8 stuff
         {
@@ -436,6 +435,11 @@ namespace NeoModules.Rest.Services
             return await result.Content.ReadAsStringAsync();
         }
 
+        /// <summary>
+        /// Prepares a CancelOrderRequest object
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
         public async Task<CancelOrderRequest> PrepareCancelOrder(string orderId)
         {
             if (string.IsNullOrEmpty(orderId)) throw new ArgumentNullException(nameof(orderId));
@@ -448,6 +452,12 @@ namespace NeoModules.Rest.Services
             return cancelOrderRequest;
         }
 
+        /// <summary>
+        /// This is the first API call required to cancel an order.
+        /// Only orders with makes and with an available_amount of more than 0 can be cancelled.
+        /// </summary>
+        /// <param name="apiParams"></param>
+        /// <returns></returns>
         public async Task<CreateResponse> CreateCancellation(string apiParams)
         {
             var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
@@ -455,6 +465,13 @@ namespace NeoModules.Rest.Services
             return CreateResponse.FromJson(await result.Content.ReadAsStringAsync());
         }
 
+        /// <summary>
+        /// This is the second endpoint that must be called to cancel an order.
+        /// After calling the Create Cancellation endpoint, you will receive a transaction in the response which must be signed.
+        /// </summary>
+        /// <param name="signature"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<string> ExecuteCancellation(string signature, string id)
         {
             var json = new JObject { ["signature"] = signature };
@@ -462,5 +479,59 @@ namespace NeoModules.Rest.Services
             var result = await _restClient.PostAsync(executeCancellation.Replace(":id", id), httpContent);
             return await result.Content.ReadAsStringAsync();
         }
+
+        /// <summary>
+        /// List contract balances of the given address and contract.
+        /// The purpose of this endpoint is to allow convenient querying of a user's balance across multiple blockchains, for example, if you want to retrieve a user's NEO and ethereum balances.
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <param name="contractsHash"></param>
+        /// <returns></returns>
+        public async Task<string> ListBalances(string[] addresses, string[] contractsHash)
+        {
+            var url = addresses.Aggregate("?", (current, address) => current + $"addresses[]={address}&");
+            url = contractsHash.Aggregate(url, (current, contractHash) => current + $"contract_hashes[]={contractHash}&");
+
+            if (url[url.Length - 1] == '&')
+            {
+                url = url.Remove(url.Length - 1);
+            }
+
+            var result = await _restClient.GetAsync(Utils.ComposeUrl(getBalances, url));
+            return await result.Content.ReadAsStringAsync();
+        }
+
+        public enum SwitcheoNet
+        {
+            MainNet,
+            TestNet
+        }
+
+        #region URLs
+
+        private static readonly string switcheoTestNetUrl = "https://test-api.switcheo.network/v2/";
+        private static readonly string neoScanMainNetUrl = "https://api.switcheo.network/v2/";
+
+        private const string getTimeStamp = "exchange/timestamp";
+        private const string getContracts = "exchange/contracts";
+        private const string getTokens = "exchange/tokens";
+        private const string getPairs = "exchange/pairs";
+        private const string getCandleSticks = "tickers/candlesticks";
+        private const string get24HourData = "tickers/last_24_hours";
+        private const string getLastPrice = "tickers/last_price";
+        private const string getOffers = "offers";
+        private const string getTrades = "trades";
+        private const string getRecentTrades = "trades/recent";
+        private const string getBalances = "balances"; //todo
+        private const string createDeposit = "deposits";
+        private const string executeDeposit = "deposits/:id/broadcast";
+        private const string createWithdrawl = "withdrawals";
+        private const string executeWithdrawl = "withdrawals/:id/broadcast";
+        private const string orders = "orders";
+        private const string executeOrder = "orders/:id/broadcast";
+        private const string cancellationRequest = "cancellations";
+        private const string executeCancellation = "cancellations/:id/broadcast";
+
+        #endregion
     }
 }

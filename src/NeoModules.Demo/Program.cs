@@ -27,29 +27,29 @@ namespace NeoModules.Demo
             try
             {
 
-                var neoApiCompleteService = SetupCompleteNeoService();
+                //var neoApiCompleteService = SetupCompleteNeoService();
 
-                var neoApiSimpleContractService = SetupSimpleService();
-                var neoApiSimpleAccountService = SetupAnotherSimpleService();
-                //You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+                //var neoApiSimpleContractService = SetupSimpleService();
+                //var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                ////You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-                var nep5ApiService = SetupNep5Service();
+                //var nep5ApiService = SetupNep5Service();
 
-                BlockApiTest(neoApiCompleteService).Wait();
+                //BlockApiTest(neoApiCompleteService).Wait();
 
-                TestNep5Service(nep5ApiService).Wait();
+                //TestNep5Service(nep5ApiService).Wait();
 
-                //create rest api client
-                RestClientTest().Wait();
+                ////create rest api client
+                //RestClientTest().Wait();
 
-                //nodes list from http://monitor.cityofzion.io/
-                NodesListTestAsync().Wait();
+                ////nodes list from http://monitor.cityofzion.io/
+                //NodesListTestAsync().Wait();
 
-                //https://n1.cityofzion.io/v1/"
-                NotificationsService().Wait();
+                ////https://n1.cityofzion.io/v1/"
+                //NotificationsService().Wait();
 
-                //https://api.happynodes.f27.ventures
-                HappyNodesService().Wait();
+                ////https://api.happynodes.f27.ventures
+                //HappyNodesService().Wait();
 
                 SwitcheoService().Wait();
 
@@ -255,7 +255,7 @@ namespace NeoModules.Demo
 
         private static async Task SwitcheoService()
         {
-            var switcheoService = new SwitcheoRestService(SwitcheoNet.TestNet);
+            var switcheoService = new SwitcheoRestService(SwitcheoRestService.SwitcheoNet.TestNet);
             await switcheoService.InitService("neo");
 
 
@@ -266,11 +266,11 @@ namespace NeoModules.Demo
             {
                 await DepositDemo(switcheoService, accountSignerTransactionManager);
 
-                //await WithdrawalDemo(switcheoService, accountSignerTransactionManager);
+                await WithdrawalDemo(switcheoService, accountSignerTransactionManager);
 
-                //await OrderDemo(switcheoService, accountSignerTransactionManager);
+                await OrderDemo(switcheoService, accountSignerTransactionManager);
 
-                //await CancelOrderDemo(switcheoService, accountSignerTransactionManager);
+                await CancelOrderDemo(switcheoService, accountSignerTransactionManager);
             }
 
             var timeStamp = await switcheoService.GetTimeStampAsync();
@@ -283,6 +283,7 @@ namespace NeoModules.Demo
             var offers = await switcheoService.GetOffers("neo", "SWTH_NEO", "91b83e96f2a7c4fdf0c1688441ec61986c7cae26");
             var trades = await switcheoService.GetTradesAsync("91b83e96f2a7c4fdf0c1688441ec61986c7cae26", "SWTH_NEO");
             var recentTrades = await switcheoService.GetRecentTradesAsync("SWTH_NEO");
+            var listBalances = await switcheoService.ListBalances(new[] { "c20003921d7b20335f26c8370bcb6157739eee6b" }, new[] { "a195c1549e7da61b8da315765a790ac7e7633b82" });
         }
 
         public static async Task DepositDemo(SwitcheoRestService switcheoService, AccountSignerTransactionManager accountSigner)
