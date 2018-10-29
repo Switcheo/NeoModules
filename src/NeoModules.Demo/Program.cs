@@ -260,15 +260,17 @@ namespace NeoModules.Demo
 
 
             var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.TestNet), RpcTestNetClient);
-            var importedAccount = walletManager.ImportAccount("*** WIF ***", "Switcheo");
+            var importedAccount = walletManager.ImportAccount("", "Switcheo");
 
             if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
             {
                 await DepositDemo(switcheoService, accountSignerTransactionManager);
 
-                await WithdrawalDemo(switcheoService, accountSignerTransactionManager);
+                //await WithdrawalDemo(switcheoService, accountSignerTransactionManager);
 
-                await OrderDemo(switcheoService, accountSignerTransactionManager);
+                //await OrderDemo(switcheoService, accountSignerTransactionManager);
+
+                //await CancelOrderDemo(switcheoService, accountSignerTransactionManager);
             }
 
             var timeStamp = await switcheoService.GetTimeStampAsync();
@@ -302,9 +304,8 @@ namespace NeoModules.Demo
             var response = await switcheoService.CreateDeposit(apiParams);
 
             // execute deposit
-            JObject createDepositResponse = JObject.Parse(response);
-            var tx = Transaction.FromJson(createDepositResponse["transaction"].ToString());
-            var depositId = createDepositResponse["id"].ToString();
+            var tx = Transaction.FromJson(Txn.ToJson(response.Transaction));
+            var depositId = response.Id.ToString();
             var signatureTx = accountSigner.SignTransaction(tx, false).ToHexString();
 
             // if everything is good it should return OK
@@ -380,6 +381,34 @@ namespace NeoModules.Demo
             }
 
             var execute = await switcheoService.ExecuteOrder(executeOrderDto, response.Id.ToString());
+        }
+
+        public static async Task CancelOrderDemo(SwitcheoRestService switcheoService,
+            AccountSignerTransactionManager accountSigner)
+        {
+            var cancelRequest = await switcheoService.PrepareCancelOrder("69c60da5-5832-4705-8390-de4bb4ed62c5");
+
+            // turn into json
+            var signableParams = JsonConvert.SerializeObject(cancelRequest);
+            // serialize request params
+            var serializedParams = SwitcheoHelper.PrepareParametersRequest(signableParams);
+            // signs the serialized params
+            var signature = accountSigner.SignMessage(serializedParams);
+
+            // adds the 'address' and 'signature' fields to the json
+            var apiParams = SwitcheoHelper.AddTransactFields(signableParams, signature,
+                accountSigner.AddressScriptHash.ToString().Remove(0, 2));
+
+            // sends the 'create cancellation' request
+            var response = await switcheoService.CreateCancellation(apiParams);
+
+            // execute cancellation
+            var tx = Transaction.FromJson(Txn.ToJson(response.Transaction));
+            var depositId = response.Id.ToString();
+            var signatureTx = accountSigner.SignTransaction(tx, false).ToHexString();
+
+            // if everything is good it should return OK
+            var execute = await switcheoService.ExecuteCancellation(signatureTx, depositId);
         }
     }
 }

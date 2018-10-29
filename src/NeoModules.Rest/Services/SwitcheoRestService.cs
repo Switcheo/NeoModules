@@ -22,6 +22,7 @@ namespace NeoModules.Rest.Services
     {
         private readonly HttpClient _restClient;
 
+        #region URLs
         private static readonly string switcheoTestNetUrl = "https://test-api.switcheo.network/v2/";
         private static readonly string neoScanMainNetUrl = "https://api.switcheo.network/v2/";
 
@@ -42,6 +43,10 @@ namespace NeoModules.Rest.Services
         private const string executeWithdrawl = "withdrawals/:id/broadcast";
         private const string orders = "orders";
         private const string executeOrder = "orders/:id/broadcast";
+        private const string cancellationRequest = "cancellations";
+        private const string executeCancellation = "cancellations/:id/broadcast";
+
+        #endregion
 
         public string ContractHash { get; set; }
         public string Blockchain { get; set; }
@@ -209,7 +214,6 @@ namespace NeoModules.Rest.Services
         /// <returns></returns>
         public async Task<Transact> PrepareCreateDeposit(string assetId, string amount, string blockchain = "", string contractHash = "")
         {
-            if (string.IsNullOrEmpty(blockchain)) throw new ArgumentNullException(nameof(blockchain));
             if (string.IsNullOrEmpty(assetId)) throw new ArgumentNullException(nameof(assetId));
             if (string.IsNullOrEmpty(amount)) throw new ArgumentNullException(nameof(amount));
             if (string.IsNullOrEmpty(contractHash)) contractHash = ContractHash;
@@ -245,11 +249,11 @@ namespace NeoModules.Rest.Services
         /// </summary>
         /// <param name="apiParams"></param>
         /// <returns></returns>
-        public async Task<string> CreateDeposit(string apiParams)
+        public async Task<CreateResponse> CreateDeposit(string apiParams)
         {
             var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
             var result = await _restClient.PostAsync(createDeposit, httpContent);
-            return await result.Content.ReadAsStringAsync();
+            return CreateResponse.FromJson(await result.Content.ReadAsStringAsync());
         }
 
         /// <summary>
@@ -429,7 +433,34 @@ namespace NeoModules.Rest.Services
             var httpContent = new StringContent(signaturesJson, Encoding.UTF8, "application/json");
             var result = await _restClient.PostAsync(executeOrder.Replace(":id", id), httpContent);
             //return ExecuteOrderResponse.FromJson(await result.Content.ReadAsStringAsync()); 
-            return await result.Content.ReadAsStringAsync(); 
+            return await result.Content.ReadAsStringAsync();
+        }
+
+        public async Task<CancelOrderRequest> PrepareCancelOrder(string orderId)
+        {
+            if (string.IsNullOrEmpty(orderId)) throw new ArgumentNullException(nameof(orderId));
+            var timestamp = await GetTimeStampAsync();
+            var cancelOrderRequest = new CancelOrderRequest
+            {
+                OrderId = Guid.Parse(orderId),
+                Timestamp = timestamp
+            };
+            return cancelOrderRequest;
+        }
+
+        public async Task<CreateResponse> CreateCancellation(string apiParams)
+        {
+            var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
+            var result = await _restClient.PostAsync(cancellationRequest, httpContent);
+            return CreateResponse.FromJson(await result.Content.ReadAsStringAsync());
+        }
+
+        public async Task<string> ExecuteCancellation(string signature, string id)
+        {
+            var json = new JObject { ["signature"] = signature };
+            var httpContent = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
+            var result = await _restClient.PostAsync(executeCancellation.Replace(":id", id), httpContent);
+            return await result.Content.ReadAsStringAsync();
         }
     }
 }

@@ -37,6 +37,8 @@ namespace NeoModules.Rest.DTOs.Switcheo
 
         [JsonProperty("gas")]
         public decimal Gas { get; set; }
+
+        public static string ToJson(Txn self) => JsonConvert.SerializeObject(self, Utils.Settings);
     }
 
     public class Attribute
