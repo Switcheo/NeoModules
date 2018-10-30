@@ -7,54 +7,46 @@ using NeoModules.Core.KeyPair;
 using NeoModules.JsonRpc.Client;
 using NeoModules.NEP6;
 using NeoModules.NEP6.Transactions;
-using NeoModules.Rest.DTOs.Switcheo;
 using NeoModules.Rest.Services;
 using NeoModules.RPC.Services;
 using NeoModules.RPC;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NeoModules.Rest.Helpers;
 
 namespace NeoModules.Demo
 {
     public class Program
     {
         private static readonly RpcClient RpcClient = new RpcClient(new Uri("https://seed3.switcheo.network:10331"));
-        private static readonly RpcClient RpcTestNetClient = new RpcClient(new Uri("http://test5.cityofzion.io:8880"));
 
         public static void Main(string[] args)
         {
             try
             {
+                var neoApiCompleteService = SetupCompleteNeoService();
 
-                //var neoApiCompleteService = SetupCompleteNeoService();
+                var neoApiSimpleContractService = SetupSimpleService();
+                var neoApiSimpleAccountService = SetupAnotherSimpleService();
+                //You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
-                //var neoApiSimpleContractService = SetupSimpleService();
-                //var neoApiSimpleAccountService = SetupAnotherSimpleService();
-                ////You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
+                var nep5ApiService = SetupNep5Service();
 
-                //var nep5ApiService = SetupNep5Service();
+                BlockApiTest(neoApiCompleteService).Wait();
 
-                //BlockApiTest(neoApiCompleteService).Wait();
+                TestNep5Service(nep5ApiService).Wait();
 
-                //TestNep5Service(nep5ApiService).Wait();
+                //create rest api client
+                RestClientTest().Wait();
 
-                ////create rest api client
-                //RestClientTest().Wait();
+                //nodes list from http://monitor.cityofzion.io/
+                NodesListTestAsync().Wait();
 
-                ////nodes list from http://monitor.cityofzion.io/
-                //NodesListTestAsync().Wait();
+                //https://n1.cityofzion.io/v1/"
+                NotificationsService().Wait();
 
-                ////https://n1.cityofzion.io/v1/"
-                //NotificationsService().Wait();
-
-                ////https://api.happynodes.f27.ventures
-                //HappyNodesService().Wait();
-
-                SwitcheoService().Wait();
+                //https://api.happynodes.f27.ventures
+                HappyNodesService().Wait();
 
                 WalletAndTransactionsTest().Wait();
-
             }
             catch (Exception ex)
             {
@@ -251,165 +243,6 @@ namespace NeoModules.Demo
             var weeklyLatency = await happyNodesService.GetWeeklyNodeLatency(480);
             var blockHeightLag = await happyNodesService.GetNodeBlockheightLag(0);
             var endpoints = await happyNodesService.GetEndPoints();
-        }
-
-        private static async Task SwitcheoService()
-        {
-            var switcheoService = new SwitcheoRestService(SwitcheoRestService.SwitcheoNet.TestNet);
-            await switcheoService.InitService("neo");
-
-
-            var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.TestNet), RpcTestNetClient);
-            var importedAccount = walletManager.ImportAccount("", "Switcheo");
-
-            if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
-            {
-                await DepositDemo(switcheoService, accountSignerTransactionManager);
-
-                await WithdrawalDemo(switcheoService, accountSignerTransactionManager);
-
-                await OrderDemo(switcheoService, accountSignerTransactionManager);
-
-                await CancelOrderDemo(switcheoService, accountSignerTransactionManager);
-            }
-
-            var timeStamp = await switcheoService.GetTimeStampAsync();
-            var contracts = await switcheoService.GetContractsAsync();
-            var tokens = await switcheoService.GetTokensAsync();
-            var pairs = await switcheoService.GetPairsAsync();
-            var candleSticks = await switcheoService.GetCandleSticksAsync("SWTH_NEO", 1539541508, 1539541808, 60);
-            var last24HourData = await switcheoService.Get24HourDataAsync();
-            var lastPrice = await switcheoService.GetLastPriceAsync(null);
-            var offers = await switcheoService.GetOffers("neo", "SWTH_NEO", "91b83e96f2a7c4fdf0c1688441ec61986c7cae26");
-            var trades = await switcheoService.GetTradesAsync("91b83e96f2a7c4fdf0c1688441ec61986c7cae26", "SWTH_NEO");
-            var recentTrades = await switcheoService.GetRecentTradesAsync("SWTH_NEO");
-            var listBalances = await switcheoService.ListBalances(new[] { "c20003921d7b20335f26c8370bcb6157739eee6b" }, new[] { "a195c1549e7da61b8da315765a790ac7e7633b82" });
-        }
-
-        public static async Task DepositDemo(SwitcheoRestService switcheoService, AccountSignerTransactionManager accountSigner)
-        {
-            // create deposit DTO
-            var transactObject = await switcheoService.PrepareCreateDeposit("SWTH", "10");
-            // turn into json
-            var signableParams = JsonConvert.SerializeObject(transactObject);
-            // serialize request params
-            var serializedParams = SwitcheoHelper.PrepareParametersRequest(signableParams);
-            // signs the serialized params
-            var signature = accountSigner.SignMessage(serializedParams);
-
-            // adds the 'address' and 'signature' fields to the json
-            var apiParams = SwitcheoHelper.AddTransactFields(signableParams, signature,
-                accountSigner.AddressScriptHash.ToString().Remove(0, 2));
-
-            // sends the 'create deposit' request
-            var response = await switcheoService.CreateDeposit(apiParams);
-
-            // execute deposit
-            var tx = Transaction.FromJson(Txn.ToJson(response.Transaction));
-            var depositId = response.Id.ToString();
-            var signatureTx = accountSigner.SignTransaction(tx, false).ToHexString();
-
-            // if everything is good it should return OK
-            var execute = await switcheoService.ExecuteDeposit(signatureTx, depositId);
-        }
-
-        public static async Task WithdrawalDemo(SwitcheoRestService switcheoService, AccountSignerTransactionManager accountSigner)
-        {
-            // create withdrawal DTO
-            var transactObject = await switcheoService.PrepareCreateWithdrawal("neo", "SWTH", "3");
-            // turn into json
-            var signableParams = JsonConvert.SerializeObject(transactObject);
-            // serialize request params
-            var serializedParams = SwitcheoHelper.PrepareParametersRequest(signableParams);
-            // signs the serialized params
-            var signature = accountSigner.SignMessage(serializedParams);
-
-            // adds the 'address' and 'signature' fields to the json
-            var apiParams = SwitcheoHelper.AddTransactFields(signableParams, signature,
-                accountSigner.AddressScriptHash.ToString().Remove(0, 2));
-
-            // sends the 'create withdrawal' request
-            var response = await switcheoService.CreateWithdrawl(apiParams);
-
-            // execute withdrawal
-            JObject createWithdrawalResponse = JObject.Parse(response);
-            createWithdrawalResponse.Remove("transaction"); // not in docs
-
-            var executeWithdrawalDto = new ExecuteWithdrawl
-            {
-                Id = new Guid(createWithdrawalResponse["id"].ToString()),
-                Timestamp = await switcheoService.GetTimeStampAsync()
-            };
-
-            // serialize request params
-            var serializedResponseParams = SwitcheoHelper.PrepareParametersRequest(JsonConvert.SerializeObject(executeWithdrawalDto));
-            var responseSignature = accountSigner.SignMessage(serializedResponseParams);
-
-            var withdrawlResponse = await switcheoService.ExecuteWithdraw(executeWithdrawalDto, responseSignature);
-        }
-
-        public static async Task OrderDemo(SwitcheoRestService switcheoService, AccountSignerTransactionManager accountSigner)
-        {
-            var orderRequest = await switcheoService.PrepareCreateOrder("SWTH_NEO", "buy", "0.00315200", "2050000000", true, "limit");
-
-            // turn into json
-            var signableParams = JsonConvert.SerializeObject(orderRequest);
-            // serialize request params
-            var serializedParams = SwitcheoHelper.PrepareParametersRequest(signableParams);
-            // signs the serialized params
-            var signature = accountSigner.SignMessage(serializedParams);
-
-            // adds the 'address' and 'signature' fields to the json
-            var apiParams = SwitcheoHelper.AddTransactFields(signableParams, signature,
-                accountSigner.AddressScriptHash.ToString().Remove(0, 2));
-
-            // sends the 'create withdrawal' request
-            var response = await switcheoService.CreateOrder(apiParams);
-
-            var executeOrderDto = new ExecuteOrder();
-            foreach (var responseFill in response.Fills)
-            {
-                var tx = Transaction.FromJson(JsonConvert.SerializeObject(responseFill.Txn));
-                var signatureTx = accountSigner.SignTransaction(tx, false).ToHexString();
-                executeOrderDto.Fills.Add(responseFill.Id.ToString(), signatureTx);
-            }
-
-            foreach (var responseMakes in response.Makes)
-            {
-                var tx = Transaction.FromJson(JsonConvert.SerializeObject(responseMakes.Txn));
-                var signatureTx = accountSigner.SignTransaction(tx, false).ToHexString();
-                executeOrderDto.Makes.Add(responseMakes.Id.ToString(), signatureTx);
-            }
-
-            var execute = await switcheoService.ExecuteOrder(executeOrderDto, response.Id.ToString());
-        }
-
-        public static async Task CancelOrderDemo(SwitcheoRestService switcheoService,
-            AccountSignerTransactionManager accountSigner)
-        {
-            var cancelRequest = await switcheoService.PrepareCancelOrder("69c60da5-5832-4705-8390-de4bb4ed62c5");
-
-            // turn into json
-            var signableParams = JsonConvert.SerializeObject(cancelRequest);
-            // serialize request params
-            var serializedParams = SwitcheoHelper.PrepareParametersRequest(signableParams);
-            // signs the serialized params
-            var signature = accountSigner.SignMessage(serializedParams);
-
-            // adds the 'address' and 'signature' fields to the json
-            var apiParams = SwitcheoHelper.AddTransactFields(signableParams, signature,
-                accountSigner.AddressScriptHash.ToString().Remove(0, 2));
-
-            // sends the 'create cancellation' request
-            var response = await switcheoService.CreateCancellation(apiParams);
-
-            // execute cancellation
-            var tx = Transaction.FromJson(Txn.ToJson(response.Transaction));
-            var depositId = response.Id.ToString();
-            var signatureTx = accountSigner.SignTransaction(tx, false).ToHexString();
-
-            // if everything is good it should return OK
-            var execute = await switcheoService.ExecuteCancellation(signatureTx, depositId);
         }
     }
 }

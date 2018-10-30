@@ -11,7 +11,7 @@ namespace NeoModules.RPC.TransactionManagers
             Client = client;
         }
 
-        public override Task<string> SignTransactionAsync(byte[] transactionData)
+        public override string SignMessage(string messageToSign)
         {
             throw new System.NotImplementedException();
         }

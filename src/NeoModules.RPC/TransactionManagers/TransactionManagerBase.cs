@@ -14,7 +14,7 @@ namespace NeoModules.RPC.TransactionManagers
         public IClient Client { get; set; }
         public IAccount Account { get; set; }
 
-        public abstract Task<string> SignTransactionAsync(byte[] transactionData);
+        public abstract string SignMessage(string messageToSign);
 
         public abstract Task<Transaction> WaitForTxConfirmation(string tx);
 

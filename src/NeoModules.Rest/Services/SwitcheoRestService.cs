@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,8 +51,8 @@ namespace NeoModules.Rest.Services
         /// <returns></returns>
         public async Task<long> GetTimeStampAsync()
         {
-            var result = await _restClient.GetAsync(getTimeStamp);
-            var data = (string)JObject.Parse(await result.Content.ReadAsStringAsync())["timestamp"];
+            var result = await ExecuteCall(getTimestamp);
+            var data = (string)JObject.Parse(result)["timestamp"];
             return long.Parse(data);
         }
 
@@ -62,8 +63,8 @@ namespace NeoModules.Rest.Services
         /// <returns></returns>
         public async Task<JObject> GetContractsAsync() // returns a JObject because the json it does not have a specific format
         {
-            var result = await _restClient.GetAsync(getContracts);
-            return JObject.Parse(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(getContracts);
+            return JObject.Parse(result);
         }
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace NeoModules.Rest.Services
         /// <returns></returns>
         public async Task<Dictionary<string, TokenData>> GetTokensAsync()
         {
-            var result = await _restClient.GetAsync(getTokens);
-            return TokenData.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(getTokens);
+            return TokenData.FromJson(result);
         }
 
         /// <summary>
@@ -83,8 +84,8 @@ namespace NeoModules.Rest.Services
         /// <returns></returns>
         public async Task<List<string>> GetPairsAsync()
         {
-            var result = await _restClient.GetAsync(getPairs);
-            return JsonConvert.DeserializeObject<List<string>>(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(getPairs);
+            return JsonConvert.DeserializeObject<List<string>>(result);
         }
 
         /// <summary>
@@ -97,15 +98,19 @@ namespace NeoModules.Rest.Services
         /// <returns></returns>
         public async Task<List<CandleStick>> GetCandleSticksAsync(string pair, int startTime, int endTime, int interval)
         {
-            //TODO args validation
+            if (string.IsNullOrEmpty(pair)) throw new ArgumentNullException(nameof(pair));
+            if (startTime <= 0) throw new ArgumentOutOfRangeException(nameof(startTime));
+            if (endTime <= 0) throw new ArgumentOutOfRangeException(nameof(endTime));
+            if (interval <= 0) throw new ArgumentOutOfRangeException(nameof(interval));
+
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["pair"] = pair;
             query["interval"] = interval.ToString();
             query["start_time"] = startTime.ToString();
             query["end_time"] = endTime.ToString();
             string queryString = query.ToString().Insert(0, "?");
-            var result = await _restClient.GetAsync(Utils.ComposeUrl(getCandleSticks, queryString));
-            return CandleStick.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(Utils.ComposeUrl(getCandleSticks, queryString));
+            return CandleStick.FromJson(result);
         }
 
         /// <summary>
@@ -114,8 +119,8 @@ namespace NeoModules.Rest.Services
         /// <returns></returns>
         public async Task<List<CandleStick>> Get24HourDataAsync()
         {
-            var result = await _restClient.GetAsync(get24HourData);
-            return CandleStick.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(get24HourData);
+            return CandleStick.FromJson(result);
         }
 
         /// <summary>
@@ -133,8 +138,8 @@ namespace NeoModules.Rest.Services
             //        query["symbols"] = symbol;
             //    }
 
-            var result = await _restClient.GetAsync(getLastPrice);
-            return LastPrice.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(getLastPrice);
+            return LastPrice.FromJson(result);
         }
 
         /// <summary>
@@ -144,15 +149,19 @@ namespace NeoModules.Rest.Services
         /// <param name="pair"></param>
         /// <param name="contractHash"></param>
         /// <returns></returns>
-        public async Task<List<Offers>> GetOffers(string blockchain, string pair, string contractHash)
+        public async Task<List<Offers>> GetOffers(string pair, string blockchain = null, string contractHash = null)
         {
+            if (string.IsNullOrEmpty(blockchain)) blockchain = Blockchain;
+            if (string.IsNullOrEmpty(contractHash)) contractHash = ContractHash;
+            if (string.IsNullOrEmpty(pair)) throw new ArgumentNullException(nameof(pair));
+
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["blockchain"] = blockchain;
             query["pair"] = pair;
             query["contract_hash"] = contractHash;
             string queryString = query.ToString().Insert(0, "?");
-            var result = await _restClient.GetAsync(Utils.ComposeUrl(getOffers, queryString));
-            return Offers.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(Utils.ComposeUrl(getOffers, queryString));
+            return Offers.FromJson(result);
         }
 
         /// <summary>
@@ -164,17 +173,19 @@ namespace NeoModules.Rest.Services
         /// <param name="to"></param>
         /// <param name="limit"></param>
         /// <returns></returns>
-        public async Task<List<Trade>> GetTradesAsync(string contractHash, string pair, int from = 0, int to = 0, int limit = 0)
+        public async Task<List<Trade>> GetTradesAsync(string pair, string contractHash = null, int from = -1, int to = -1, int limit = -1)
         {
+            if (string.IsNullOrEmpty(contractHash)) contractHash = ContractHash;
+
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["pair"] = pair;
             query["contract_hash"] = contractHash;
-            if (from != 0) query["from"] = from.ToString();
-            if (to != 0) query["to"] = to.ToString();
-            if (limit != 0) query["limit"] = limit.ToString();
+            if (from != -1) query["from"] = from.ToString();
+            if (to != -1) query["to"] = to.ToString();
+            if (limit != -1) query["limit"] = limit.ToString();
             string queryString = query.ToString().Insert(0, "?");
-            var result = await _restClient.GetAsync(Utils.ComposeUrl(getTrades, queryString));
-            return Trade.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(Utils.ComposeUrl(getTrades, queryString));
+            return Trade.FromJson(result);
         }
 
         /// <summary>
@@ -188,8 +199,8 @@ namespace NeoModules.Rest.Services
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["pair"] = pair;
             string queryString = query.ToString().Insert(0, "?");
-            var result = await _restClient.GetAsync(Utils.ComposeUrl(getRecentTrades, queryString));
-            return RecentTrade.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(Utils.ComposeUrl(getRecentTrades, queryString));
+            return RecentTrade.FromJson(result);
         }
 
         /// <summary>
@@ -200,7 +211,7 @@ namespace NeoModules.Rest.Services
         /// <param name="assetId"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<Transact> PrepareCreateDeposit(string assetId, string amount, string blockchain = "", string contractHash = "")
+        public async Task<Transact> PrepareCreateDeposit(string assetId, string amount, string blockchain = null, string contractHash = null)
         {
             if (string.IsNullOrEmpty(assetId)) throw new ArgumentNullException(nameof(assetId));
             if (string.IsNullOrEmpty(amount)) throw new ArgumentNullException(nameof(amount));
@@ -216,7 +227,7 @@ namespace NeoModules.Rest.Services
             }
             else
             {
-                throw new Exception($"{assetId} is not available for deposit in Switcheo");
+                throw new SwitcheoException($"{assetId} is not available for deposit in Switcheo");
             }
             var transact = new Transact
             {
@@ -240,8 +251,8 @@ namespace NeoModules.Rest.Services
         public async Task<CreateResponse> CreateDeposit(string apiParams)
         {
             var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(createDeposit, httpContent);
-            return CreateResponse.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(createDeposit, httpContent);
+            return CreateResponse.FromJson(result);
         }
 
         /// <summary>
@@ -256,8 +267,8 @@ namespace NeoModules.Rest.Services
         {
             var json = new JObject { ["signature"] = signature };
             var httpContent = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(executeDeposit.Replace(":id", id), httpContent);
-            return await result.Content.ReadAsStringAsync();
+            var result = await ExecuteCall(executeDeposit.Replace(":id", id), httpContent);
+            return result;
         }
 
         /// <summary>
@@ -268,7 +279,7 @@ namespace NeoModules.Rest.Services
         /// <param name="assetId"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<Transact> PrepareCreateWithdrawal(string assetId, string amount, string blockchain = "", string contractHash = "")
+        public async Task<Transact> PrepareCreateWithdrawal(string assetId, string amount, string blockchain = null, string contractHash = null)
         {
             if (string.IsNullOrEmpty(assetId)) throw new ArgumentNullException(nameof(assetId));
             if (string.IsNullOrEmpty(amount)) throw new ArgumentNullException(nameof(amount));
@@ -308,8 +319,8 @@ namespace NeoModules.Rest.Services
         public async Task<string> CreateWithdrawl(string apiParams)
         {
             var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(createWithdrawl, httpContent);
-            return await result.Content.ReadAsStringAsync();
+            var result = await ExecuteCall(createWithdrawl, httpContent);
+            return result;
         }
 
         /// <summary>
@@ -329,8 +340,8 @@ namespace NeoModules.Rest.Services
             };
 
             var httpContent = new StringContent(apiParams.ToString(), Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(executeWithdrawl.Replace(":id", withdrawal.Id.ToString()), httpContent);
-            return WithdrawlResponse.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(executeWithdrawl.Replace(":id", withdrawal.Id.ToString()), httpContent);
+            return WithdrawlResponse.FromJson(result);
         }
 
         /// <summary>
@@ -344,9 +355,11 @@ namespace NeoModules.Rest.Services
         /// <param name="beforeId"></param>
         /// <param name="limit"></param>
         /// <returns></returns>
-        public async Task<OrderResponse> GetOrders(string address, string contractHash, string pair = "",
-            int from = -1, string orderStatus = "", string beforeId = "", int limit = -1)
+        public async Task<OrderResponse> GetOrders(string address, string contractHash = null, string pair = null,
+            int from = -1, string orderStatus = null, string beforeId = null, int limit = -1)
         {
+            if (string.IsNullOrEmpty(contractHash)) contractHash = ContractHash;
+
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["address"] = address;
             query["contract_hash"] = contractHash;
@@ -359,9 +372,8 @@ namespace NeoModules.Rest.Services
             if (limit >= 0) query["limit"] = limit.ToString();
 
             string queryString = query.ToString().Insert(0, "?");
-
-            var result = await _restClient.GetAsync(Utils.ComposeUrl(orders, queryString));
-            return OrderResponse.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(Utils.ComposeUrl(orders, queryString));
+            return OrderResponse.FromJson(result);
         }
 
         /// <summary>
@@ -377,7 +389,7 @@ namespace NeoModules.Rest.Services
         /// <param name="contractHash"></param>
         /// <returns></returns>
         public async Task<OrderRequest> PrepareCreateOrder(string pair, string side, string price, string wantAmount, bool useNativeTokens,
-            string orderType, string blockchain = "", string contractHash = "") //todo checkDecimals, otcaddress, and fixed8 stuff
+            string orderType, string blockchain = null, string contractHash = null)
         {
             if (string.IsNullOrEmpty(pair)) throw new ArgumentNullException(nameof(pair));
             if (string.IsNullOrEmpty(side)) throw new ArgumentNullException(nameof(side));
@@ -414,8 +426,8 @@ namespace NeoModules.Rest.Services
         public async Task<OrderResponse> CreateOrder(string apiParams)
         {
             var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(orders, httpContent);
-            return OrderResponse.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(orders, httpContent);
+            return OrderResponse.FromJson(result);
         }
 
         /// <summary>
@@ -425,14 +437,13 @@ namespace NeoModules.Rest.Services
         /// <param name="order"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<string> ExecuteOrder(ExecuteOrder order, string id) //todo ExecuteOrderResponse
+        public async Task<ExecuteOrderResponse> ExecuteOrder(ExecuteOrder order, string id) //todo ExecuteOrderResponse
         {
             var json = JsonConvert.SerializeObject(order);
             var signaturesJson = $"{{\"signatures\":{json}}}";
             var httpContent = new StringContent(signaturesJson, Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(executeOrder.Replace(":id", id), httpContent);
-            //return ExecuteOrderResponse.FromJson(await result.Content.ReadAsStringAsync()); 
-            return await result.Content.ReadAsStringAsync();
+            var result = await ExecuteCall(executeOrder.Replace(":id", id), httpContent);
+            return ExecuteOrderResponse.FromJson(result);
         }
 
         /// <summary>
@@ -461,8 +472,8 @@ namespace NeoModules.Rest.Services
         public async Task<CreateResponse> CreateCancellation(string apiParams)
         {
             var httpContent = new StringContent(apiParams, Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(cancellationRequest, httpContent);
-            return CreateResponse.FromJson(await result.Content.ReadAsStringAsync());
+            var result = await ExecuteCall(cancellationRequest, httpContent);
+            return CreateResponse.FromJson(result);
         }
 
         /// <summary>
@@ -476,8 +487,8 @@ namespace NeoModules.Rest.Services
         {
             var json = new JObject { ["signature"] = signature };
             var httpContent = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var result = await _restClient.PostAsync(executeCancellation.Replace(":id", id), httpContent);
-            return await result.Content.ReadAsStringAsync();
+            var result = await ExecuteCall(executeCancellation.Replace(":id", id), httpContent);
+            return result;
         }
 
         /// <summary>
@@ -497,14 +508,33 @@ namespace NeoModules.Rest.Services
                 url = url.Remove(url.Length - 1);
             }
 
-            var result = await _restClient.GetAsync(Utils.ComposeUrl(getBalances, url));
-            return await result.Content.ReadAsStringAsync();
+            var result = await ExecuteCall(Utils.ComposeUrl(getBalances, url));
+            return result;
         }
 
-        public enum SwitcheoNet
+        private async Task<string> ExecuteCall(string parameters, HttpContent content = null)
         {
-            MainNet,
-            TestNet
+            HttpResponseMessage result;
+            if (content == null) // GET
+            {
+                result = await _restClient.GetAsync(parameters);
+            }
+            else // POST
+            {
+                result = await _restClient.PostAsync(parameters, content);
+            }
+
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                var statusCode = (int)result.StatusCode;
+                if (SwitcheoErrors.ContainsKey(statusCode))
+                {
+                    throw new SwitcheoException(SwitcheoErrors[statusCode]);
+                }
+                throw new Exception(result.StatusCode.ToString());
+            }
+
+            return await result.Content.ReadAsStringAsync();
         }
 
         #region URLs
@@ -512,7 +542,7 @@ namespace NeoModules.Rest.Services
         private static readonly string switcheoTestNetUrl = "https://test-api.switcheo.network/v2/";
         private static readonly string neoScanMainNetUrl = "https://api.switcheo.network/v2/";
 
-        private const string getTimeStamp = "exchange/timestamp";
+        private const string getTimestamp = "exchange/timestamp";
         private const string getContracts = "exchange/contracts";
         private const string getTokens = "exchange/tokens";
         private const string getPairs = "exchange/pairs";
@@ -533,5 +563,29 @@ namespace NeoModules.Rest.Services
         private const string executeCancellation = "cancellations/:id/broadcast";
 
         #endregion
+
+        private static readonly Dictionary<int, string> SwitcheoErrors = new Dictionary<int, string>
+        {
+            {400,"Bad Request -- Your request is badly formed."},
+            {401,"Unauthorized -- You did not provide a valid signature."},
+            {404,"Not Found -- The specified endpoint or resource could not be found."},
+            {406,"Not Acceptable -- You requested a format that isn't json."},
+            {409,"Too Many Requests -- Slow down requests and use Exponential backoff timing."},
+            {422,"Unprocessible Entity -- Your request had validation errors."},
+            {500,"Internal Server Error -- We had a problem with our server. Try again later."},
+            {503,"Service Unavailable -- We're temporarily offline for maintenance. Please try again later."}
+        };
+    }
+
+    public enum SwitcheoNet
+    {
+        MainNet,
+        TestNet
+    }
+
+    [Serializable]
+    public class SwitcheoException : Exception
+    {
+        public SwitcheoException(string message) : base(message) { }
     }
 }

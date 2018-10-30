@@ -13,7 +13,7 @@ namespace NeoModules.RPC.TransactionManagers
         Task<decimal> EstimateGasAsync(string serializedScriptHash);
         Task<decimal> EstimateGasAsync(string scriptHash, string operation, List<InvokeParameter> parameterList);
         Task<bool> SendTransactionAsync(string serializedAndSignedTx);
-        Task<string> SignTransactionAsync(byte[] transactionData); //TODO change byte[] a specific object
+        string SignMessage(string messageToSign); //TODO change byte[] a specific object
         Task<Transaction> GetTransaction(string tx);
     }
 }

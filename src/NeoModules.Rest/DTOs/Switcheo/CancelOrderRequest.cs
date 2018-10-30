@@ -1,5 +1,4 @@
 ﻿using System;
-using NeoModules.Rest.Helpers;
 using Newtonsoft.Json;
 
 namespace NeoModules.Rest.DTOs.Switcheo

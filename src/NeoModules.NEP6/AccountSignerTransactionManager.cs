@@ -10,9 +10,7 @@ using NeoModules.JsonRpc.Client;
 using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Interfaces;
 using NeoModules.NEP6.Transactions;
-using NeoModules.Rest.DTOs.Switcheo;
 using NeoModules.Rest.Interfaces;
-using NeoModules.Rest.Services;
 using NeoModules.RPC;
 using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.TransactionManagers;
@@ -39,7 +37,7 @@ namespace NeoModules.NEP6
             if (account.PrivateKey != null)
                 _accountKey = new KeyPair(account.PrivateKey); //if account is watch only, it does not have private key
         }
-        
+
         public byte[] GenerateNonce(int size)
         {
             var bytes = new byte[size];
@@ -70,14 +68,13 @@ namespace NeoModules.NEP6
         }
 
         /// <summary>
-        /// (Alternative) Signs a byte array that has the transaction data.
+        /// Signs a message using ECDSA algo, with NIST P-256 curve and SHA-256 hash function
         /// </summary>
-        /// <param name="transactionData"></param>
+        /// <param name="messageToSign"></param>
         /// <returns></returns>
-        public override Task<string> SignTransactionAsync(byte[] transactionData) //todo refractor this to have more use
+        public override string SignMessage(string messageToSign)
         {
-            var signerTransaction = Utils.Sign(transactionData, _accountKey.PrivateKey);
-            return Task.FromResult(signerTransaction.ToHexString());
+            return Utils.Sign(messageToSign.HexToBytes(), _accountKey.PrivateKey).ToHexString();
         }
 
         /// <summary>
@@ -401,11 +398,6 @@ namespace NeoModules.NEP6
             tx.Inputs = payCoins.Values.SelectMany(p => p.Unspents).Select(p => p.Reference).ToArray();
             tx.Outputs = outputsNew.ToArray();
             return tx;
-        }
-
-        public string SignMessage(string message)
-        {
-            return Utils.Sign(message.HexToBytes(), _accountKey.PrivateKey).ToHexString();
         }
     }
 }
