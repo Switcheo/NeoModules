@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.Core.KeyPair;
@@ -16,7 +17,7 @@ namespace NeoModules.Demo
 {
     public class Program
     {
-        private static readonly RpcClient RpcClient = new RpcClient(new Uri("https://seed3.switcheo.network:10331"));
+        private static readonly RpcClient RpcClient = new RpcClient(new Uri("https://seed0.cityofzion.io:443"));
 
         public static void Main(string[] args)
         {
@@ -25,7 +26,6 @@ namespace NeoModules.Demo
                 var neoApiCompleteService = SetupCompleteNeoService();
 
                 var neoApiSimpleContractService = SetupSimpleService();
-                var neoApiSimpleAccountService = SetupAnotherSimpleService();
                 //You can also create a custom service with only the stuff that you need by creating a class that implements(":") RpcClientWrapper like: public class CustomService : RpcClientWrapper
 
                 var nep5ApiService = SetupNep5Service();
@@ -66,16 +66,10 @@ namespace NeoModules.Demo
             return new NeoApiContractService(RpcClient);
         }
 
-        // Another example of a simple Service - Account api calls
-        private static NeoApiAccountService SetupAnotherSimpleService()
-        {
-            return new NeoApiAccountService(RpcClient);
-        }
-
         // Returns an instance of NeoNep5Service with the api calls that concern nep5 tokens.
         private static NeoNep5Service SetupNep5Service()
         {
-            return new NeoNep5Service(RpcClient); //TNC token script hash
+            return new NeoNep5Service(RpcClient);
         }
 
         // Block api demonstration
@@ -149,11 +143,36 @@ namespace NeoModules.Demo
         {
             // Create online wallet and import account
             var walletManager = new WalletManager(new NeoScanRestService(NeoScanNet.MainNet), RpcClient);
-            var importedAccount = walletManager.ImportAccount("PRIVATE KEY", "Account_label");
+            var importedAccount = walletManager.ImportAccount("WIF HERE (or use NEP2 bellow)", "Account_label");
+            //var importedAccount = walletManager.ImportAccount("encryptedPrivateKey", "password", "Account_label");
+
+            var neoService = new NeoApiService(RpcClient);
 
             // Get account signer for transactions
             if (importedAccount.TransactionManager is AccountSignerTransactionManager accountSignerTransactionManager)
             {
+                //invoke test example using Phantasma smart contract
+                var method = "getMailboxFromAddress"; //operation
+                var contractScriptHash = "ed07cffad18f1308db51920d99a2af60ac66a7b3"; // smart contract scripthash
+                var script = NEP6.Helpers.Utils.GenerateScript(contractScriptHash, method,
+                    new object[] { "ARcZoZPn1ReBo4LPLvkEteyLu6S2A5cvY2".ToScriptHash().ToArray() });
+                var result = await neoService.Contracts.InvokeScript.SendRequestAsync(script.ToHexString());
+                var content = Encoding.UTF8.GetString(result.Stack[0].Value.ToString().HexToBytes()); //the way you read a result can vary
+
+                //call contract example using Phantasma smart contract
+                var RegisterInboxOperation = "registerMailbox"; //operation
+                var user = importedAccount.Address.ToArray();
+                var args = new object[] { user, "neomodules" };
+
+                var transaction = await accountSignerTransactionManager.CallContract("ed07cffad18f1308db51920d99a2af60ac66a7b3",
+                    RegisterInboxOperation,     //operation
+                    args,                       // arguments
+                    null,                       // array of transfer outputs you want to attach gas or neo with the contract call (optional)
+                    0m,                         // network fee (optional)
+                    null                        // attributes (optional)
+                    );
+
+
                 // list of transfer outputs
                 var transferOutputWithNep5AndGas = new List<TransferOutput>
                 {

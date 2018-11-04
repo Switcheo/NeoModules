@@ -79,6 +79,11 @@ namespace NeoModules.NEP6.Helpers
             return (uint)(time.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
 
+        public static byte[] GenerateScript(string scriptHash, string operation, object[] args, bool addNonce = false)
+        {
+            return GenerateScript(UInt160.Parse(scriptHash), operation, args, addNonce);
+        }
+
         public static byte[]
             GenerateScript(UInt160 script, string operation, object[] args, bool addNonce = false) //todo maintain nonce for sending the same txhash in case of tx failure/mempool
         {

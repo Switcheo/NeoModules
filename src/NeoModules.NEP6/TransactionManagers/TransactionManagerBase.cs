@@ -6,8 +6,9 @@ using NeoModules.RPC.DTOs;
 using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.Services.Contract;
 using NeoModules.RPC.Services.Transactions;
+using IAccount = NeoModules.NEP6.Interfaces.IAccount;
 
-namespace NeoModules.RPC.TransactionManagers
+namespace NeoModules.NEP6.TransactionManagers
 {
     public abstract class TransactionManagerBase : ITransactionManager
     {

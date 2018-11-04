@@ -1,6 +1,6 @@
-﻿using NeoModules.RPC.TransactionManagers;
+﻿using NeoModules.NEP6.TransactionManagers;
 
-namespace NeoModules.RPC.Infrastructure
+namespace NeoModules.NEP6.Interfaces
 {
     public interface IAccount
     {

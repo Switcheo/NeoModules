@@ -9,13 +9,13 @@ using NeoModules.Core.NVM;
 using NeoModules.JsonRpc.Client;
 using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Interfaces;
+using NeoModules.NEP6.TransactionManagers;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.Interfaces;
 using NeoModules.RPC;
-using NeoModules.RPC.Infrastructure;
-using NeoModules.RPC.TransactionManagers;
 using Org.BouncyCastle.Security;
 using Helper = NeoModules.Core.KeyPair.Helper;
+using IAccount = NeoModules.NEP6.Interfaces.IAccount;
 using Transaction = NeoModules.NEP6.Transactions.Transaction;
 using TransactionOutput = NeoModules.NEP6.Transactions.TransactionOutput;
 using Utils = NeoModules.NEP6.Helpers.Utils;
@@ -110,7 +110,7 @@ namespace NeoModules.NEP6
 
         /// <summary>
         /// Creates a 'ClaimTransaction', signs it and send a 'sendrawtransaction' RPC call to the connected node.
-        /// Can only Claim 'unclaimable' amount
+        /// This method does not put gas into claimable state. Can only claim 'unclaimable' amount. 
         /// </summary>
         /// <returns></returns>
         public async Task<ClaimTransaction> ClaimGas(UInt160 changeAddress = null) // todo test this
@@ -190,7 +190,7 @@ namespace NeoModules.NEP6
         /// <summary>
         /// Creates an InvocationTransactions. Serves to invoke a contract on the blockchain.
         /// It need the contract script hash, operation and operation arguments.
-        /// This call can be used for the "mintTokens" call for example.
+        /// This can be used for the "mintTokens" NEP5 method for example.
         /// </summary>
         /// <param name="contractScriptHash"></param>
         /// <param name="operation"></param>
@@ -206,7 +206,7 @@ namespace NeoModules.NEP6
             if (string.IsNullOrEmpty(contractScriptHash)) throw new ArgumentNullException(nameof(contractScriptHash));
             if (string.IsNullOrEmpty(operation)) throw new ArgumentNullException(nameof(operation));
 
-            var script = Utils.GenerateScript(contractScriptHash.ToScriptHash(), operation, args);
+            var script = Utils.GenerateScript(contractScriptHash, operation, args);
 
             if (attributes == null) attributes = new List<TransactionAttribute>();
             attributes.Add(new TransactionAttribute

@@ -1,9 +1,9 @@
 ﻿using NeoModules.Core;
 using NeoModules.Core.KeyPair;
 using NeoModules.NEP6.Converters;
-using NeoModules.RPC.Infrastructure;
-using NeoModules.RPC.TransactionManagers;
+using NeoModules.NEP6.TransactionManagers;
 using Newtonsoft.Json;
+using IAccount = NeoModules.NEP6.Interfaces.IAccount;
 
 namespace NeoModules.NEP6.Models
 {
