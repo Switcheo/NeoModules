@@ -7,7 +7,7 @@
 <h1 align="center">NeoModules</h1>
 
 <p align="center">
-  Modular packages for C# devs to use on your <b>NEO</b> blockchain project.
+  Set of tools for C# devs to use on your <b>NEO</b> blockchain project.
 </p>
 
 <p align="center">
@@ -15,15 +15,51 @@
 </p>
 
 
-## Libraries (ready for use)
+---
+
+Need info? [Create an issue](https://github.com/CityOfZion/NeoModules/issues/new)
+ | [Ask me on CoZ Discord - Bruno Freitas](https://discordapp.com/invite/R8v48YA) |
+
+## Overview
 
 |  Project Source | Nuget Package |  Description |
 | ------------- |--------------------------|-----------|
-| [NeoModules.RPC](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.RPC)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.10-green.svg)](https://www.nuget.org/packages/NeoModules.RPC/)| RPC Class Library to interact with NEO RPC nodes |
+| [NeoModules.RPC](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.RPC)    | [![NuGet version](https://img.shields.io/badge/nuget-1.2-green.svg)](https://www.nuget.org/packages/NeoModules.RPC/)| RPC Class Library to interact with NEO RPC nodes |
 | [NeoModules.JsonRpc.Client](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.JsonRpc.Client) | [![NuGet version](https://img.shields.io/badge/nuget-1.0.2-green.svg)](https://www.nuget.org/packages/NeoModules.JsonRpc.Client/)| Base RPC client definition, used in NeoModules.RPC|
-| [NeoModules.Rest](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.Rest)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0.7-green.svg)](https://www.nuget.org/packages/NeoModules.Rest/)| REST clients for Neoscan, Notifications, HappyNodes and Switcheo |
-| [NeoModules.Core](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.Core)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.3-yellow.svg)](https://www.nuget.org/packages/NeoModules.Core/)| Core data types and methods used in NeoModules |
-| [NeoModules.NEP6](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.NEP6)    | [![NuGet version](https://img.shields.io/badge/nuget-0.0.16-yellow.svg)](https://www.nuget.org/packages/NeoModules.NEP6/)| NEP6 light wallet implementation |
+| [NeoModules.Rest](https://github.com/CityOfZion/NeoModules/tree/master/src/NeoModules.Rest)    | [![NuGet version](https://img.shields.io/badge/nuget-2.0-green.svg)](https://www.nuget.org/packages/NeoModules.Rest/)| REST clients for Neoscan, Notifications, HappyNodes and Switcheo |
+| [NeoModules.Core](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.Core)    | [![NuGet version](https://img.shields.io/badge/nuget-1.0-green.svg)](https://www.nuget.org/packages/NeoModules.Core/)| Core data types and methods used in NeoModules |
+| [NeoModules.NEP6](https://github.com/CityOfZion/NeoModules/tree/feature-core/src/NeoModules.NEP6)    | [![NuGet version](https://img.shields.io/badge/nuget-0.1.1-green.svg)](https://www.nuget.org/packages/NeoModules.NEP6/)| NEP6 light wallet implementation |
+
+## Table of Contents
+
+- [Getting Started](https://github.com/CityOfZion/NeoModules#getting-started)
+  - [Prerequisites](hhttps://github.com/CityOfZion/NeoModules#prerequisites)
+  - [Installing](hhttps://github.com/CityOfZion/NeoModules#installing)
+- [Authors](https://github.com/CityOfZion/NeoModules#authors)
+- [License](https://github.com/CityOfZion/NeoModules#license)
+
+## Getting Started
+
+These instructions will get you a copy of the project up and running on your machine for NEO apps related development and testing purposes.
+
+### Prerequisites
+
+You only need Visual Studio, I recommend latest version.
+
+### Installing
+
+NeoModules is available via NuGet:
+
+```
+PM > Install-Package NeoModules.NEP6
+```
+The NEP6 project includes all the other modules as dependencies.
+
+But you can also install separate modules if you only need one:
+
+```
+PM > Install-Package NeoModules.RPC
+```
 
 ## RPC client
 
@@ -190,9 +226,6 @@ var callGasTx = await accountSignerTransactionManager.ClaimGas();
 ```C#
 var transferNepTx = await accountSignerTransactionManager.TransferNep5("** INSERT TO ADDRESS HERE**", 32.3m, scriptHash);
 ```
-
-
-## Contributing
 
 
 ## Authors
