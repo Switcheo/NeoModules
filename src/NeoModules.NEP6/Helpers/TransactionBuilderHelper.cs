@@ -51,7 +51,7 @@ namespace NeoModules.NEP6.Helpers
         }
 
         /// <summary>
-        /// Gets nep5 tokens balance from NeoScan.
+        /// Gets nep5 tokens balance from Neoscan.
         /// </summary>
         /// <param name="address"></param>
         /// <param name="restService"></param>
@@ -78,7 +78,7 @@ namespace NeoModules.NEP6.Helpers
         }
 
         /// <summary>
-        /// Get claimable GAS from NeoScan.
+        /// Get claimable GAS from Neoscan.
         /// </summary>
         /// <param name="address"></param>
         /// <param name="restService"></param>

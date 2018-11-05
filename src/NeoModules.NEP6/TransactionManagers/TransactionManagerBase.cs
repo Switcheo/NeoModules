@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NeoModules.JsonRpc.Client;
 using NeoModules.RPC.DTOs;
-using NeoModules.RPC.Infrastructure;
 using NeoModules.RPC.Services.Contract;
 using NeoModules.RPC.Services.Transactions;
 using IAccount = NeoModules.NEP6.Interfaces.IAccount;

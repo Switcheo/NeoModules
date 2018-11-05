@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using NeoModules.Core;
+using NeoModules.Core.KeyPair;
 using NeoModules.Core.NVM;
 using NeoModules.NEP6.Transactions;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
+using Helper = NeoModules.Core.KeyPair.Helper;
 
 namespace NeoModules.NEP6.Helpers
 {
@@ -116,6 +118,29 @@ namespace NeoModules.NEP6.Helpers
                 writer.Flush();
                 return ms.ToArray();
             }
+        }
+
+        public static byte[] Sign(KeyPair key, Transaction tx, bool signed = true)
+        {
+            var txData = tx.SerializeTransaction();
+
+            var signature = Sign(txData, key.PrivateKey);
+            if (signed)
+            {
+                var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
+                var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
+                tx.Witnesses = new[]
+                {
+                    new Witness
+                    {
+                        InvocationScript = invocationScript,
+                        VerificationScript = verificationScript
+                    }
+                };
+                return tx.ToArray();
+            }
+
+            return signature;
         }
     }
 

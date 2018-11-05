@@ -27,6 +27,7 @@ namespace NeoModules.NEP6
         private static readonly SecureRandom Random = new SecureRandom();
         private readonly KeyPair _accountKey;
         private readonly INeoscanService _restService;
+
         public UInt160 AddressScriptHash => Helper.CreateSignatureRedeemScript(_accountKey.PublicKey).ToScriptHash();
 
         public AccountSignerTransactionManager(IClient rpcClient, INeoscanService restService, IAccount account)
@@ -64,7 +65,7 @@ namespace NeoModules.NEP6
         /// <param name="signed"></param>
         public byte[] SignTransaction(Transaction txInput, bool signed = true)
         {
-            return Transaction.Sign(_accountKey, txInput, signed);
+            return txInput.Sign(_accountKey, signed);
         }
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace NeoModules.NEP6
         /// This method does not put gas into claimable state. Can only claim 'unclaimable' amount. 
         /// </summary>
         /// <returns></returns>
-        public async Task<ClaimTransaction> ClaimGas(UInt160 changeAddress = null) // todo test this
+        public async Task<ClaimTransaction> ClaimGas(UInt160 changeAddress = null)
         {
             var (claimable, amount) =
                 await TransactionBuilderHelper.GetClaimable(AddressScriptHash.ToAddress(), _restService);
@@ -381,7 +382,7 @@ namespace NeoModules.NEP6
                 p.AssetId,
                 Value = p.Unspents.Sum(q => q.Output.Value)
             });
-            if (changeAddress == null) changeAddress = from; //GetChangeAddress();
+            if (changeAddress == null) changeAddress = from;
             List<TransactionOutput> outputsNew = new List<TransactionOutput>(tx.Outputs);
             foreach (UInt256 assetId in inputSum.Keys)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NeoModules.Core;
 using NeoModules.Core.KeyPair;
+using NeoModules.Core.NVM;
 using NeoModules.NEP6.Converters;
 
 namespace NeoModules.NEP6.Models
@@ -41,6 +42,18 @@ namespace NeoModules.NEP6.Models
         }
 
         public Contract() { }
+
+        [JsonIgnore]
+        public virtual bool IsStandard
+        {
+            get
+            {
+                if (Script.Length != 35) return false;
+                if (Script[0] != 33 || Script[34] != (byte)OpCode.CHECKSIG)
+                    return false;
+                return true;
+            }
+        }
 
         public static Contract FromJson(string json) => JsonConvert.DeserializeObject<Contract>(json);
 

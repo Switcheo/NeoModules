@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NeoModules.Core;
 using NeoModules.Core.KeyPair;
-using NeoModules.Core.NVM;
 using NeoModules.NEP6.Helpers;
 using Newtonsoft.Json.Linq;
 using Helper = NeoModules.Core.KeyPair.Helper;
@@ -88,35 +86,38 @@ namespace NeoModules.NEP6.Transactions
         {
         }
 
-        public static byte[] Sign(KeyPair key, Transaction tx, bool signed = true)//todo signed
+        /// <summary>
+        /// Serializes a transaction (without witnesses).
+        /// Returns a byte array.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] SerializeTransaction()
         {
-            byte[] txdata = Utils.GetHashData(tx);
-
-            var signature = Utils.Sign(txdata, key.PrivateKey);
-            if (signed)
-            {
-                var invocationScript = ("40" + signature.ToHexString()).HexToBytes();
-                var verificationScript = Helper.CreateSignatureRedeemScript(key.PublicKey);
-                tx.Witnesses = new[]
-                {
-                    new Witness
-                    {
-                        InvocationScript = invocationScript,
-                        VerificationScript = verificationScript
-                    }
-                };
-                return tx.ToArray();
-            }
-
-            // todo check
-            return signature;
+            return Utils.GetHashData(this);
         }
 
-        public static byte[] Sign(byte[] privateKey, Transaction tx)
+        /// <summary>
+        /// Serializes and sign the transaction with the given private key.
+        /// Return a byte array.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="signed"></param>
+        /// <returns></returns>
+        public byte[] Sign(KeyPair key, bool signed = true)
         {
-            return Sign(new KeyPair(privateKey), tx);
+            return Utils.Sign(key, this, signed);
         }
 
+        public byte[] Sign(byte[] privateKey, bool signed = true)
+        {
+            return Utils.Sign(new KeyPair(privateKey), this, signed);
+        }
+
+        /// <summary>
+        /// Creates a Transaction object from json string.
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
         public static Transaction FromJson(string json)
         {
             JObject jsonObject = JObject.Parse(json);
@@ -150,29 +151,7 @@ namespace NeoModules.NEP6.Transactions
                     _hash = UInt256.Parse(jsonObject["hash"].ToString()),
                 };
             }
-            //else
-            //{
-            //    var tx = new Transaction((TransactionType)Enum.Parse(typeof(TransactionType),
-            //        jsonObject["type"].ToString()))
-            //    {
-            //        Version = jsonObject["version"].ToObject<byte>(),
-            //        Attributes = jsonObject["attributes"].ToObject<TransactionAttribute[]>() ??
-            //                     new TransactionAttribute[] { },
-            //        Inputs = jsonObject["inputs"]
-            //            .Select(input => new CoinReference
-            //            {
-            //                PrevIndex = input["prevIndex"].ToObject<ushort>(),
-            //                PrevHash = UInt256.Parse(input["prevHash"].ToString())
-            //            }).ToArray(),
-            //        Outputs = jsonObject["outputs"]
-            //            .Select(output => new TransactionOutput
-            //            {
-            //                AssetId = UInt256.Parse(output["assetId"].ToString()),
-            //                Value = Fixed8.FromDecimal((decimal)output["value"]),
-            //                ScriptHash = UInt160.Parse(output["scriptHash"].ToString())
-            //            }).ToArray(),
-            //    };
-            //}
+
             return tx;
         }
     }

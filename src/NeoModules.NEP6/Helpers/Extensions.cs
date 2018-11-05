@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using NeoModules.Core;
 using NeoModules.Core.NVM;
 
@@ -68,9 +67,6 @@ namespace NeoModules.NEP6.Helpers
 
             return GetVarSize(value.Length) + valueSize;
         }
-
-      
-
 
         public static int GetVarSize(int value)
         {
