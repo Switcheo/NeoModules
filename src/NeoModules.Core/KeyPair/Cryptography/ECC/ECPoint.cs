@@ -14,12 +14,9 @@ namespace NeoModules.Core.KeyPair.Cryptography.ECC
 		/// <summary>
 		/// Judging if it is infinity
 		/// </summary>
-		public bool IsInfinity
-		{
-			get { return X == null && Y == null; }
-		}
+		public bool IsInfinity => X == null && Y == null;
 
-		public int Size => IsInfinity ? 1 : 33;
+	    public int Size => IsInfinity ? 1 : 33;
 
 		public ECPoint()
 			: this(null, null, ECCurve.Secp256r1)

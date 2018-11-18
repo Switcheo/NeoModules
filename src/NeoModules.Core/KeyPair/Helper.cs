@@ -62,6 +62,7 @@ namespace NeoModules.Core.KeyPair
             }
         }
 
+
         public static byte[] CreateMultiSigRedeemScript(int m, params ECPoint[] publicKeys)
         {
             if (!(1 <= m && m <= publicKeys.Length && publicKeys.Length <= 1024))
@@ -69,7 +70,7 @@ namespace NeoModules.Core.KeyPair
             using (ScriptBuilder sb = new ScriptBuilder())
             {
                 sb.EmitPush(m);
-                foreach (ECPoint publicKey in publicKeys.OrderBy(p => p))
+                foreach (ECPoint publicKey in publicKeys)//.OrderBy(p => p))
                 {
                     sb.EmitPush(publicKey.EncodePoint(true));
                 }
@@ -97,7 +98,7 @@ namespace NeoModules.Core.KeyPair
         public static string ToAddress(this UInt160 scriptHash)
         {
             byte[] data = new byte[21];
-            data[0] = Helper.AddressVersion;
+            data[0] = AddressVersion;
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return data.Base58CheckEncode();
         }

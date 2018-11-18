@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using NeoModules.Rest.Interfaces;
 
 namespace NeoModules.Rest.Services
 {
-    public class NelApiRestService:INelApiRestService
+    public class NelApiRestService : INelApiRestService
     {
         private static readonly string nelScanMainNetUrl = "https://api.nel.group/api/testnet";
         private static readonly string nelScaTestNetUrl = "https://api.nel.group/api/mainnet";

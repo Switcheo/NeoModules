@@ -11,7 +11,9 @@ using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Models;
 using NeoModules.Rest.Interfaces;
 using NeoModules.Rest.Services;
+using ECCurve = NeoModules.Core.KeyPair.Cryptography.ECC.ECCurve;
 using Helper = NeoModules.Core.KeyPair.Helper;
+using NeoECPoint = NeoModules.Core.KeyPair.Cryptography.ECC.ECPoint;
 
 namespace NeoModules.NEP6
 {
@@ -148,7 +150,7 @@ namespace NeoModules.NEP6
             var account = _wallet.Accounts.SingleOrDefault(acc => acc.Address.ToAddress() == address);
             ChangeDefaultAccount(account);
         }
-        
+
         /// <summary>
         ///     Decrypts and add the account to the Wallet Account List, using WIF.
         /// </summary>
@@ -300,6 +302,36 @@ namespace NeoModules.NEP6
                 Contract = contract,
                 Label = label
             };
+            AddAccount(account);
+            return account;
+        }
+
+        /// <summary>
+        /// Create a multi-sig account from a list of public keys.
+        /// 
+        /// </summary>
+        /// <param name="signingThreshold">Minimum number of signatures required for verification. Must be larger than 0 and less than number of keys provided.</param>
+        /// <param name="pubKeys">List of public keys to form the account. 2-16 keys allowed. Order is important.</param>
+        /// <param name="label"></param>
+        public Account CreateMultiSigAccount(int signingThreshold, string[] pubKeys, string label)
+        {
+            if (signingThreshold >= pubKeys.Length) throw new ArgumentOutOfRangeException($"{nameof(signingThreshold)} must be larger than 0 and less than number of keys provided");
+
+            var publicKeys = new List<NeoECPoint>();
+            foreach (var pubKey in pubKeys)
+            {
+                publicKeys.Add(NeoECPoint.Parse(pubKey, ECCurve.Secp256r1));
+            }
+
+            var verificationScript = Helper.CreateMultiSigRedeemScript(signingThreshold, publicKeys.ToArray());
+            var contract = new Contract
+            {
+                Script = verificationScript,
+                Parameters = Enumerable.Repeat(new Parameter("signature", ParameterType.Signature), signingThreshold).ToList(),
+                Deployed = false
+            };
+
+            var account = new Account(verificationScript.ToScriptHash(), label, false, false, null, contract, null);
             AddAccount(account);
             return account;
         }
