@@ -75,6 +75,23 @@ namespace NeoModules.NEP6.Tests
         }
 
         [Fact]
+        public static async void ImportAccountNep2Test2()
+        {
+            Wallet wallet = new Wallet();
+            WalletManager walletManager = new WalletManager(wallet);
+
+            var account = await walletManager.CreateAccount("teste", "123456");
+            var nep2Key = account.Nep2Key;
+
+            var rebornAccount = await walletManager.ImportAccount(nep2Key, "123456", "teste2");
+
+            var address1 = account.TransactionManager.Account.Address;
+            var address2 = rebornAccount.TransactionManager.Account.Address;
+
+            Assert.Equal(address1, address2);
+        }
+
+        [Fact]
         public static void ImportAccountWifTest()
         {
             Wallet wallet = new Wallet();
@@ -157,8 +174,8 @@ namespace NeoModules.NEP6.Tests
         {
             Wallet wallet = Wallet.FromJson(walletJson);
             WalletManager walletManager = new WalletManager(
-                new NeoScanRestService(NeoScanNet.MainNet), 
-                new RpcClient(new Uri("http://seed4.travala.com:10332")), 
+                new NeoScanRestService(NeoScanNet.MainNet),
+                new RpcClient(new Uri("http://seed4.travala.com:10332")),
                 wallet);
 
             var account = await walletManager.CreateAccount("test1", "test123455");

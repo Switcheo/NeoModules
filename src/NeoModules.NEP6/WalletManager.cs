@@ -97,6 +97,7 @@ namespace NeoModules.NEP6
 
                     oldAccount.TransactionManager =
                         new AccountSignerTransactionManager(_client, _restService, oldAccount);
+                    account.TransactionManager = oldAccount.TransactionManager;
                 }
                 else // add new account to list
                 {
@@ -296,7 +297,7 @@ namespace NeoModules.NEP6
                 Deployed = false
             };
             var encryptedKey = await Nep2.Encrypt(key.Export(), password);
-            var account = new Account(key.PublicKeyHash, key)
+            var account = new Account(contract.ScriptHash, key)
             {
                 Nep2Key = encryptedKey,
                 Contract = contract,
