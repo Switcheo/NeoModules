@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using NeoModules.Core;
 using NeoModules.Core.KeyPair;
@@ -59,4 +60,30 @@ namespace NeoModules.NEP6.Models
 
         public static string ToJson(Contract self) => JsonConvert.SerializeObject(self);
     }
+
+    #region Enums
+    public enum ContractParameterType : byte
+    {
+        Signature = 0,
+        Boolean = 1,
+        Integer = 2,
+        Hash160 = 3,
+        Hash256 = 4,
+        ByteArray = 5,
+        PublicKey = 6,
+        String = 7,
+        Array = 16,
+        InteropInterface = 240,
+        Void = 255
+    }
+
+    [Flags]
+    public enum ContractPropertyState : byte
+    {
+        NoProperty = 0,
+        HasStorage = 1,
+        HasDynamicInvoke = 2,
+        Payable = 4
+    }
+    #endregion
 }

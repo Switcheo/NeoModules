@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeoModules.Core;
 using NeoModules.Core.KeyPair;
+using NeoModules.Core.NVM;
+using NeoModules.NEP6.Models;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.DTOs.NeoScan;
 using NeoModules.Rest.Interfaces;
@@ -29,23 +31,23 @@ namespace NeoModules.NEP6.Helpers
             if (addressBalance.Balance != null)
             {
                 coinList.AddRange(from balanceEntry in addressBalance.Balance
-                    let child = balanceEntry.Unspent
-                    where child?.Count > 0
-                    from unspent in balanceEntry.Unspent
-                    select new Coin
-                    {
-                        Output = new TransactionOutput
-                        {
-                            AssetId = UInt256.Parse(balanceEntry.AssetHash),
-                            ScriptHash = address.ToScriptHash(),
-                            Value = Fixed8.FromDecimal((decimal)unspent.Value),
-                        },
-                        Reference = new CoinReference
-                        {
-                            PrevHash = UInt256.Parse(unspent.TxId),
-                            PrevIndex = (ushort)unspent.N,
-                        }
-                    });
+                                  let child = balanceEntry.Unspent
+                                  where child?.Count > 0
+                                  from unspent in balanceEntry.Unspent
+                                  select new Coin
+                                  {
+                                      Output = new TransactionOutput
+                                      {
+                                          AssetId = UInt256.Parse(balanceEntry.AssetHash),
+                                          ScriptHash = address.ToScriptHash(),
+                                          Value = Fixed8.FromDecimal((decimal)unspent.Value),
+                                      },
+                                      Reference = new CoinReference
+                                      {
+                                          PrevHash = UInt256.Parse(unspent.TxId),
+                                          PrevIndex = (ushort)unspent.N,
+                                      }
+                                  });
             }
             return coinList;
         }
@@ -108,6 +110,20 @@ namespace NeoModules.NEP6.Helpers
                 return unspentsOrdered.Take(i).ToArray();
             else
                 return unspentsOrdered.Take(i).Concat(new[] { unspentsOrdered.Last(p => p.Output.Value >= amount) }).ToArray();
+        }
+
+        public static byte[] PrepareDeployContract(byte[] contractScript, byte[] parameterList,
+            ContractParameterType returnType, ContractPropertyState properties,
+            string name, string version, string author, string email, string description)
+        {
+            byte[] script;
+            using (ScriptBuilder sb = new ScriptBuilder())
+            {
+                sb.EmitSysCall("Neo.Contract.Create", contractScript, parameterList, returnType, properties, name, version, author, email, description);
+                script = sb.ToArray();
+            }
+
+            return script;
         }
     }
 }

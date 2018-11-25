@@ -97,6 +97,13 @@ namespace NeoModules.Core.NVM
             return sb;
         }
 
+        public static ScriptBuilder EmitSysCall(this ScriptBuilder sb, string api, params object[] args)
+        {
+            for (int i = args.Length - 1; i >= 0; i--)
+                EmitPush(sb, args[i]);
+            return sb.EmitSysCall(api);
+        }
+
         public static byte[] ReadVarBytes(this BinaryReader reader, int max = 0X7fffffc7)
         {
             return reader.ReadBytes((int)reader.ReadVarInt((ulong)max));

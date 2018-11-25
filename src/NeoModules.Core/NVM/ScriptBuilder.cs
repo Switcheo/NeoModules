@@ -86,6 +86,19 @@ namespace NeoModules.Core.NVM
             return EmitPush(Encoding.UTF8.GetBytes(data));
         }
 
+        public ScriptBuilder EmitSysCall(string api)
+        {
+            if (api == null)
+                throw new ArgumentNullException();
+            byte[] apiBytes = Encoding.ASCII.GetBytes(api);
+            if (apiBytes.Length == 0 || apiBytes.Length > 252)
+                throw new ArgumentException();
+            byte[] arg = new byte[apiBytes.Length + 1];
+            arg[0] = (byte)apiBytes.Length;
+            Buffer.BlockCopy(apiBytes, 0, arg, 1, apiBytes.Length);
+            return Emit(OpCode.SYSCALL, arg);
+        }
+
         public byte[] ToArray()
         {
             _writer.Flush();

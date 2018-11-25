@@ -9,6 +9,7 @@ using NeoModules.Core.NVM;
 using NeoModules.JsonRpc.Client;
 using NeoModules.NEP6.Helpers;
 using NeoModules.NEP6.Interfaces;
+using NeoModules.NEP6.Models;
 using NeoModules.NEP6.TransactionManagers;
 using NeoModules.NEP6.Transactions;
 using NeoModules.Rest.Interfaces;
@@ -325,6 +326,39 @@ namespace NeoModules.NEP6
             tx.Outputs = outputs.Where(p => p.IsGlobalAsset).Select(p => p.ToTxOutput()).ToArray();
             tx.Witnesses = new Witness[0];
             tx = MakeTransaction(tx, AddressScriptHash, changeAddress, Fixed8.FromDecimal(fee));
+            var success = await SignAndSendTransaction(tx);
+            return success ? tx : null;
+        }
+
+        public async Task<InvocationTransaction> DeployContract(byte[] contractScript, byte[] parameterList,
+            ContractParameterType returnType, ContractPropertyState properties,
+            string name, string version, string author, string email, string description)
+        {
+            var generatedScript = TransactionBuilderHelper.PrepareDeployContract(contractScript, parameterList,
+                 returnType, properties,
+             name, version, author, email, description);
+
+            decimal fee = 100;
+
+            if (properties.HasFlag(ContractPropertyState.HasStorage))
+            {
+                fee += 400;
+            }
+
+            if (properties.HasFlag(ContractPropertyState.HasDynamicInvoke))
+            {
+                fee += 500;
+            }
+
+            fee -= 10; // first 10 GAS is free
+
+            var tx = new InvocationTransaction
+            {
+                Script = generatedScript,
+                Version = 0,
+            };
+
+            tx = MakeTransaction(tx, fee: Fixed8.FromDecimal(fee));
             var success = await SignAndSendTransaction(tx);
             return success ? tx : null;
         }
