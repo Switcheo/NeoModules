@@ -124,7 +124,7 @@ Balance: 1457.82
 ```
 
 ## Rest services
-### Create Rest service (only neoscan available right now)
+### Neoscan service
 
 ```C# 
 var restService = new NeoScanRestService(NeoScanNet.MainNet);
@@ -133,6 +133,58 @@ or use your own local NeoScan
 
 ```C# 
 var restService = new NeoScanRestService("https://url.here/api/main_net[or test_net]/v1/");
+```
+### Notifications service
+
+This is a service that persists all the events emitted from smart contracts, and provide a REST interface for applications that wish to query those event.
+
+You can use an int representing the node number you want to connect (1-5), or insert the explicit url for the server (your own notification server or others)
+```C# 
+var notificationService = new NotificationService("https://n1.cityofzion.io/v1");
+``` 
+All the api points are covered. Examples:
+
+```C# 
+var addressNotifications = await notificationService.GetAddressNotifications("AGfGWQeM6md6RtEsTUivQNXhp8p4ytkDMR", 1, null, 13, 2691913, 500);
+var blockNotifications = await notificationService.GetBlockNotifications(10);
+var contractNotifications = await notificationService.GetContractNotifications("0x67a5086bac196b67d5fd20745b0dc9db4d2930ed");
+var tokenList = await notificationService.GetTokens();
+var transaction = await notificationService.GetTransactionNotifications("1db9ad15febbf7b9cfa11603ecbe52aad5be6137a9e1d29e83465fa664c2a6ed");
+``` 
+
+### HappyNodes service
+Happynodes is a blockchain network monitor and visualisation tool designed for the NEO Smart Economy Blockchain. It exposes a REST API that it's fully covered in NeoModules.
+
+Create the service. The default contructor routes to https://api.happynodes.f27.ventures/redis/, but you can use your own if want too:
+
+```C# 
+var happyNodesService = new HappyNodesService();
+``` 
+Again, all API calls are covered:
+ 
+```C# 
+var bestBlock = await happyNodesService.GetBestBlock();
+var lastBlock = await happyNodesService.GetLastBlock();
+var blockTime = await happyNodesService.GetBlockTime();
+
+var unconfirmedTxs = await happyNodesService.GetUnconfirmed();
+
+var nodesFlat = await happyNodesService.GetNodesFlat();
+var nodes = await happyNodesService.GetNodes();
+var nodeById = await happyNodesService.GetNodeById(482);
+var edges = await happyNodesService.GetEdges();
+var nodesList = await happyNodesService.GetNodesList();
+
+var dailyHistory = await happyNodesService.GetDailyNodeHistory();
+var weeklyHistory = await happyNodesService.GetWeeklyNodeHistory();
+
+var dailyStability = await happyNodesService.GetDailyNodeStability(480);
+var weeklyStability = await happyNodesService.GetWeeklyNodeStability(0);
+
+var dailyLatency = await happyNodesService.GetDailyNodeLatency(480);
+var weeklyLatency = await happyNodesService.GetWeeklyNodeLatency(480);
+var blockHeightLag = await happyNodesService.GetNodeBlockheightLag(0);
+var endpoints = await happyNodesService.GetEndPoints();
 ```
 
 ### Using the API
