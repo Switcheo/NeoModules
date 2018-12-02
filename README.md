@@ -33,8 +33,11 @@ Need info? [Create an issue](https://github.com/CityOfZion/NeoModules/issues/new
 ## Table of Contents
 
 - [Getting Started](https://github.com/CityOfZion/NeoModules#getting-started)
-  - [Prerequisites](hhttps://github.com/CityOfZion/NeoModules#prerequisites)
-  - [Installing](hhttps://github.com/CityOfZion/NeoModules#installing)
+  - [Prerequisites](https://github.com/CityOfZion/NeoModules#prerequisites)
+  - [Installing](https://github.com/CityOfZion/NeoModules#installing)
+- [RPC client](https://github.com/CityOfZion/NeoModules#RPC-client)
+- [Rest services](https://github.com/CityOfZion/NeoModules#Rest-services)
+- [NEP6 Compatible Wallet](https://github.com/CityOfZion/NeoModules#NEP6-Compatible-Wallet)
 - [Authors](https://github.com/CityOfZion/NeoModules#authors)
 - [License](https://github.com/CityOfZion/NeoModules#license)
 
