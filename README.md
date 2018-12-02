@@ -228,7 +228,7 @@ var endpoints = await happyNodesService.GetEndPoints();
 
 ### Switcheo service
 
-Switcheo is the most popular dex (decentralized exchange) on NEO right now. NeoModules also supports the full public API. You can use this service to interact with the dex (place orders, sign message, etc.). Because this service is a lot more complicated that the others mention above, there is a separated project called "NeoModules.SwitcheoDemo" where you have all the calls and features demonstrated.
+Switcheo is the most popular dex (decentralized exchange) on NEO right now. NeoModules also supports the full public API. You can use this service to interact with the dex (place orders, sign message, etc.). Because this service is a lot more complicated that the others mention above, there is a separated project called "NeoModules.SwitcheoDemo" where you have all the calls and features demonstrated. Of course, you can check the official documentation here: https://docs.switcheo.network/.
 
 
 ## NEP6 Compatible Wallet
